@@ -141,6 +141,28 @@ class EngineFunctionsPinned(unittest.TestCase):
         self.assertIn("Zone D", r["penetration_zone"])
         self.assertAlmostEqual(r["total_sc_bn_base_mult"], 1.0)
         self.assertAlmostEqual(r["total_sc_bn_bull_mult"], 1.0)
+        self.assertFalse(r["scurve_sell_triggered"])
+
+    def test_step1_2_scurve_sell_signals_strip_premium_and_derate(self):
+        # Even if penetration_pct=12.0 (Zone A) and bottleneck_grade="S", a confirmed sell signal
+        # must strip 100% of S-Curve upside and apply bounded de-rating (< 1.00x).
+        r1 = self.bv.compute_step1_2_scurve_bottleneck_matrix(
+            "999999", "TEST", {}, penetration_pct=12.0, bottleneck_grade="S", bottleneck_months=24,
+            capa_util_pct=90.0, shortage_easing=True)
+        self.assertTrue(r1["scurve_sell_triggered"])
+        self.assertEqual(r1["pen_base_boost"], 0.0)
+        self.assertEqual(r1["pen_bull_boost"], 0.0)
+        self.assertAlmostEqual(r1["total_sc_bn_base_mult"], 0.94)
+        self.assertAlmostEqual(r1["total_sc_bn_bull_mult"], 0.92)
+        self.assertAlmostEqual(r1["peg_factor"], 0.65)
+
+        # Compound 3 signals must be bounded by the -15% / -18% floor cap (0.85x / 0.82x)
+        r3 = self.bv.compute_step1_2_scurve_bottleneck_matrix(
+            "999999", "TEST", {}, penetration_pct=30.0, bottleneck_grade="A",
+            shortage_easing=True, slope_decel=True, policy_headwind=True)
+        self.assertTrue(r3["scurve_sell_triggered"])
+        self.assertAlmostEqual(r3["total_sc_bn_base_mult"], 0.85)
+        self.assertAlmostEqual(r3["total_sc_bn_bull_mult"], 0.82)
 
     def test_step1_8_payout_and_treasury(self):
         r = self.bv.compute_step1_8_k_market_shareholder_return(

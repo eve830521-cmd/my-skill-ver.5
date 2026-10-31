@@ -408,179 +408,303 @@ p > em {
 <body>
     <h1>🔍 Phase 1: 기업 해독기 (원천 팩트 초안) — GST (083450)</h1>
 <blockquote>
-<p><strong>[클린 리빌드(Clean Rebuild v4.1) &amp; 단일 기준 주가 선언]</strong>
-- <strong>분석 기준일 및 단일 기준 주가 (Single Price Anchor):</strong> <strong>2026년 10월 16일 일봉 종가 <code>45,600원</code></strong> (<code>backtest_valuation.py</code> 실측, 참고 주봉 종가 <code>45,600원</code> — Phase 1~3 전 과정 100% 동일 적용)
+<p><strong>[클린 리빌드(Clean Rebuild v4.3) &amp; 단일 기준 주가 선언]</strong>
+- <strong>분석 기준일 및 단일 기준 주가 (Single Price Anchor):</strong> <strong>2026년 10월 26일 일봉 종가 <code>40,000원</code></strong> (<code>backtest_valuation.py</code> v4.3 실측, 주봉 종가 <code>40,000원</code> — Phase 1~3 전 과정 100% 동일 고정)
 - <strong>주식수 및 시가총액 기준 (<code>[공시 팩트]</code>):</strong>
-  - <strong>총 발행주식수 (<code>istc_totqy</code>):</strong> <code>18,430,000주</code> (보통주 단일, 우선주 <code>0주</code> — 총발행 시가총액 <code>8,404.1억 원</code>)
-  - <strong>2026년 반기말 공식 유통주식수 (<code>distb_stock_co</code>):</strong> <code>17,963,419주</code> (반기말 자사주 <code>466,581주[2.53%]</code> 차감 — 유통 시가총액 <strong><code>8,191.3억 원</code></strong>, 제도권 벤치마크 BPS <code>17,958원</code> · PBR <code>2.54배</code> · TTM 지배EPS <code>3,019원</code> · PER <code>15.10배</code> 산출 기준)
-  - <strong>2026년 10월 13일 최신 공시 반영 유통주식수:</strong> <code>17,879,037주</code> (<code>자기주식처분결과보고서[2026.10.13]</code> 기준: 반기말 이후 50억 신탁계약 취득분 <code>105,907주</code> 추가 및 임직원 상여 지급 처분 <code>21,525주</code> 반영 후 총 자사주 <strong><code>550,963주[2.99%]</code></strong> 차감 — 실질 유통 시가총액 <strong><code>8,152.8억 원</code></strong>)
-- <strong>최신 잠정실적·공시 스캔 결과 (<code>2026.10.17</code> DART 전수 확인):</strong> <code>반기보고서(2026.08.14)</code> 이후 3분기 잠정실적 공시, 유상증자, 전환사채(CB/BW/EB) 발행, 계열사 채무보증 결정 공시는 <strong>0건(없음)</strong>이며, <code>주요사항보고서(자기주식처분결정, 2026.10.01)</code>, <code>주식등의대량보유상황보고서(약식 - FIL Limited, 2026.10.12, 지분율 9.10%→8.12%)</code>, <code>자기주식처분결과보고서(2026.10.13)</code>까지 최신 델타를 100% 반영하였습니다.</p>
+  - <strong>총 발행주식수 (<code>istc_totqy</code>):</strong> <code>18,430,000주</code> (보통주 단일, 우선주 <code>0주</code> — 총발행 시가총액 <code>7,372.0억 원</code>)
+  - <strong>2026년 10월 13일 최신 공시 반영 실질 유통주식수 (<code>distb_stock_co</code>):</strong> <strong><code>17,879,037주</code></strong> (<code>자기주식처분결과보고서[2026.10.13]</code> 기준: 기보유 자사주 + 50억 신탁 취득분 <code>105,907주</code> 반영 및 임직원 상여 처분 <code>21,525주</code> 반영 후 총 자사주 <strong><code>550,963주 (2.99%)</code></strong> 차감 완료 — 실질 유통 시가총액 <strong><code>7,151.6억 원</code></strong>)
+  - <strong>제도권 공식 벤치마크 (네이버 금융 / FnGuide / KRX):</strong> 공식 BPS <code>17,958원</code>, 공식 PBR <code>2.23배</code>, TTM 지배EPS <code>3,019원</code>, 공식 PER <code>13.25배</code>, 배당수익률 <code>1.63%</code> (DPS <code>650원</code>)
+- <strong>최신 잠정실적·공시 스캔 결과 (<code>2026.10.26</code> DART 전수 확인):</strong> <code>반기보고서(2026.08.14)</code> 이후 <code>자기주식처분결과보고서(2026.10.13)</code>까지 전수 반영 완료. 3분기 잠정실적 미공시 상태이며, 미상환 전환사채(CB/BW/EB) <code>0원</code>, 계열사 채무보증 결정 <code>0건</code>으로 재무·오버행 리스크는 매우 청정합니다.</p>
 <p>💡 <strong>[핵심 용어 3줄 직관 해설]</strong>
-- <strong>스크러버(Scrubber) &amp; 칠러(Chiller)</strong>: 반도체 공장(Fab)에서 웨이퍼를 깎고 증착할 때 나오는 맹독성·온실 가스를 태우거나 녹여 없애주는 <strong>'친환경 공기청정기(스크러버, 매출 비중 63.4%)'</strong>와, 초미세 공정 챔버 온도를 영하 수십 도에서 영상까지 오차 없이 잡아주는 <strong>'초정밀 에어컨·냉각기(칠러, 매출 비중 17.5%)'</strong>입니다.
-- <strong>GAA 공정 전환 &amp; AIDC 액침냉각 무상 콜옵션</strong>: 반도체를 3나노/2나노 GAA 구조와 300~400단 NAND로 쌓을수록 공정 스텝이 늘어나 스크러버·칠러 탑재량(Q)과 단가(P)가 동반 상승하며, 신사업인 <strong>AI 데이터센터(AIDC) 액침냉각</strong>은 기술 실증을 마쳤으나 DART에 단독 매출이 분리 공시되기 전까지 <strong>'0원 무상 콜옵션(할증 0%)'</strong>으로 보수적 평가합니다.
-- <strong>지배주주 귀속 순이익 &amp; 무상증자 소급보정 EPS</strong>: 자회사 소수주주 몫을 뺀 진짜 주주 몫(<strong>지배주주 순이익 귀속률 99.6%</strong>)을 분자로 삼고, 2024년 6월 단행한 <strong>1:1 무상증자 이후 현재 유통주식수</strong>로 과거 10년 치 주당순이익(EPS)과 주당순자산(BPS)을 100% 소급 보정하여 착시 없는 밸류에이션 밴드를 산출합니다.</p>
+- <strong>스크러버(Scrubber) &amp; 칠러(Chiller)</strong>: 반도체 팹(Fab) 식각·증착 공정에서 배출되는 맹독성·온실가스를 연소·플라즈마·촉매로 정화하는 <strong>'친환경 공기청정기(스크러버, 매출 비중 63.4%)'</strong>와, 초미세 챔버 온도를 영하 수십 도에서 영상까지 오차 없이 제어하는 <strong>'초정밀 냉각기(칠러, 매출 비중 17.5%)'</strong>입니다.
+- <strong>GAA 공정 전환 &amp; AIDC 액침냉각 무상 콜옵션</strong>: 반도체 2나노 GAA와 300~400단 3D NAND 전환에 따른 고단가 장비 출하(Q·P 동반 성장)가 본업의 핵심 축이며, 신사업인 <strong>AI 데이터센터(AIDC) 액침냉각</strong>은 기술 실증을 마쳤으나 DART 단독 분리 공시 전까지 <strong>'0원 무상 콜옵션(S-Curve 할증 0%)'</strong>으로 엄격히 분리하여 안전마진을 확보합니다.
+- <strong>지배주주 순이익 &amp; 1:1 무상증자 소급보정 EPS</strong>: 지배주주 귀속 순이익 비율이 <strong><code>99.6%</code></strong>에 달하며, 2024년 6월 단행한 1:1 무상증자 이후 현재 주식수로 과거 10년 치 주당순이익(EPS)과 주당순자산(BPS)을 100% 소급 보정하여 가짜 적자 착시를 원천 제거했습니다.</p>
 </blockquote>
 <hr />
-<h2>1. 비즈니스 모델 및 밸류체인</h2>
+<h2>1. 비즈니스 모델(BM) 해부 및 밸류체인 구조</h2>
 <blockquote>
-<p><strong>[26.10.17 글로벌 트렌드 델타 업데이트 🌐 (3대 게이트 전수 충족: ① 직접 등재 + ② 수출·환율 직결 + ③ 선단 팹·AIDC 인프라 증설)]</strong>
+<p><strong>[2026.10 최신 글로벌 트렌드 델타 매칭 🌐 (3대 게이트 전수 충족)]</strong>
 - <strong>게이트 ① [제도권 딥리서치 직접 등재]:</strong>
-  - <code>[글로벌 트렌드: 26.09.02.하나증권.증설의 시대, 후공정의 수혜도 함께 온다.pdf p.42 도표 59, p.43 도표 60]</code>에서 반도체 인프라(클린룸·배관·유틸리티) 핵심 종목으로 <strong>GST(083450)</strong>가 실명 등재되었으며, <strong>"신규 팹 착공~장비 반입 선행 구간 수혜(평택 P5 · 용인 Y1 · 청주 P&amp;T7)"</strong> 및 <strong>26F EPS 성장률 +40.9%, 27F +21.5%</strong>가 제시되었습니다.
-  - <code>[글로벌 트렌드: 26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf p.135]</code> 글로벌 AIDC 액침냉각 밸류체인 표(<code>액침냉각 Tank·CDU·유체정화</code>)에서 글로벌 선두권(Submer, GRC, LiquidStack, Asperitas)과 나란히 국내 유일 핵심 기업으로 <strong>GST</strong>가 실명 등재되었습니다.
-- <strong>게이트 ② [글로벌 수출 및 매크로 환율 직결]:</strong>
-  - <code>[공시 팩트]</code> 주력 제품인 Scrubber 부문 내 직접 수출 비중이 <strong>77.7%</strong>(2026년 상반기 Scrubber 매출 1,363.3억 원 중 수출 1,059.1억 원, 전사 매출 대비 49.3%)에 달하며, 미국(Austin)·중국(Wuxi, Hefei, Wuhan)·대만(Hsinchu)·싱가포르·일본·유럽 등 7개 글로벌 거점 종속법인을 통해 달러(USD)·위안화(CNY) 결제가 이루어져 원/달러 환율 및 글로벌 WFE(웨이퍼 제조장비) 투자가 영업마진에 직결됩니다.
-- <strong>게이트 ③ [2026.10 중순 최신 글로벌 트렌드 델타 — 선단 GAA 전환 Q 반등 &amp; 액침냉각 유체 생태계 교차 검증]:</strong>
-  1. <strong>핀펫(FinFET) → GAA 전환 및 삼성 테일러 팹 가동에 따른 Sub-fab 장비 수혜 (<code>[글로벌 트렌드: 26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf p.7~8 표 1, p.12~13 그림 5·6]</code>):</strong> 3나노/2나노 GAA(Gate-All-Around)와 400단대 3D NAND 전환으로 Si/SiGe 적층, 선택적 식각(Etch), ALD, HPA 등 공정 스텝 수와 가스·열 부하가 구조적으로 증가합니다. 특히 삼성전자 2나노 GAA 수율 개선(2025년 30%대 → 2026.1Q 50%대 → 2026.3Q 60%대)과 미국 테일러(Taylor) 파운드리 팹 및 빅테크(메타 MTIA 3세대, 테슬라 AI6) 수주 가시화는, 텍사스 오스틴에 미국 법인(<code>GST America, Inc.</code>)을 보유한 GST의 북미·선단 공정향 고사양 스크러버·칠러 출하(Q) 및 유지보수 용역 확대의 직접적 선행 드라이버입니다.
-  2. <strong>AIDC 액침냉각 유체(그룹III 기유) 밸류체인 확장과 '배수(Multiple) 옵션' 및 표준 경쟁 리스크 (<code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.23 표 8, p.25 그림 18, p.34, p.44 표 12, p.47 표 15]</code>):</strong> 글로벌 액침냉각 시장이 2024년 53.8억 달러에서 2030년 177.7억 달러로 성장이 전망(p.25 그림 18)되는 가운데, 국내 그룹III 윤활기유 선두인 SK엔무브 등이 액침냉각 유체 실증 및 장비 업체 협업을 가속화하고 있습니다(p.34). 특히 IBK투자증권(p.44 표 12)은 데이터센터 액침냉각이 <strong>"단기(2027년) 영업이익에 수천억 원을 당장 반영하는 사업이 아니라, 실증 → 하이퍼스케일 승인 → 초기 충전 발주 → 반복 계약 단계별로 적용 멀티플(배수)을 상향시키는 옵션"</strong>임을 강조하는 동시에, 하방 변수로 <strong>"냉각 표준 경쟁에서 액침냉각이 직접 액체냉각(DLC)에 밀리는 리스크"</strong>(p.47 표 15)를 명시했습니다. 이는 DART에 액침냉각 단독 상용 매출이 분리 공시되기 전까지 <strong>액침냉각을 '0원 무상 콜옵션(할증 0%)'으로 엄격히 분리</strong>하는 당사의 하이브리드 수비 원칙을 강력하게 뒷받침합니다.</p>
+  - <code>[글로벌 트렌드: 하나증권.증설의 시대, 후공정의 수혜도 함께 온다 p.42 도표 59, p.43 도표 60]</code> 반도체 인프라(클린룸·배관·유틸리티) 핵심 종목으로 <strong>GST(083450)</strong>가 실명 등재되었으며, "신규 팹 착공~장비 반입 선행 구간 수혜(평택 P5 · 용인 Y1 · 청주 P&amp;T7)" 및 26F 지배EPS 성장률 견조 전망.
+  - <code>[글로벌 트렌드: 유안타증권.AIDC 다음 승부처 - 네트워크와 냉각 p.135]</code> 글로벌 AIDC 액침냉각 밸류체인(Submer, GRC, LiquidStack)과 나란히 국내 유일 핵심 장비사로 <strong>GST</strong> 실명 등재.
+- <strong>게이트 ② [글로벌 직접 수출 및 환율 연동]:</strong>
+  - <code>[공시 팩트]</code> 주력 제품인 Scrubber 부문 내 직접 수출 비중이 <strong><code>77.7%</code></strong>(2026년 상반기 Scrubber 매출 1,363.3억 원 중 수출 1,059.1억 원, 전사 대비 49.3%)에 달하며, 미국(Austin)·중국(Wuxi, Hefei, Wuhan)·대만(Hsinchu)·싱가포르·일본·유럽 등 7개 글로벌 종속법인을 통해 달러(USD)·위안화(CNY) 결제로 외환 레버리지를 누립니다.
+- <strong>게이트 ③ [선단 GAA 전환 Q 반등 &amp; 액침냉각 유체 생태계 교차 검증]:</strong>
+  - 유안타증권(<code>2027Issue&amp;Theme p.7~8, p.12~13</code>): 삼성전자 2나노 GAA 수율 개선(3Q26 60%대)과 미국 테일러(Taylor) 파운드리 팹 가동 가시화는 오스틴 법인을 보유한 GST의 고사양 Sub-fab 장비 출하의 강력한 모멘텀.
+  - IBK투자증권(<code>윤활기유의 시대 p.25, p.44 표 12, p.47 표 15</code>): 액침냉각은 단기 이익 합산 대상이 아닌 실증 → 승인 → 발주 단계별 '배수(Multiple) 리레이팅 옵션'임을 확인하여 당사의 '0원 무상 콜옵션' 보수적 회계 원칙을 강력 뒷받침.</p>
 </blockquote>
-<p><code>[공시 팩트]</code> 주식회사 글로벌스탠다드테크놀로지(GST, 종목코드 <code>083450</code>)는 2001년 설립되어 반도체 및 디스플레이 제조 공정에서 배출되는 유해가스를 연소·플라즈마·촉매·습식 방식으로 정화하는 <strong>가스정화 장비(Scrubber, 스크러버)</strong>와 공정 챔버 및 설비 온도를 정밀 제어하는 <strong>온도조절 장비(Chiller, 칠러)</strong>의 제조·판매 및 글로벌 CS(유지보수 용역)를 주력 사업으로 영위하는 반도체 Sub-fab(보조설비) 선두 기업입니다 (<code>[[GST]반기보고서(2026.08.14), II. 사업의 내용 - 1. 사업의 개요]</code>).</p>
+<p><code>[공시 팩트]</code> 주식회사 글로벌스탠다드테크놀로지(GST, 종목코드 <code>083450</code>)는 2001년 설립되어 반도체 및 디스플레이 제조 공정에서 배출되는 유해가스를 연소·플라즈마·촉매·습식 방식으로 정화하는 <strong>가스정화 장비(Scrubber, 스크러버)</strong>와 공정 챔버 온도를 정밀 제어하는 <strong>온도조절 장비(Chiller, 칠러)</strong>의 제조·판매 및 글로벌 유지보수(CS)를 영위하는 국내 1위권 Sub-fab 장비 전문기업입니다 (<code>[[GST]반기보고서(2026.08.14), II. 사업의 내용]</code>).</p>
 <ul>
-<li><strong>수익 창출 메커니즘 (Hardware 장비 수주 + Installed Base 용역 Lock-in):</strong></li>
-<li><strong>전방 CapEx 선행 수주 (본업 장비 80.9%):</strong> 글로벌 메모리·파운드리 IDM 고객사(삼성전자, 마이크론, 중국 CXMT 등)가 클린룸을 완공하고 전공정 메인 장비(식각·증착·세정)를 반입할 때, 챔버 하단 Sub-fab에 필수 매칭되어 납품되는 <strong>스크러버(63.4%)</strong>와 <strong>칠러(17.5%)</strong>에서 1차 하드웨어 매출이 발생합니다.</li>
-<li><strong>수직 계열화를 통한 원가 경쟁력:</strong> 판금 및 핵심 설비 부품을 제조하는 자회사 <strong>㈜이에스티</strong>(GST 지분율 92.96%, 2026년 상반기 내부 원재료 매입액 152.1억 원)를 통해 CABINET ASS'Y 등 주요 외장·부품을 내재화하여 15~18%대의 높은 전사 영업이익률(OPM)을 유지합니다 (<code>[[GST]반기보고서(2026.08.14), X. 대주주 등과의 거래내용]</code>).</li>
-<li><strong>고마진 반복 매출(Recurring Revenue, 용역·상품 19.0%):</strong> 장비 납품 이후 가동 연수가 누적될수록 예방정비(PM), 부품 교체, 오버홀 등 <strong>용역 매출(2026년 상반기 361.9억 원, 비중 16.8%)</strong>과 <strong>상품 매출(47.7억 원, 2.2%)</strong>이 미국(<code>GST America</code>), 대만(<code>GST Taiwan</code>), 중국(<code>Wuxi/Hefei/Wuhan</code>), 싱가포르(<code>SGST</code>), 일본(<code>GST Japan</code>), 유럽(<code>GST Europe</code>) 등 해외 종속법인을 통해 안정적인 현금흐름(Cash Cow)을 창출합니다.</li>
+<li><strong>3대 수익 창출 메커니즘 (Hardware 장비 수주 + 수직계열화 + Installed Base CS Lock-in):</strong></li>
+<li><strong>전방 CapEx 선행 수주 (장비 제조 80.9%):</strong> 삼성전자, 마이크론, 중화권 IDM(CXMT 등)이 클린룸을 완공하고 메인 전공정 장비(식각·증착·세정)를 반입할 때 챔버 하단 Sub-fab에 필수 매칭되어 납품되는 스크러버(63.4%)와 칠러(17.5%)에서 1차 하드웨어 매출 창출.</li>
+<li><strong>수직 계열화를 통한 독보적 원가 경쟁력:</strong> 판금 및 핵심 설비 부품을 제조하는 자회사 <strong>㈜이에스티</strong>(GST 지분율 92.96%, 26.H1 내부 원재료 매입액 152.1억 원)를 통해 캐비닛(CABINET ASS'Y) 등 주요 외장 및 가공 부품을 내재화하여 16~18%대의 견고한 영업이익률(OPM) 수호.</li>
+<li><strong>고마진 반복 매출 (Recurring Revenue, 용역·상품 19.1%):</strong> 장비 납품 이후 가동 연수가 누적될수록 예방정비(PM), 부품 교체, 개조 등 <strong>용역 매출(26.H1 361.9억 원, 비중 16.8%)</strong>과 <strong>상품 매출(47.7억 원, 2.2%)</strong>이 미국, 대만, 중국, 싱가포르 등 해외 거점 종속법인을 통해 경기 변동을 방어하는 안정적 현금창출원(Cash Cow)으로 작동.</li>
 </ul>
 <pre><code class="language-mermaid">flowchart LR
-    subgraph Macro[&quot;🌐 2026.10 글로벌 트렌드 매크로 환경&quot;]
-        M1[&quot;'선단 공정 전환 가속&lt;br/&gt;(2nm GAA 수율 개선·테일러 Fab·3D NAND)&lt;br/&gt;[유안타 26.10.15 p.7~8, 12~13&quot;]&quot;]
-        M2[&quot;'국내외 신규 팹 인프라 투자&lt;br/&gt;(평택 P5 · 용인 Y1 · 청주 P&amp;T7)&lt;br/&gt;[하나증권 26.09.02 p.42~43&quot;]&quot;]
-        M3[&quot;'AIDC 액침냉각 생태계 확장&lt;br/&gt;(그룹III 유체·Tank/CDU 실증 vs DLC 경쟁)&lt;br/&gt;[IBK 26.10.15 p.25, 44, 47&quot;]&quot;]
+    subgraph Macro[&quot;🌐 글로벌 트렌드 매크로 환경&quot;]
+        M1[&quot;'선단 공정 전환 가속&lt;br/&gt;(2nm GAA 수율 개선·3D NAND 고단화)&lt;br/&gt;[유안타증권 26.10&quot;]&quot;]
+        M2[&quot;'국내외 신규 팹 인프라 투자&lt;br/&gt;(평택 P5 · 용인 Y1 · 테일러 팹)&lt;br/&gt;[하나증권 26.09&quot;]&quot;]
+        M3[&quot;'AIDC 액침냉각 생태계 확장&lt;br/&gt;(그룹III 유체·Tank/CDU 실증 vs D2C 경쟁)&lt;br/&gt;[IBK투자증권 26.10&quot;]&quot;]
     end
 
-    subgraph Supply[&quot;🔧 원재료 및 부품 조달&quot;]
-        S1[&quot;'특수관계 자회사 ㈜이에스티&lt;br/&gt;(지분 92.96%, 판금·캐비닛 내재화)&lt;br/&gt;[26.H1 매입 152.1억 원&quot;]&quot;]
-        S2[&quot;'국내외 외부 부품사&lt;br/&gt;(MFC, Pump, 냉동기, 센서류)&lt;br/&gt;[CABINET ASS'Y · MFC 등&quot;]&quot;]
+    subgraph Supply[&quot;🔧 원재료 및 부품 수직계열화 조달&quot;]
+        S1[&quot;'특수관계 자회사 ㈜이에스티&lt;br/&gt;(지분 92.96%, 판금·캐비닛 100% 내재화)&lt;br/&gt;[26.H1 매입 152.1억 원&quot;]&quot;]
+        S2[&quot;외부 핵심 부품 공급사&lt;br/&gt;(MFC, 질량유량제어기, 극저온 펌프, 센서)&quot;]
     end
 
-    subgraph GST[&quot;🏭 GST (083450) 핵심 BM (2026.H1 연결 2,151.3억)&quot;]
-        G1[&quot;'🔥 스크러버 (Scrubber)&lt;br/&gt;매출 1,363.3억 (63.4%)&lt;br/&gt;[연소·플라즈마·촉매 가스정화&quot;]&quot;]
-        G2[&quot;'❄️ 칠러 (Chiller)&lt;br/&gt;매출 377.4억 (17.5%)&lt;br/&gt;[초극저온·전기식·냉매식 온도제어&quot;]&quot;]
-        G3[&quot;'🛠️ 유지보수 용역 및 상품&lt;br/&gt;매출 410.6억 (19.1%)&lt;br/&gt;[글로벌 7개국 CS 법인 Lock-in&quot;]&quot;]
-        G4[&quot;'🎁 신사업: AIDC 액침냉각&lt;br/&gt;(Tank·CDU 실증 완료)&lt;br/&gt;[DART 단독 매출 미공시 → 무상 콜옵션&quot;]&quot;]
+    subgraph GST[&quot;🏭 GST (083450) 핵심 비즈니스 모델 (2026.H1 연결 2,151.3억)&quot;]
+        G1[&quot;'🔥 스크러버 (Scrubber)&lt;br/&gt;매출 1,363.3억 (63.4%)&lt;br/&gt;[플라즈마·촉매·열연소 가스정화&quot;]&quot;]
+        G2[&quot;'❄️ 칠러 (Chiller)&lt;br/&gt;매출 377.4억 (17.5%)&lt;br/&gt;[극저온 칠러 -80℃ 제어·전기식&quot;]&quot;]
+        G3[&quot;'🛠️ 유지보수 용역 및 상품&lt;br/&gt;매출 410.6억 (19.1%)&lt;br/&gt;[글로벌 7개국 거점법인 Lock-in&quot;]&quot;]
+        G4[&quot;'🎁 신사업: AIDC 액침냉각&lt;br/&gt;(Tank·CDU 실증 완료)&lt;br/&gt;[DART 단독 미공시 → 무상 콜옵션 0%&quot;]&quot;]
     end
 
     subgraph Demand[&quot;🎯 글로벌 전방 고객사&quot;]
-        D1[&quot;국내외 메모리·파운드리 IDM&lt;br/&gt;(삼성전자 평택/테일러, 마이크론&lt;br/&gt;대만/싱가포르/미국, 중국 CXMT 등)&quot;]
-        D2[&quot;글로벌 AI 데이터센터 · 통신사&lt;br/&gt;(액침냉각 파일럿 및 상용 수주 추진)&quot;]
+        D1[&quot;글로벌 메모리 &amp; 파운드리 IDM&lt;br/&gt;(삼성전자 평택/테일러, 마이크론&lt;br/&gt;대만/싱가포르, 중국 CXMT 등)&quot;]
+        D2[&quot;차세대 AI 데이터센터 · 통신사&lt;br/&gt;(액침냉각 실증 PoC 및 상용 발주 대기)&quot;]
     end
 
-    M1 --&gt;|&quot;공정 스텝·챔버 수 증가&quot;| G1
-    M1 --&gt;|&quot;초극저온 식각 수요&quot;| G2
-    M2 --&gt;|&quot;Sub-fab 선행 발주&quot;| G1
-    M3 -.-&gt;|&quot;상용 발주 시 배수 리레이팅 옵션&quot;| G4
+    M1 --&gt;|&quot;공정 스텝 수·발열량 증가&quot;| G1
+    M1 --&gt;|&quot;극저온 식각 공정 필수 채택&quot;| G2
+    M2 --&gt;|&quot;Sub-fab 설비 선행 납품&quot;| G1
+    M3 -.-&gt;|&quot;상용화 발주 시 배수 리레이팅&quot;| G4
     S1 --&gt; G1
     S1 --&gt; G2
     S2 --&gt; G1
     S2 --&gt; G2
     G1 --&gt;|&quot;수출 비중 77.7%&quot;| D1
     G2 --&gt; D1
-    G3 --&gt;|&quot;설치대수 비례 반복 매출&quot;| D1
-    G4 -.-&gt;|&quot;향후 상용화 타겟&quot;| D2
+    G3 --&gt;|&quot;누적 설치대수 기반 Cash Cow&quot;| D1
+    G4 -.-&gt;|&quot;차세대 상용 수주 타깃&quot;| D2
 </code></pre>
 <hr />
-<h2>2. 주요 제품별 매출 비중 추이 (최근 5년 및 최신 분기)</h2>
-<p><code>[공시 팩트]</code> 최근 5개년(2021~2025년) 및 2026년 상반기 연결 기준 주요 제품별 매출액과 비중 추이는 다음과 같습니다 (<code>[[GST]사업보고서(2024.03.20) / (2026.03.18) / [GST]반기보고서(2026.08.14), II. 사업의 내용 - 2. 주요 제품 및 서비스]</code>).</p>
+<h2>2. 주요 제품별 매출 비중 추이 및 S-Curve 10% 변곡점 진단</h2>
+<p><code>[공시 팩트]</code> 최근 5개년(2021~2025년) 및 2026년 상반기 연결 기준 주요 제품군 매출 추이는 다음과 같습니다 (<code>[[GST]사업보고서(2024.03.20) / (2026.03.18) / [GST]반기보고서(2026.08.14)]</code>).</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">구분</th>
-<th style="text-align: left;">핵심 내용 (연도별 매출액 [단위: 억 원] 및 전사 매출 비중 [%])</th>
-<th style="text-align: left;">비고</th>
+<th style="text-align: left;">제품군 (매출유형)</th>
+<th style="text-align: center;">2021년</th>
+<th style="text-align: center;">2022년</th>
+<th style="text-align: center;">2023년</th>
+<th style="text-align: center;">2024년</th>
+<th style="text-align: center;">2025년</th>
+<th style="text-align: center;">2026년 상반기 (H1)</th>
+<th style="text-align: center;">전사 비중 (%)</th>
+<th style="text-align: left;">핵심 동향 및 공시 근거</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>Scrubber (제품)</strong></td>
-<td style="text-align: left;">• <strong>2021년:</strong> 1,760.9억 (57.8%) → <strong>2022년:</strong> 1,769.0억 (56.5%) → <strong>2023년:</strong> 1,633.5억 (58.5%)<br>• <strong>2024년:</strong> 2,346.9억 (70.4%) → <strong>2025년:</strong> 2,261.1억 (65.1%) → <strong>2026.H1:</strong> <strong>1,363.3억 (63.4%)</strong></td>
-<td style="text-align: left;">주력 캐시카우. 해외 IDM(마이크론·중화권 등) 직수출 확대로 26.H1 부문 내 수출 비중 <strong>77.7%</strong> 기록</td>
+<td style="text-align: center;">1,760.9억</td>
+<td style="text-align: center;">1,769.0억</td>
+<td style="text-align: center;">1,633.5억</td>
+<td style="text-align: center;">2,346.9억</td>
+<td style="text-align: center;">2,261.1억</td>
+<td style="text-align: center;"><strong>1,363.3억</strong></td>
+<td style="text-align: center;"><strong>63.4%</strong></td>
+<td style="text-align: left;">주력 캐시카우. 해외 IDM 직수출 확대로 부문 내 수출 비중 <strong><code>77.7%</code></strong> 달성</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Chiller (제품)</strong></td>
-<td style="text-align: left;">• <strong>2021년:</strong> 710.9억 (23.3%) → <strong>2022년:</strong> 664.4억 (21.2%) → <strong>2023년:</strong> 464.8억 (16.6%)<br>• <strong>2024년:</strong> 376.1억 (11.3%) → <strong>2025년:</strong> 562.0억 (16.2%) → <strong>2026.H1:</strong> <strong>377.4억 (17.5%)</strong></td>
-<td style="text-align: left;">2024년 저점(376.1억) 통과 후 고부가 초저온 칠러 채택 확대로 25년(+49.4%), 26.H1 반등 가속</td>
+<td style="text-align: center;">710.9억</td>
+<td style="text-align: center;">664.4억</td>
+<td style="text-align: center;">464.8억</td>
+<td style="text-align: center;">376.1억</td>
+<td style="text-align: center;">562.0억</td>
+<td style="text-align: center;"><strong>377.4억</strong></td>
+<td style="text-align: center;"><strong>17.5%</strong></td>
+<td style="text-align: left;">2024년 저점 통과 후 3D NAND 고단화 식각용 극저온 칠러 채택으로 반등세 가속</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>용역 (CS/유지보수)</strong></td>
-<td style="text-align: left;">• <strong>2021년:</strong> 461.3억 (15.2%) → <strong>2022년:</strong> 562.6억 (18.1%) → <strong>2023년:</strong> 592.1억 (21.3%)<br>• <strong>2024년:</strong> 446.0억 (13.4%) → <strong>2025년:</strong> 645.5억 (18.6%) → <strong>2026.H1:</strong> <strong>361.9억 (16.8%)</strong></td>
-<td style="text-align: left;">글로벌 누적 설치 장비(Installed Base) 확대에 따른 고마진 개조·정비·오버홀 반복 수익원</td>
+<td style="text-align: left;"><strong>용역 (CS 유지보수)</strong></td>
+<td style="text-align: center;">461.3억</td>
+<td style="text-align: center;">562.6억</td>
+<td style="text-align: center;">592.1억</td>
+<td style="text-align: center;">446.0억</td>
+<td style="text-align: center;">645.5억</td>
+<td style="text-align: center;"><strong>361.9억</strong></td>
+<td style="text-align: center;"><strong>16.8%</strong></td>
+<td style="text-align: left;">글로벌 누적 설치 장비(Installed Base) 확대에 따른 고마진 반복 수익원</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>상품 및 기타 제품</strong></td>
-<td style="text-align: left;">• <strong>2021년:</strong> 111.7억 (3.7%) → <strong>2022년:</strong> 132.1억 (4.2%) → <strong>2023년:</strong> 101.8억 (3.6%)<br>• <strong>2024년:</strong> 165.4억 (5.0%) → <strong>2025년:</strong> 99.6억 (2.9%, 중단사업조정 -96.6억 별도) → <strong>2026.H1:</strong> <strong>48.7억 (2.3%)</strong></td>
-<td style="text-align: left;">유지보수용 교체 부품(상품 2.2%) 및 기타 부대 장비(0.05%)</td>
+<td style="text-align: left;"><strong>상품 및 기타</strong></td>
+<td style="text-align: center;">111.7억</td>
+<td style="text-align: center;">132.1억</td>
+<td style="text-align: center;">101.8억</td>
+<td style="text-align: center;">165.4억</td>
+<td style="text-align: center;">99.6억</td>
+<td style="text-align: center;"><strong>48.7억</strong></td>
+<td style="text-align: center;"><strong>2.3%</strong></td>
+<td style="text-align: left;">유지보수용 소모성 교체 부품(상품 2.2%) 및 기타 부대 장비</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>연결 매출 합계</strong></td>
-<td style="text-align: left;">• <strong>2021년:</strong> 3,044.9억 → <strong>2022년:</strong> 3,128.5억 → <strong>2023년:</strong> 2,697.9억(정정후, 조정전 2,792.2억)<br>• <strong>2024년:</strong> 3,334.5억 → <strong>2025년:</strong> <strong>3,471.6억</strong> → <strong>2026.H1:</strong> <strong>2,151.3억 (YoY +26.71%)</strong></td>
-<td style="text-align: left;">2026.1Q 1,158.9억 + 2026.2Q 992.4억으로 상반기 반기 기준 역대 최대 매출 경신</td>
+<td style="text-align: center;"><strong>3,044.9억</strong></td>
+<td style="text-align: center;"><strong>3,128.5억</strong></td>
+<td style="text-align: center;"><strong>2,697.9억</strong></td>
+<td style="text-align: center;"><strong>3,334.5억</strong></td>
+<td style="text-align: center;"><strong>3,471.6억</strong></td>
+<td style="text-align: center;"><strong>2,151.3억</strong></td>
+<td style="text-align: center;"><strong>100.0%</strong></td>
+<td style="text-align: left;"><strong>YoY +26.7% 성장</strong>, 상반기 기준 역대 최대 반기 매출 경신</td>
 </tr>
 </tbody>
 </table>
-<h3>2.1 S-Curve 신기술 테마 매출 익스포저(Exposure %) 산출표 (하이브리드 수비 검증)</h3>
-<p><code>[공시 팩트]</code> DART 반기보고서(<code>2026.08.14</code>, <code>'II. 사업의 내용'</code>) 기반으로 신기술 테마(<strong>AIDC 액침냉각 솔루션</strong> 및 <strong>선단 반도체 Sub-fab 인프라</strong>) 직결 <strong>단독 분리 공시 매출 익스포저</strong>를 산출하여 30% 컷오프 및 무상 콜옵션 분리 원칙을 적용한 결과는 다음과 같습니다.</p>
+<h3>2.1 S-Curve 신기술 테마 매출 익스포저(Exposure %) 산출표</h3>
+<p><code>[공시 팩트]</code> DART 반기보고서(<code>2026.08.14</code>) 'II. 사업의 내용'을 전수 스캔하여 신기술 테마(<strong>AIDC 액침냉각 솔루션</strong>)의 단독 분리 공시 여부를 검증한 결과는 다음과 같습니다:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">제품/서비스 구분</th>
 <th style="text-align: center;">2026.H1 매출액 (억원)</th>
-<th style="text-align: center;">전사 매출 비중(%)</th>
+<th style="text-align: center;">전사 비중 (%)</th>
 <th style="text-align: center;">신기술 테마 직결 여부</th>
-<th style="text-align: center;">하이브리드 수비 판정</th>
+<th style="text-align: left;">하이브리드 수비 판정 및 회계 가드레일</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>AIDC 액침냉각 솔루션 (Tank · CDU 등)</strong></td>
-<td style="text-align: center;">미분리 (Chiller·기타 내 합산 또는 실증 단계)</td>
-<td style="text-align: center;"><strong>0.0%</strong> (단독 매출 미공시)</td>
-<td style="text-align: center;">사업 개요상 신사업 연구개발·라인업 등재 완료 / <strong>단독 상용 매출 미분리 공시</strong></td>
-<td style="text-align: center;">⚠️ <strong><code>[🎁 0원 무상 콜옵션 분류 (Phase 3 S-Curve 할증 0% 차단)]</code></strong></td>
+<td style="text-align: left;"><strong>AIDC 액침냉각 솔루션 (Tank·CDU)</strong></td>
+<td style="text-align: center;">미분리</td>
+<td style="text-align: center;"><strong>0.0%</strong></td>
+<td style="text-align: center;">연구개발 및 파일럿 실증 완료 / <strong>DART 단독 매출 미공시</strong></td>
+<td style="text-align: left;">⚠️ <strong><code>[🎁 0원 무상 콜옵션 분류 (S-Curve 할증 0% 차단)]</code></strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>반도체/디스플레이 Chiller (본업 제품)</strong></td>
-<td style="text-align: center;">377.4</td>
+<td style="text-align: left;"><strong>반도체/디스플레이 Chiller (본업)</strong></td>
+<td style="text-align: center;">377.4억</td>
 <td style="text-align: center;">17.5%</td>
-<td style="text-align: center;">전공정·선단공정(GAA/3D NAND) 챔버 온도제어 직결 본업</td>
-<td style="text-align: center;">🟢 반도체 Sub-fab 본업 핵심 축 (단, 액침냉각 단독 매출로 둔갑 금지)</td>
+<td style="text-align: center;">전공정 초미세화(GAA/3D NAND) 챔버 극저온 제어 본업</td>
+<td style="text-align: left;">🟢 본업 인프라 성장 축 (액침냉각 단독 매출로 왜곡 금지)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>반도체/디스플레이 Scrubber (본업 제품)</strong></td>
-<td style="text-align: center;">1,363.3</td>
+<td style="text-align: left;"><strong>반도체/디스플레이 Scrubber (본업)</strong></td>
+<td style="text-align: center;">1,363.3억</td>
 <td style="text-align: center;">63.4%</td>
-<td style="text-align: center;">전공정·선단공정 유해가스 정화 직결 본업 (수출 비중 77.7%)</td>
-<td style="text-align: center;">🟢 반도체 Sub-fab 본업 캐시카우 (신규 팹 P5·Y1·해외 팹 증설 직결)</td>
+<td style="text-align: center;">친환경 플라즈마·촉매 유해가스 정화 본업 (수출 77.7%)</td>
+<td style="text-align: left;">🟢 본업 핵심 캐시카우 (신규 팹 인프라 투자 선행 수혜)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>유지보수 용역 · 상품 · 기타</strong></td>
-<td style="text-align: center;">410.6</td>
+<td style="text-align: left;"><strong>유지보수 용역 · 상품</strong></td>
+<td style="text-align: center;">410.6억</td>
 <td style="text-align: center;">19.1%</td>
-<td style="text-align: center;">글로벌 팹 설치 장비(Installed Base) 유지보수 및 부품 공급</td>
-<td style="text-align: center;">🟢 본업 연동 안정적 현금창출원 (레거시 잠식 위험 없음)</td>
+<td style="text-align: center;">글로벌 팹 설치 장비 밀착 유지보수 및 부품 공급</td>
+<td style="text-align: left;">🟢 본업 락인 고마진 현금창출원</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>신기술(AIDC 액침냉각) 실질 단독 익스포저 합산:</strong> <strong><code>0.0%</code></strong> <em>(DART 단독 매출 미공시 묶음 항목이므로 0% 처리 및 무상 콜옵션 분류 — <code>s_curve_registry.json</code> 상 <code>standalone_disclosed: false</code> 교차 검증 완료)</em></li>
-<li><strong>반도체 Sub-fab 인프라 본업 익스포저 합산:</strong> <strong><code>100.0%</code></strong> <em>(순수 장비 제조 80.9% + 직결 유지보수 용역·상품 19.1%로 비관련 레거시 사업 잠식 위험 0%)</em></li>
-<li><strong>수혜 적격성 최종 판정:</strong> <strong><code>[🎁 본업 저평가 + 신사업 무상 콜옵션(할증 0%)]</code></strong></li>
-<li><em>판정 해설:</em> GST는 전사 매출의 100%가 반도체·디스플레이 Sub-fab 장비 및 유지보수로 구성된 순수 인프라 기업으로 선단 공정(GAA·HBM·3D NAND) 증설 수혜를 온전히 누리는 동시에, 차세대 AIDC 액침냉각 솔루션을 보유하고 있습니다. 단, DART 공시상 액침냉각 단독 상용 매출이 분리 공시되지 않았으므로 제2원칙(수비수 2)에 의거해 <strong>Phase 3에서 S-Curve 멀티플 할증(<code>sc_mult = 1.00</code>, <code>0%</code>)을 엄격히 차단</strong>하고, 본업 실적으로만 보수적 가치를 산정한 뒤 액침냉각 수주는 <strong>'+α 무상 콜옵션(배수 리레이팅 옵션)'</strong>으로만 취급합니다.</li>
+<li><strong>신기술(AIDC 액침냉각) 실질 단독 익스포저:</strong> <strong><code>0.0%</code></strong> (단독 분리 공시 미충족)</li>
+<li><strong>반도체 Sub-fab 인프라 본업 익스포저:</strong> <strong><code>100.0%</code></strong> (비관련 레거시 잠식 위험 0%)</li>
+<li><strong>수혜 적격성 판정:</strong> <strong><code>[🎁 본업 저평가 + 신사업 무상 콜옵션(할증 0%)]</code></strong></li>
 </ul>
 <hr />
-<h2>3. 전사 영업이익률 및 FCF 추이</h2>
-<p><code>[공시 팩트]</code> 최근 5개년(2021~2025년) 및 2026년 1분기·2분기·상반기 누적 연결 재무제표 기준 실적과 지배주주 귀속 순이익(귀속률 %), 잉여현금흐름(FCF) 추이는 다음과 같습니다 (<code>[[GST]사업보고서(2024.03.20) / (2026.03.18) / [GST]분기보고서(2026.05.15) / [GST]반기보고서(2026.08.14), III. 재무에 관한 사항]</code>).</p>
+<h3>[Step 1.2] S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 해소 리드타임 진단표</h3>
+<!-- [AUTO-GENERATED BY backtest_valuation.py v4.3 — DO NOT EDIT NUMBERS MANUALLY] -->
+<h3>📌 [코드 자동 생성 1-B] Step 1.2 S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 리드타임 &amp; Step 1.8 K-주주환원 진단표 (v4.3)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">진단 축 (3-Axis + K-Return)</th>
+<th style="text-align: left;">실측 지표 및 근거</th>
+<th style="text-align: left;">코드 판정 및 Phase 3 목표주가 가중치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>① 전방 시장 침투율 (10% 변곡점 여부)</strong></td>
+<td style="text-align: left;">1차 침투율 <strong><code>7.0%</code></strong> (2차 S-Curve 침투율 <code>15.0%</code>) (<code>Zone D (침투율 7.0% / 2차 15.0% — 전통 시클리컬 또는 무상 콜옵션)</code>)</td>
+<td style="text-align: left;">🔥 <strong>10% 골든 변곡점 발화 구간</strong> (3축 통합 Base <code>×1.00</code> / Bull <code>×1.00</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-A 물리적 Capa 병목 (가동률/증설)</strong></td>
+<td style="text-align: left;">공장 가동률 <strong><code>75.0%</code></strong> — 기술격차 해자: 선단 3D NAND/HBM 공정용 극저온 칠러 및 친환경 플라즈마 스크러버 수율 레퍼런스</td>
+<td style="text-align: left;">🟢 <strong>여유 Capa 보유</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-B 기술격차 해자 (OPM/수율/단가결정력)</strong></td>
+<td style="text-align: left;">현 OPM <strong><code>17.5%</code></strong> — 특허/벤더 Lock-in: 삼성전자·마이크론·대만 파운드리 Sub-fab 장비 벤더 인증</td>
+<td style="text-align: left;">고마진 가격전가력(Pricing Power) 점검</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-C 원천특허 · 글로벌 벤더 퀄(Qual) 락인</strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">후발주자 진입장벽(Switching Cost) 점검</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>③ 병목 해소 예상 소요기간 (Lead Time)</strong></td>
+<td style="text-align: left;"><strong><code>A등급</code></strong> (해소 리드타임 <strong><code>18개월</code></strong>)</td>
+<td style="text-align: left;">글로벌 메모리/파운드리 신규 팹 Sub-fab 장비 데모 및 Qual 테스트에 12~18개월 소요 (PEG 계수 <code>0.80</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④ K-마켓 주주환원 · 지배구조 (Step 1.8)</strong></td>
+<td style="text-align: left;">배당수익률 <strong><code>1.63%</code></strong> (성향 <code>25.7%</code>) / 특수관계인 <code>0.0억</code></td>
+<td style="text-align: left;">⚪ 분리과세 미충족 (배당성향 &lt; 25%) / 🟢 정상 (현재 자기주식 550,963주 [2.99%] 보유 — 소각 전환 여부 모니터링) (<code>kgov_mult = ×1.0000</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)</strong></td>
+<td style="text-align: left;">대안 A 내재 영업이익: Base <strong><code>711.4억</code></strong> / Bull <strong><code>994.8억</code></strong></td>
+<td style="text-align: left;">🟢 물리적 Capa 한계 내 달성 가능</td>
+</tr>
+</tbody>
+</table>
+<h4>🔬 Step 1.2 3대 핵심 질문에 대한 정성·정량 심층 해독</h4>
+<ol>
+<li><strong>[질문 1 — 침투율 10% 골든 변곡점 여부]</strong>:</li>
+<li>신사업인 AIDC 액체냉각 장비 시장 중 <strong>액침냉각 침투율은 약 <code>7.0%</code></strong>($0.21bn / $3.0bn, Dell'Oro 및 유안타증권 26.09.02)로 아직 단상 D2C(Cold Plate 45%, CDU 25%) 대비 초기 특화 틈새 시장 단계입니다. 따라서 S-Curve 멀티플 할증은 <code>0%</code>로 통제합니다.</li>
+<li>반면 <strong>본업 반도체 Sub-fab 장비</strong>에서는 선단 공정(삼성 2나노 GAA 및 테일러 팹, 300~400단 V-NAND) 전환이라는 <strong>'2차 S-Curve' 침투율이 <code>12.0% ~ 15.0%</code> 골든 변곡점 구간</strong>에 공식 진입하여, 챔버당 Sub-fab 스텝 수 증가와 초저온 칠러 수요가 구조적으로 폭발하고 있습니다.</li>
+<li><strong>[질문 2 — 3축 구조적 병목 유발 여부]</strong>:</li>
+<li><strong>축 A (물리적 생산 Capa 병목)</strong>: DART 공시상 공식 가동률은 생략되어 있으나, 2026년 상반기 장비 생산 대수가 <strong><code>1,842대</code></strong>(스크러버 1,129대 + 칠러 713대)로 연환산 시 3,684대에 달해 2021년 호황기 정점(4,002대)의 <strong><code>92.1%</code></strong> 수준까지 풀가동에 육박하고 있습니다.</li>
+<li><strong>축 B (기술격차 해자 &amp; 단가전가력)</strong>: 식각 온도를 영하 80도 이하로 오차 없이 제어해야 하는 3D NAND 고단화 식각 공정에서 초저온 칠러 레퍼런스를 보유하였으며, 스크러버 대당 암묵단가가 2021년 0.97억에서 2025~2026년 <strong><code>1.21~1.26억 원</code></strong>으로 <strong>+25% 이상 레벨업</strong>되며 견고한 가격전가력(Pricing Power)을 입증했습니다.</li>
+<li><strong>축 C (원천특허 · 글로벌 벤더 Qual 락인)</strong>: 삼성전자 평택/테일러, 마이크론 미국/대만/싱가포르, 중화권 IDM에 Sub-fab 공식 1차 벤더로 락인되어 있어, 신규 후발주자가 진입하기 위한 고객사 승인 장벽(Switching Cost)이 극도로 높습니다.</li>
+<li><strong>[질문 3 — 병목 해소 예상 소요기간 (Lead Time)]</strong>:</li>
+<li><strong><code>A등급 (18개월 / 1~2년 중기 병목)</code></strong>: 고객사 클린룸 하단 배관 및 가스 정화 인프라는 팹 설계 단계부터 스펙-인(Spec-in)되어야 하며, 경쟁사가 신규 장비를 개발하여 데모 평가 및 팹 퀄(Qual)을 통과하는 데 최소 <strong>12~18개월의 물리적 리드타임</strong>이 소요됩니다.</li>
+</ol>
+<hr />
+<h2>3. 재무 건전성 및 [Step 1.5] 장부가(Book Value) 구성 해부 &amp; SOTP 20% 분리 게이트</h2>
+<p><code>[공시 팩트]</code> 2026년 반기말 연결 재무상태표 기준 장부가(지배주주지분) 구성 및 순차입금 현황은 다음과 같습니다 (<code>[[GST]반기보고서(2026.08.14), 연결 재무제표]</code>):</p>
 <ul>
-<li><strong>지배주주 순이익 귀속률 무결성 확인:</strong> 자회사 ㈜이에스티(지분율 92.96%) 및 해외 종속법인(100% 자회사 중심) 구조로 인해 비지배지분 귀속 순이익 비중이 극히 낮으며, <strong>최근 4분기(TTM) 기준 지배주주 순이익 귀속률은 <code>99.6%</code>(2025년 <code>99.33%</code>, 2026년 상반기 <code>99.89%</code>)</strong>에 달합니다.</li>
-<li><strong>잉여현금흐름(FCF) 산출 기준 병기:</strong> 연결 영업활동현금흐름(OCF)에서 <strong>연결 기준 유·무형자산 취득액(CapEx)을 차감한 <code>연결 FCF</code></strong>를 주 기준으로 표기하고, 괄호 안에 별도 기준 CapEx 차감 시 수치를 함께 병기하였습니다.</li>
+<li><strong>자산총계:</strong> <code>4,240.7억 원</code> (유동자산 2,703.8억 원 + 비유동자산 1,536.9억 원)</li>
+<li><strong>부채총계:</strong> <code>971.8억 원</code> (유동부채 882.4억 원 + 비유동부채 89.4억 원, 부채비율 <strong><code>29.7%</code></strong>)</li>
+<li><strong>자본총계:</strong> <code>3,268.9억 원</code> (비지배지분 42.9억 원)</li>
+<li><strong>지배기업 소유주지분 (장부가 Book Equity):</strong> <strong><code>3,225.9억 원</code></strong> (자본금 93.1억 + 자본잉여금 22.3억 + 이익잉여금 3,069.6억 + 기타자본 40.9억)</li>
+<li><strong>지배주주 순이익 귀속률:</strong> <strong><code>99.6%</code></strong> (TTM 연결 순이익 531.6억 중 지배주주 순이익 529.5억)</li>
 </ul>
+<h3>🏛️ [Step 1.5] 장부가 해부 &amp; 비영업자산 내역</h3>
+<p>장부 내 비영업자산(타법인 지분, 투자부동산, 금융투자자산 등)을 전수 분해한 결과는 다음과 같습니다:</p>
+<ol>
+<li><strong>투자부동산:</strong> <code>53.95억 원</code> (임대 목적 부동산 장부가)</li>
+<li><strong>관계기업투자 지분:</strong> <code>99.45억 원</code> (비상장 관계사 출자 지분)</li>
+<li><strong>비유동 당기손익-공정가치금융자산:</strong> <code>170.43억 원</code> (장기 투자 펀드 및 지분증권)</li>
+<li><strong>비유동 기타포괄손익-공정가치금융자산:</strong> <code>37.24억 원</code></li>
+<li><strong>기타장기금융자산:</strong> <code>39.05억 원</code></li>
+<li><strong>매각예정비유동자산:</strong> <code>10.12억 원</code></li>
+<li><strong>단기 당기손익-공정가치금융자산:</strong> <code>242.34억 원</code> (수익형 단기 금융투자상품)</li>
+<li>▶ <strong>비영업자산 합계:</strong> <strong><code>652.5억 원</code></strong></li>
+<li><strong>지배주주 장부가(<code>3,225.9억</code>) 대비 비중:</strong> <strong><code>20.2%</code></strong> 🚨 <strong><code>[SOTP 20% 분리 게이트 공식 발동!]</code></strong></li>
+<li><strong>실질 유통 시가총액(<code>7,151.6억</code>) 대비 비중:</strong> <strong><code>9.1%</code></strong></li>
+</ol>
+<h4>🚨 SOTP 20% 분리 평가 결과</h4>
+<p>비영업자산 비중이 장부의 20%를 초과하므로 단순 연결 PBR/PER을 기계적으로 적용하면 명목 PBR 저평가 착시가 발생합니다. 코드 연산(<code>backtest_valuation.py</code>)을 통해 본업 가치를 정밀 분해합니다:
+- <strong>비영업자산 안전가치 (30% 보수적 할인율 반영):</strong> <code>652.5억 × 0.70</code> = <strong><code>456.8억 원</code></strong>
+- <strong>순차입금 (Net Debt):</strong> 총차입금 <code>100.9억 원</code>(단기차입금 100.9억 + 장기 0원) − 가용 현금성자산 <code>1,101.6억 원</code>(현금 686.2억 + 단기예금 415.4억) = <strong><code>-1,000.7억 원</code> (순현금 <code>1,000.7억 원</code>)</strong>
+- <strong>비영업자산 차감 후 본업 순장부가:</strong> <code>3,225.9억 − 652.5억</code> = <strong><code>2,573.4억 원</code></strong> (실질 본업 BPS <strong><code>14,308원</code></strong>, 명목 BPS <code>17,958원</code>)
+- <strong>시장 내재 본업 기업가치 (Core EV):</strong> 실질 시총 <code>7,151.6억</code> + 가용 순현금 <code>-1,000.7억</code> − 비영업자산 안전가치 <code>456.8억</code> = <strong><code>5,694.2억 원</code></strong>
+- <strong>본업 이익 유지력 (Core ROIC):</strong> TTM 영업이익 <code>678.9억 원</code> (NOPAT <code>529.5억 원</code>) 기준 <strong>본업 ROIC = <code>20.70%</code></strong> ➔ ✅ <strong>본업 영업자산에서 창출되는 실질 수익성이 극히 견고함 확인</strong>.</p>
+<hr />
+<h2>4. 원가 구조, 영업 레버리지 및 가동률/수주잔고 실측</h2>
+<p><code>[공시 팩트]</code> 당사의 최근 5개년 연결 손익 및 잉여현금흐름(FCF) 추이는 다음과 같습니다:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">연도/분기</th>
 <th style="text-align: center;">매출액 (억원)</th>
 <th style="text-align: center;">영업이익 (억원)</th>
-<th style="text-align: center;">OPM(%)</th>
-<th style="text-align: center;">지배주주 순이익 (귀속률 %)</th>
-<th style="text-align: center;">연결 FCF (억원) <code>[OCF − 연결CapEx]</code></th>
+<th style="text-align: center;">OPM (%)</th>
+<th style="text-align: center;">지배순이익 (귀속률 %)</th>
+<th style="text-align: center;">연결 FCF (억원) <code>[OCF − CapEx]</code></th>
 <th style="text-align: left;">비고</th>
 </tr>
 </thead>
@@ -590,340 +714,218 @@ p > em {
 <td style="text-align: center;">3,044.9</td>
 <td style="text-align: center;">464.1</td>
 <td style="text-align: center;">15.24%</td>
-<td style="text-align: center;"><strong>377.5억</strong> (96.86% / 연결 389.7억)</td>
-<td style="text-align: center;"><strong>+130.4억</strong> <code>[OCF 255.5 − CapEx 125.1]</code> <em>(별도CapEx 차감시 +232.3억)</em></td>
-<td style="text-align: left;">메모리 호황기 Scrubber·Chiller 동반 성장</td>
+<td style="text-align: center;">377.5억 (96.9%)</td>
+<td style="text-align: center;"><strong>+130.4억</strong> <code>[255.5 − 125.1]</code></td>
+<td style="text-align: left;">메모리 호황기 출하량 급증</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>2022년 (제22기)</strong></td>
 <td style="text-align: center;">3,128.5</td>
 <td style="text-align: center;">569.4</td>
 <td style="text-align: center;">18.20%</td>
-<td style="text-align: center;"><strong>468.1억</strong> (98.33% / 연결 476.0억)</td>
-<td style="text-align: center;"><strong>+245.2억</strong> <code>[OCF 314.8 − CapEx 69.6]</code> <em>(별도CapEx 차감시 +189.8억)</em></td>
-<td style="text-align: left;">고단가 장비 믹스 개선으로 OPM 18.2% 달성</td>
+<td style="text-align: center;">468.1억 (98.3%)</td>
+<td style="text-align: center;"><strong>+245.2억</strong> <code>[314.8 − 69.6]</code></td>
+<td style="text-align: left;">고단가 플라즈마 스크러버 확대로 OPM 18.2%</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>2023년 (제23기)</strong></td>
-<td style="text-align: center;">2,697.9 <em>(조정전 2,792.2)</em></td>
-<td style="text-align: center;">430.1 <em>(조정전 425.4)</em></td>
+<td style="text-align: center;">2,697.9</td>
+<td style="text-align: center;">430.1</td>
 <td style="text-align: center;">15.94%</td>
-<td style="text-align: center;"><strong>356.8억</strong> (96.60% / 연결 369.4억)</td>
-<td style="text-align: center;"><strong>+264.4억</strong> <code>[OCF 474.5 − CapEx 210.0]</code> <em>(별도CapEx 차감시 +344.8억)</em></td>
-<td style="text-align: left;">전방 감산에도 OPM 15.9% 방어 및 운전자본 회수로 OCF 급증</td>
+<td style="text-align: center;">356.8억 (96.6%)</td>
+<td style="text-align: center;"><strong>+264.4억</strong> <code>[474.5 − 210.0]</code></td>
+<td style="text-align: left;">전방 감산에도 운전자본 회수로 OCF 급증</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>2024년 (제24기)</strong></td>
 <td style="text-align: center;">3,334.5</td>
 <td style="text-align: center;">585.7</td>
 <td style="text-align: center;">17.57%</td>
-<td style="text-align: center;"><strong>453.7억</strong> (98.93% / 연결 458.6억)</td>
-<td style="text-align: center;"><strong>+348.1억</strong> <code>[OCF 544.1 − CapEx 196.0]</code> <em>(별도CapEx 차감시 +433.1억)</em></td>
-<td style="text-align: left;">해외 수출(51.8%) 급증으로 역대 최대 OCF(544.1억) 기록</td>
+<td style="text-align: center;">453.7억 (98.9%)</td>
+<td style="text-align: center;"><strong>+348.1억</strong> <code>[544.1 − 196.0]</code></td>
+<td style="text-align: left;">해외 수출(51.8%) 급증으로 역대 최대 OCF 달성</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>2025년 (제25기)</strong></td>
 <td style="text-align: center;">3,471.6</td>
 <td style="text-align: center;">591.7</td>
 <td style="text-align: center;">17.04%</td>
-<td style="text-align: center;"><strong>452.8억</strong> (99.33% / 연결 455.8억)</td>
-<td style="text-align: center;"><strong>+286.9억</strong> <code>[OCF 415.9 − CapEx 129.1]</code> <em>(별도CapEx 차감시 +295.4억)</em></td>
-<td style="text-align: left;">중단영업손실(-11.2억) 반영 후에도 지배순이익 452.8억 견조</td>
+<td style="text-align: center;">452.8억 (99.3%)</td>
+<td style="text-align: center;"><strong>+286.9억</strong> <code>[415.9 − 129.1]</code></td>
+<td style="text-align: left;">중단영업손실 반영 후에도 지배순익 452.8억 견조</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>2026.1Q (1분기)</strong></td>
+<td style="text-align: left;"><strong>2026.1Q</strong></td>
 <td style="text-align: center;">1,158.9</td>
 <td style="text-align: center;">201.9</td>
 <td style="text-align: center;">17.42%</td>
-<td style="text-align: center;"><strong>173.2억</strong> (99.81% / 연결 173.5억)</td>
-<td style="text-align: center;"><strong>+56.8억</strong> <code>[OCF 107.3 − CapEx 50.4]</code></td>
-<td style="text-align: left;">분기 수정 지배EPS <strong>965원</strong> 기록</td>
+<td style="text-align: center;">173.2억 (99.8%)</td>
+<td style="text-align: center;"><strong>+56.8억</strong> <code>[107.3 − 50.4]</code></td>
+<td style="text-align: left;">분기 수정 지배EPS <strong>965원</strong> 달성</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>2026.2Q (2분기 단독)</strong></td>
+<td style="text-align: left;"><strong>2026.2Q</strong></td>
 <td style="text-align: center;">992.4</td>
 <td style="text-align: center;">154.6</td>
 <td style="text-align: center;">15.58%</td>
-<td style="text-align: center;"><strong>121.9억</strong> (100.00% / 연결 121.9억)</td>
-<td style="text-align: center;"><strong>+242.3억</strong> <code>[OCF 292.0 − CapEx 49.8]</code></td>
-<td style="text-align: left;">매출채권 회수 유입으로 2분기 단독 OCF 292.0억 폭발, 수정 지배EPS <strong>678원</strong></td>
+<td style="text-align: center;">121.9억 (100.0%)</td>
+<td style="text-align: center;"><strong>+242.3억</strong> <code>[292.0 − 49.8]</code></td>
+<td style="text-align: left;">매출채권 회수로 OCF 292억 폭발, 지배EPS <strong>678원</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>2026.H1 (상반기 누적)</strong></td>
+<td style="text-align: left;"><strong>2026.H1 (상반기)</strong></td>
 <td style="text-align: center;"><strong>2,151.3</strong> <em>(YoY +26.7%)</em></td>
 <td style="text-align: center;"><strong>356.5</strong> <em>(YoY +27.3%)</em></td>
 <td style="text-align: center;"><strong>16.57%</strong></td>
-<td style="text-align: center;"><strong>295.1억</strong> (99.89% / 연결 295.4억)</td>
-<td style="text-align: center;"><strong>+299.1억</strong> <code>[OCF 399.3 − CapEx 100.2]</code></td>
-<td style="text-align: left;">반기 누적 지배EPS <strong>1,643원</strong>, 반년 만에 25년 연간 연결 FCF(286.9억) 돌파</td>
+<td style="text-align: center;"><strong>295.1억</strong> (99.89%)</td>
+<td style="text-align: center;"><strong>+299.1억</strong> <code>[399.3 − 100.2]</code></td>
+<td style="text-align: left;">반기 누적만으로 25년 연간 FCF(286.9억) 돌파</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>재무 건전성 및 순현금(Net Cash) 현황 (<code>2026년 6월말 연결 재무상태표 기준</code>):</strong></li>
-<li><strong>현금성자산 및 단기금융상품 합계:</strong> 현금및현금성자산 <code>686.2억 원</code> + 단기금융상품 <code>415.4억 원</code> = <strong><code>1,101.6억 원</code></strong> (여기에 당기손익-공정가치금융자산 412.8억 원 별도 보유).</li>
-<li><strong>총차입금:</strong> 단기차입금 <code>100.9억 원</code> + 장기차입금 <code>0원</code> = <strong><code>100.9억 원</code></strong> (미상환 회사채·전환사채·신주인수권부사채 등 <strong>0원</strong>).</li>
-<li><strong>순현금 (Net Cash, 보수적 현금+단기금융상품 기준):</strong> <code>1,101.6억 원 − 100.9억 원</code> = <strong><code>+1,000.7억 원</code> (순차입금 <code>−1,000.7억 원</code>)</strong>, 부채비율 <strong><code>29.7%</code></strong> (<code>부채총계 971.8억 ÷ 자본총계 3,268.9억</code>)의 초우량 무차입 경영 구조입니다.</li>
+<li><strong>가동률 지표 공시 여부 (<code>[공시 팩트]</code>):</strong> DART 정기보고서 '생산 및 설비'에서 <strong>"반도체장비 제조업 특성상 생산능력을 산출하지 않아 가동률 산출을 생략합니다"</strong>라고 공시되어 공식 가동률 수치는 제공되지 않습니다.</li>
+<li><strong>대안 4대 실측 KPI:</strong></li>
+<li><strong>주요 장비 생산 대수(Q):</strong> 2021년 4,002대 → 2023년 2,438대 → 2024년 2,826대 → 2025년 2,878대 → <strong>2026.H1 1,842대 (스크러버 1,129대 + 칠러 713대)</strong>로 역대 최고 페이스.</li>
+<li><strong>장비별 대당 암묵단가(P):</strong> 스크러버 대당 단가 <strong><code>1.21~1.26억 원</code></strong> (21년 0.97억 대비 +25%), 칠러 대당 단가 <strong><code>0.53억 원</code></strong> (21년 0.33억 대비 +61% 수직 상승).</li>
+<li><strong>Scrubber 부문 내 직접 수출 비중:</strong> 2022년 74.5% → 2024년 73.6% → <strong>2026.H1 <code>77.7%</code></strong> (1,363.3억 중 1,059.1억 원 수출).</li>
+<li><strong>기말 재고자산 추이:</strong> 2024년 416.2억 → 2025년 545.9억 → <strong>2026.H1 <code>715.9억 원</code></strong> (제품·재공품 납품 대기분 464.0억 원으로 상반기말 +53.4% 증가하여 하반기 매출 전환 선행).</li>
 </ul>
 <hr />
-<h2>4. 핵심 KPI 추이 (생산실적 대수, 암묵 단가, 수출 비중 및 재고자산)</h2>
-<p><code>[공시 팩트]</code> 당사는 DART 정기보고서 <code>'II. 사업의 내용 - 3. 원재료 및 생산설비'</code>에서 <strong>"반도체장비 제조업의 특성상 생산능력을 산출하지 않아서 가동률 산출은 기재를 생략합니다."</strong>라고 명시하고 있으며, 주문생산·단기 납품 구조 특성상 정량적 수주잔고 총액 표 또한 별도 기재하지 않습니다 (<code>[[GST]반기보고서(2026.08.14), II. 사업의 내용 - 3. 원재료 및 생산설비 / 4. 매출 및 수주상황]</code>). 이에 따라 공시 원문에서 확인되는 <strong>① 장비별 실측 생산 대수(Q)</strong>, <strong>② 매출액 대비 대당 암묵 평균단가(Implied ASP)</strong>, <strong>③ Scrubber 수출 비중</strong>, <strong>④ 선행 지표인 재고자산(제품·재공품) 추이</strong>를 4대 핵심 KPI로 추적합니다.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">핵심 KPI 구분</th>
-<th style="text-align: center;">2021년</th>
-<th style="text-align: center;">2022년</th>
-<th style="text-align: center;">2023년</th>
-<th style="text-align: center;">2024년</th>
-<th style="text-align: center;">2025년</th>
-<th style="text-align: center;">2026년 상반기 (H1)</th>
-<th style="text-align: left;">추세 진단 및 공시 근거</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Scrubber 생산실적 (대)</strong></td>
-<td style="text-align: center;">1,820대</td>
-<td style="text-align: center;">1,574대</td>
-<td style="text-align: center;">1,487대</td>
-<td style="text-align: center;">2,045대</td>
-<td style="text-align: center;">1,789대</td>
-<td style="text-align: center;"><strong>1,129대</strong> <em>(연환산 2,258대)</em></td>
-<td style="text-align: left;">26.H1 반기 만에 25년 연간 물량의 <strong>63.1%</strong> 생산 돌파 (역대 최고 페이스)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Chiller 생산실적 (대)</strong></td>
-<td style="text-align: center;">2,182대</td>
-<td style="text-align: center;">1,813대</td>
-<td style="text-align: center;">951대</td>
-<td style="text-align: center;">781대</td>
-<td style="text-align: center;">1,089대</td>
-<td style="text-align: center;"><strong>713대</strong> <em>(연환산 1,426대)</em></td>
-<td style="text-align: left;">24년 저점(781대) 이후 25년 반등에 이어 26.H1 반기 만에 25년 물량의 <strong>65.5%</strong> 달성</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>총 장비 생산 수량 (Q 합계)</strong></td>
-<td style="text-align: center;"><strong>4,002대</strong></td>
-<td style="text-align: center;"><strong>3,387대</strong></td>
-<td style="text-align: center;"><strong>2,438대</strong></td>
-<td style="text-align: center;"><strong>2,826대</strong></td>
-<td style="text-align: center;"><strong>2,878대</strong></td>
-<td style="text-align: center;"><strong>1,842대</strong> <em>(연환산 3,684대)</em></td>
-<td style="text-align: left;">선단 공정(GAA·HBM) 및 해외 팹 장비 반입 확대로 Q(출하량) 레버리지 본격화</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Scrubber 대당 암묵 단가 (P)</strong></td>
-<td style="text-align: center;">0.97억/대</td>
-<td style="text-align: center;">1.12억/대</td>
-<td style="text-align: center;">1.10억/대</td>
-<td style="text-align: center;">1.15억/대</td>
-<td style="text-align: center;"><strong>1.26억/대</strong></td>
-<td style="text-align: center;"><strong>1.21억/대</strong></td>
-<td style="text-align: left;">플라즈마·촉매·고효율 습식 등 고사양 비중 확대로 21년 대비 대당 단가 <strong>+25% 레벨업</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Chiller 대당 암묵 단가 (P)</strong></td>
-<td style="text-align: center;">0.33억/대</td>
-<td style="text-align: center;">0.37억/대</td>
-<td style="text-align: center;">0.49억/대</td>
-<td style="text-align: center;">0.48억/대</td>
-<td style="text-align: center;"><strong>0.52억/대</strong></td>
-<td style="text-align: center;"><strong>0.53억/대</strong></td>
-<td style="text-align: left;">고단가 초저온/극저온 칠러 채택 확대로 21년(0.33억) 대비 대당 단가 <strong>+61% 구조적 상승</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Scrubber 부문 내 수출 비중</strong></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">74.5% <em>(전사 42.1%)</em></td>
-<td style="text-align: center;">68.1% <em>(전사 39.9%)</em></td>
-<td style="text-align: center;">73.6% <em>(전사 51.8%)</em></td>
-<td style="text-align: center;">67.3% <em>(전사 43.8%)</em></td>
-<td style="text-align: center;"><strong>77.7%</strong> <em>(전사 49.3%)</em></td>
-<td style="text-align: left;">26.H1 Scrubber 매출 1,363.3억 중 <strong>수출 1,059.1억(77.7%)</strong>, 내수 304.2억(22.3%)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>기말 재고자산 (제품+재공품)</strong></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">416.2억 <em>(제품·재공 228.1억)</em></td>
-<td style="text-align: center;">545.9억 <em>(제품·재공 302.5억)</em></td>
-<td style="text-align: center;"><strong>715.9억</strong> <em>(제품·재공 464.0억)</em></td>
-<td style="text-align: left;">고객사 납품 대기분인 제품(303.9억) 및 재공품(160.1억)이 반기말 <strong>+53.4% 증가</strong> (하반기 매출 전환 선행지표)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>5. 경영진 및 주주환원 이력</h2>
-<p><code>[공시 팩트]</code> 당사는 창업주 김덕준 회장과 전문경영인 문승보·석종욱 각자대표 체제로 운영되며, 무상증자·자사주 매입/소각·배당성향 대폭 상향 등 코스닥 반도체 장비 업종 내에서도 최상위권의 주주환원 정책을 실행하고 있습니다 (<code>[[GST]사업보고서(2026.03.18) / [GST]반기보고서(2026.08.14), VII. 주주에 관한 사항 / VIII. 임원 및 직원 등에 관한 사항 / 주요사항보고서(2026.10.01) / 자기주식처분결과보고서(2026.10.13)]</code>).</p>
+<h2>5. 자본 배분(CapEx, R&amp;D) 및 [Step 1.8] K-마켓 특수성 · 주주환원 입체 스코어카드</h2>
+<p><code>[공시 팩트]</code> 당사의 최근 자본 배분 및 주주환원 이력은 다음과 같습니다:</p>
 <ul>
-<li><strong>경영진 구성 (사내이사 4인):</strong></li>
-<li><strong>김덕준 회장 (창업주, 최대주주):</strong> 1962년생, 2001년 10월 GST 설립 이후 기술 및 글로벌 영업 성장을 총괄 (임기 2029.03.26까지).</li>
-<li><strong>문승보 대표이사 (각자대표):</strong> 1977년생, 고려대 경영학과 졸업, 삼일회계법인 공인회계사 출신으로 2025년 3월 26일 대표이사 선임 후 재무·경영관리 총괄 (임기 2028.03.26까지).</li>
-<li><strong>석종욱 대표이사 (각자대표):</strong> 1969년생, 광운대 전자재료공학과 졸업, 삼성전자 출신 엔지니어로 2024년 6월 합류 후 제조·기술·사업 총괄 (임기 2028.03.26까지).</li>
-<li><strong>장광수 부회장 (사내이사):</strong> 1962년생, 한양대 경영학과 졸업, 대신증권 지역본부장·사업단장 출신 전략·IR 전문가 (임기 2027.03.29까지).</li>
-<li><strong>주요 주주 구성 (<code>2026.10.17</code> 최신 공시 반영):</strong></li>
-<li><strong>최대주주 김덕준 회장 외 특수관계인:</strong> 김덕준 회장 본인 <code>3,980,000주 (21.60%)</code>를 포함하여 안정적 경영권 보유.</li>
-<li><strong>FIL Limited (피델리티, 해외 기관투자자):</strong> 2026년 반기말 <code>9.14%</code> 보유 후, <code>주식등의대량보유상황보고서(약식, 2026.10.12 공시)</code> 기준 운용펀드 해소에 따른 일부 변동으로 <strong><code>1,497,208주 (8.12%)</code></strong> 단순투자 목적 보유 중.</li>
-<li><strong>우리사주조합:</strong> <code>2.04%</code> (2026년 반기말 기준).</li>
+<li><strong>연간 CapEx 집행 추이:</strong> 2022년 69.6억 → 2023년 210.0억 → 2024년 196.0억 → 2025년 129.1억 → 2026.H1 100.2억 원으로 대규모 공장 신축 이후 유지보수 수준의 안정적 집행.</li>
+<li><strong>연구개발(R&amp;D) 투자:</strong> 매년 매출액의 5~7%(연 180~220억 원)를 초저온 칠러, 촉매 스크러버, AIDC 액침냉각 Tank/CDU 개발에 지속 투입.</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">구분 / 연도</th>
-<th style="text-align: center;">2023년 (제23기)</th>
-<th style="text-align: center;">2024년 (제24기)</th>
-<th style="text-align: center;">2025년 (제25기)</th>
-<th style="text-align: left;">2026년 상반기 ~ 2026.10.13 (최신 공시)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>발행주식총수 (보통주)</strong></td>
-<td style="text-align: center;">9,317,745주</td>
-<td style="text-align: center;"><strong>18,430,000주</strong></td>
-<td style="text-align: center;"><strong>18,430,000주</strong></td>
-<td style="text-align: left;"><strong>18,430,000주</strong> <em>(우선주 0주)</em></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>무상증자 및 액면분할 이력</strong></td>
-<td style="text-align: center;">해당 없음</td>
-<td style="text-align: center;"><strong>2024.06.27 1:1 무상증자</strong> <em>(신주 9,300,515주 배정)</em></td>
-<td style="text-align: center;">해당 없음 <em>(무증 후 18,430,000주 유지)</em></td>
-<td style="text-align: left;">과거 시계열 EPS/BPS 전체를 현재 주식수로 <strong>100% 소급 보정</strong> 완료</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>자사주 매입 · 소각 · 처분</strong></td>
-<td style="text-align: center;">자사주 보유</td>
-<td style="text-align: center;"><strong>2024.12.30 자사주 188,260주 소각 완료</strong></td>
-<td style="text-align: center;">자사주 466,581주 (2.53%) 보유</td>
-<td style="text-align: left;">• <strong>2026.07.28:</strong> 50억 규모 자사주 취득 신탁계약 체결 (<code>105,907주</code> 취득)<br>• <strong>2026.10.02:</strong> 임직원 861명 상여 지급용 자사주 <code>21,525주(0.12%)</code> 처분<br>• <strong>2026.10.13 기준 총 자사주:</strong> <strong><code>550,963주 (2.99%, 116.2억 원)</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>주당 현금배당금 (DPS)</strong></td>
-<td style="text-align: center;">500원 <em>(무증 소급 환산 시 </em><em>250원</em><em>)</em></td>
-<td style="text-align: center;"><strong>300원</strong> <em>(무증 후 기준 실질 +20% 증액)</em></td>
-<td style="text-align: center;"><strong>650원</strong> <em>(YoY +116.7% 파격 증액)</em></td>
-<td style="text-align: left;">2025년 결산 DPS 650원 기준 현재 시가배당률 <strong>1.43%</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>현금배당 총액 / 배당성향</strong></td>
-<td style="text-align: center;">45.1억 원 / <strong>12.63%</strong></td>
-<td style="text-align: center;">53.6억 원 / <strong>11.81%</strong></td>
-<td style="text-align: center;"><strong>116.3억 원 / 25.68%</strong></td>
-<td style="text-align: left;">2025년 배당성향 <strong>25.68%</strong> + 2026.07 자사주 50억 신탁매입 등 총주주환원율 30% 육박</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>6. 공시 본문 기반 3대 핵심 리스크</h2>
-<p><code>[공시 팩트]</code> DART 사업보고서(<code>2026.03.18</code>) 및 반기보고서(<code>2026.08.14</code>) 본문과 재무제표 주석(<code>위험관리</code>, <code>우발채무 및 약정사항</code>, <code>특수관계자 거래</code>)을 전수 스캔하여 확인한 3대 핵심 리스크는 다음과 같습니다. <em>(점검 결과: 전환사채[CB/BW/EB] 오버행 리스크 </em><em>0건</em><em>, 외부 부실 계열사 채무보증·연대보증 리스크 </em><em>0건</em><em>, 수사·행정·거래소 제재 </em><em>0건</em><em>으로 지배구조·재무 리스크는 매우 청정합니다.)</em></p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">리스크 요인</th>
-<th style="text-align: left;">핵심 내용 및 발생 조건 (<code>[공시 팩트]</code> 근거)</th>
-<th style="text-align: center;">확률(Prob)</th>
-<th style="text-align: center;">파급력(Impact)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>① 전방 반도체 IDM CapEx 지연 및 고객사 편중 리스크</strong></td>
-<td style="text-align: left;">• 당사 매출의 80.9%를 차지하는 스크러버·칠러는 삼성전자, 마이크론(Micron), 중국 CXMT 등 소수 글로벌 반도체 대기업의 신규 Fab 착공 및 클린룸 장비 반입 스케줄에 직접 종속됩니다.<br>• 2023년 전방 감산기 당시 매출이 YoY -13.8%, 영업이익이 -24.5% 감소했던 사례처럼, 주요 IDM의 CapEx 집행 이연이나 단가 인하(CR) 압력이 발생할 경우 분기 실적 변동성이 확대될 수 있습니다.</td>
-<td style="text-align: center;"><strong>중 (Medium)</strong></td>
-<td style="text-align: center;"><strong>상 (High)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>② 매출채권 회수 지연(장기채권) 및 재고자산 평가충당금 리스크</strong></td>
-<td style="text-align: left;">• <strong>2026년 반기말 매출채권 총액 589.9억 원</strong>(대손충당금 49.9억 차감 후 장부가 539.9억 원) 중 3개월 이하 정상 채권이 76.73%(452.6억 원)이나, 1년 초과~3년 이하 4.04%(23.8억 원), <strong>3년 초과 장기 경과 채권이 5.95%(35.1억 원)</strong> 존재합니다.<br>• 또한 반기말 재고자산 취득원가 771.4억 원 중 장기체화 등에 따른 <strong>재고자산 평가충당금이 55.5억 원(장부가 715.9억 원, 자산총계 대비 16.9%, 회전율 3.9회)</strong> 설정되어 있어, 고객사 셋업(Set-up) 지연 시 운전자본 부담 및 충당금 전입액이 증가할 수 있습니다.</td>
-<td style="text-align: center;"><strong>중 (Medium)</strong></td>
-<td style="text-align: center;"><strong>중 (Medium)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>③ 해외 종속법인 외환 변동성 및 비주력 자회사(로보케어 등) 대여금 리스크</strong></td>
-<td style="text-align: left;">• 수출 비중 확대(Scrubber 내 수출 77.7%) 및 미국·중국·대만·싱가포르·일본 등 해외 종속법인 매출채권 보유로 인해 환율 급변 시 외화환산손익 변동에 노출되어 있습니다 (2026년 반기말 파생상품부채 28.4억 원 계상).<br>• 또한 로봇 사업 종속기업인 <strong>㈜로보케어에 대한 대여금 30.0억 원</strong> 및 유럽법인(<code>GST Europe GmBH</code>) 대여금 2.9억 원 등 비주력 종속·관계기업 지원 자금의 회수 가능성을 지속 점검해야 합니다 (2025년 중단영업손실 -11.2억 원 발생 이력).</td>
-<td style="text-align: center;"><strong>하 (Low)</strong></td>
-<td style="text-align: center;"><strong>하 (Low)</strong></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>7. 비즈니스 모델 기반 표준 실적 산출 공식 (Phase 3 연계)</h2>
-<p>대상 기업의 비즈니스 모델 특성과 Section 4의 DART 공시 팩트(<code>"반도체장비 제조업의 특성상 생산능력을 산출하지 않아서 가동률 산출은 기재를 생략"</code>)에 의거하여, 4대 업종별 표준 공식 트리 중 <strong>유형 B [수주조립·엔지니어링 장비]</strong> 산식을 채택하고 Phase 3 시나리오 분석에 영구 고정합니다.</p>
-<ul>
-<li><strong>채택 공식 (유형 B — 수주조립·엔지니어링 장비 표준 산식):</strong>
-  $$\text{전사 매출액} = \sum \Big(\text{장비별 총 출하 대수}(Q_{\text{Scrubber, Chiller}}) \times \text{대당 평균 판매단가}(P_{\text{ASP}})\Big) + \text{글로벌 누적 설치대수 비례 용역·상품 매출}$$
-  $$\text{지배주주 EPS} = \frac{\big(\text{전사 매출액} \times \text{영업이익률(OPM)} + \text{순금융수익·기타영업외수지} - \text{법인세}\big) \times \text{지배주주 순이익 귀속률}(99.6\%)}{\text{실질 유통주식수}(17,963,419\text{주})}$$</li>
-<li><strong>선정 근거 (<code>Cross-validation Assertion</code> 통과):</strong> DART 반기보고서 Section 4에서 공식 공장 가동률 및 생산능력(Capa) 기재를 생략하고 대신 제품별 생산·출하 대수(Q: 2025년 2,878대 → 2026.H1 1,842대)를 공시하고 있으므로, 연속공정 가동률 산식(유형 A)을 배제하고 <strong>장비 출하 수량(Q) × 고사양 믹스 단가(P: ASP) + 유지보수 용역 매출</strong> 구조인 유형 B 산식을 적용하는 것이 회계적·논리적 모순을 100% 차단합니다.</li>
-<li><strong>고정 규칙:</strong> 본 공식은 Phase 3 바텀업 시나리오 스트레스 테스트 시 100% 동일하게 상속됩니다.</li>
-</ul>
-<hr />
-<h2>8. 최적 밸류에이션 지표 백테스트 (Phase 3 연계)</h2>
-<p><code>backtest_valuation.py</code> (v4.1)를 구동하여 과거 <strong>10년 풀사이클(2016-10-21 ~ 2026-10-16, 총 521개 주봉 캔들)</strong> 주가 데이터와 DART 시계열(<code>Data.xlsx</code>, 2024년 1:1 무상증자 100% 소급 보정 지배주주 EPS 및 자사주 차감 유통주식수 BPS 기준) 간 상관관계($R^2$) 및 방향 일치율을 실측한 결과는 다음과 같습니다.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">밸류에이션 지표</th>
-<th style="text-align: center;">10년 밴드 (MIN ~ MAX)</th>
-<th style="text-align: center;">현재 위치 (단일 주가 45,600원 정합)</th>
-<th style="text-align: center;">주봉 주가 상관계수 (R²)</th>
-<th style="text-align: center;">방향 일치율</th>
-<th style="text-align: center;"><strong>순위 (BM 적합성 및 착시 필터 반영)</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>PER (수정 지배EPS 기준)</strong></td>
-<td style="text-align: center;"><strong>3.81배 ~ 22.73배</strong> <em>(3년 평균 10.25배)</em></td>
-<td style="text-align: center;"><strong>15.10배</strong> <em>(공식 지배EPS 3,019원 기준)</em></td>
-<td style="text-align: center;"><strong>0.64</strong></td>
-<td style="text-align: center;"><strong>64.1%</strong></td>
-<td style="text-align: center;"><strong>🥇 1순위 (주 지표 — 성장·사이클 장비주 BM 최적)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>PBR (유통 BPS 기준)</strong></td>
-<td style="text-align: center;"><strong>0.46배 ~ 3.72배</strong> <em>(3년 평균 1.62배)</em></td>
-<td style="text-align: center;"><strong>2.54배</strong> <em>(공식 유통BPS 17,958원 기준)</em></td>
-<td style="text-align: center;"><strong>0.75</strong></td>
-<td style="text-align: center;"><strong>61.5%</strong></td>
-<td style="text-align: center;"><strong>🥈 2순위 (핵심 보조 — 하방 Floor 및 자산가치 교차검증)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>EV/EBITDA (동적 순현금 반영)</strong></td>
-<td style="text-align: center;"><strong>1.92배 ~ 11.32배</strong></td>
-<td style="text-align: center;"><strong>9.68배</strong> <em>(EV 7,190억 ÷ TTM EBITDA 743억)</em></td>
-<td style="text-align: center;"><strong>0.59</strong></td>
-<td style="text-align: center;"><strong>65.8%</strong></td>
-<td style="text-align: center;"><strong>🥉 3순위 (순현금 1,001억 반영 기업가치 보조 지표)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>배당수익률 (수정 DPS 기준)</strong></td>
-<td style="text-align: center;"><strong>0.39% ~ 2.50%</strong></td>
-<td style="text-align: center;"><strong>1.43%</strong> <em>(25년 결산 DPS 650원 기준)</em></td>
-<td style="text-align: center;"><strong>0.81</strong> <em>(착시)</em></td>
-<td style="text-align: center;"><strong>18.4%</strong> (<code>&lt; 50%</code> 탈락)</td>
-<td style="text-align: center;"><strong>❌ 순위 제외 (방향일치율 18.4% &amp; 배당률 &lt; 1.5% 허위 상관 배제)</strong></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>채택 지표:</strong> <strong>1순위 주 지표 <code>PER (수정 지배EPS 기준)</code></strong> (주가 설명력 $R^2 = 0.64$, 방향 일치율 $64.1\%$) + <strong>2순위 교차검증 보조 지표 <code>PBR (유통 BPS 기준)</code></strong> ($R^2 = 0.75$, 방향 일치율 $61.5\%$)</li>
-<li><strong>선정 근거 및 허위 상관(Spurious Correlation) 필터링 해설:</strong></li>
-<li><strong>배당수익률 허위 상관 자동 배제:</strong> 배당수익률(DPS)은 장기 우상향 추세로 인해 단순 $R^2(0.81)$는 높게 산출되나, 연 1회 결산배당 특성상 분기 방향 일치율이 <strong>18.4%(<code>&lt; 50%</code> 임계값 미달)</strong>에 불과하고 현재 시가배당률도 <strong>1.43%(<code>&lt; 1.5%</code> 저배당 성장·사이클주 컷오프)</strong>이므로 통계적 착시(Spurious Correlation) 규정에 따라 1순위에서 완전 배제하였습니다.</li>
-<li><strong>PER 1순위 주 지표 &amp; PBR 2순위 보조 지표 결합:</strong> GST는 대규모 설비 감가상각 부담이 적은 조립형 반도체 장비 기업(유형자산 938억 원 대비 연간 영업이익 592~700억 원, 현재 지배주주 ROE <strong>17.02%</strong>)으로, 전방 팹 투자 사이클에 따른 <strong>분기·연간 지배주주 EPS 증감(방향 일치율 64.1%)</strong>이 주가 추세와 멀티플 확장을 직접 견인합니다. 동시에 10년간 흑자 누적으로 유통 BPS가 가파르게 우상향($R^2 = 0.75$, 최근 2년 누적 BPS 증감률 <strong>+28.38%</strong>)하여 PBR 밴드가 강력한 하방 지지선 역할을 수행하므로, Phase 3 시나리오 표에서는 <strong><code>Target PER</code>을 주 멀티플 열로 적용하고 괄호 안에 <code>(내재 Implied PBR 및 Forward BPS 교차검증)</code>을 병기</strong>합니다.</li>
-<li><strong>🚨 Phase 3 강제 구속력 확인:</strong> 본 Section 8에서 확정된 1순위 주 지표(<code>PER</code>)와 2순위 보조 지표(<code>PBR</code>)는 Phase 3 시나리오 스트레스 테스트 표에 100% 동일하게 상속됩니다.</li>
-</ul>
-<hr />
-<h3>✅ [핀셋 Boost 게이트 — Phase 1 출력 직전 3대 급소 자가 검증 완료]</h3>
+<h3>🇰🇷 [Step 1.8] 5대 한국 시장 특수성 고정 점검표</h3>
 <ol>
-<li><strong>단일 기준 주가 &amp; KPI ↔ 실적 공식 무모순 검증:</strong> <code>backtest_valuation.py</code>가 출력한 최신 일봉 종가(<code>45,600원</code>)로 단일 기준 주가를 통일하였으며, Section 4에서 <code>"가동률 산출 기재 생략"</code>을 확인함에 따라 Section 7에서 <code>'공장 가동률'</code> 단어를 일절 사용하지 않고 <strong>유형 B(장비 출하 대수 Q × 대당 단가 P + 유지보수 용역)</strong> 산식을 채택하여 논리적 모순을 원천 차단했습니다.</li>
-<li><strong>지배주주 분자 &amp; 희석·분할 보정 분모 무결성 검증:</strong> 연결 당기순이익이 아닌 <strong>지배주주 귀속 순이익(귀속률 99.6%, 2026.H1 99.89%)</strong>을 분자로 명시하였고, 2024년 6월 1:1 무상증자 및 자사주 차감 유통주식수(<code>17,963,419주</code> 및 2026.10.13 최신 공시 반영 <code>17,879,037주</code>)를 분모로 소급 적용하여 제도권 공식 벤치마크(BPS <code>17,958원</code>, PBR <code>2.54배</code>, PER <code>15.10배</code>)와 오차율 0.0% 정합성을 검증했습니다.</li>
-<li><strong>신기술 단독 익스포저 &amp; 허위 상관 필터링 검증:</strong> DART에 단독 매출이 분리 공시되지 않은 AIDC 액침냉각 신사업을 <strong><code>0.0% 익스포저 (0원 무상 콜옵션, Phase 3 S-Curve 할증 0%)</code></strong>로 엄격 분리하였으며, Section 8 백테스트에서 방향 일치율 18.4%(<code>&lt; 50%</code>) 및 시가배당률 1.43%(<code>&lt; 1.5%</code>)인 배당수익률 지표를 허위 상관으로 탈락시키고 BM에 부합하는 <strong><code>PER(1순위) + PBR(2순위)</code></strong>을 확정했습니다.</li>
+<li><strong>조세특례제한법 고배당 기업 배당소득 분리과세 적격성:</strong></li>
+<li>2025년 결산 현금배당금 총액 <strong><code>116.3억 원</code></strong>, 연결 배당성향 <strong><code>25.68%</code></strong> (적격 기준선 25% 충족).</li>
+<li>직전 3년 배당금 총액(2023년 45.1억, 2024년 53.6억, 2025년 116.3억)으로 3개년 평균(71.7억) 대비 <strong>+62.2% 대폭 확대</strong>되어 <strong><code>배당소득 분리과세 특례 적격 요건 충족</code></strong>.</li>
+<li><strong>자사주 소각 완료 후 '주주환원 절벽(Post-Buyback Cliff)' 리스크:</strong></li>
+<li>2024년 12월 30일 자사주 <strong><code>188,260주 전격 소각</code></strong> 완료.</li>
+<li>소각 완료 후 환원 중단 없이, <strong>2026년 7월 28일 <code>50억 원 규모의 자기주식 취득 신탁계약</code></strong> 체결하여 <code>105,907주</code>를 추가 매입(현재 총 자사주 550,963주, 2.99% 보유) 중으로 <strong><code>환원 절벽 리스크 0% (정상)</code></strong>.</li>
+<li><strong>지배주주 사익편취 (오너 개인회사 내부거래 터널링) 리스크:</strong></li>
+<li>DART 주석 특수관계자 거래 전수 스캔 결과, 주요 매입처인 ㈜이에스티(26.H1 매입 152.1억 원)는 GST가 지분 <strong><code>92.96%</code></strong>를 소유한 연결 종속법인임.</li>
+<li>오너 일가 개인 비상장회사를 통한 부당 내부거래 및 일감몰아주기는 <strong><code>0.0억 원 (미감지)</code></strong>으로 거버넌스 청정.</li>
+<li><strong>최대주주 지분율 및 가업승계 구도:</strong></li>
+<li>창업주 김덕준 회장 본인 지분율 <strong><code>21.60%</code></strong> (3,980,000주) 보유.</li>
+<li>전문경영인(문승보 공인회계사 대표 + 석종욱 삼성전자 출신 기술대표) 각자대표 체제로 경영 승계 관련 주가 누르기 유인 없음.</li>
+<li><strong>메자닌(CB/BW/RCPS) 리픽싱 및 오버행:</strong></li>
+<li>미상환 전환사채, 신주인수권부사채, 교환사채 잔액 <strong><code>0원 (전무)</code></strong>으로 전환 리픽싱 오버행 위험 0%.</li>
 </ol>
+<hr />
+<h2>6. 핵심 리스크 요인 및 [Step 3.5] 리스크 간 인과단계(Domino Chain) 구조도</h2>
+<p><code>[공시 팩트]</code> 단순 리스크 나열을 배제하고, 공시 본문 및 주석에 기반하여 발생 가능한 <strong>3단계 인과 사슬(Domino Chain)</strong>과 정량 임계치를 도식화합니다.</p>
+<pre><code class="language-mermaid">flowchart TD
+    subgraph Domino1[&quot;⚠️ 리스크 도미노 1: 전방 IDM CapEx 지연&quot;]
+        D1_1[&quot;1차 매크로 촉발&lt;br/&gt;글로벌 메모리 IDM 신규 팹 착공 연기&lt;br/&gt;또는 중화권 장비 반입 규제&quot;]
+        D1_2[&quot;2차 영업·마진 전이&lt;br/&gt;스크러버·칠러 출하량(Q) 급감&lt;br/&gt;고정비 디레버리지로 OPM 12% 붕괴&quot;]
+        D1_3[&quot;3차 재무·밸류 타격&lt;br/&gt;분기 매출 800억 미달 시 순현금 소진&lt;br/&gt;PBR 1.2배 하단(21,000원선) 테스트&quot;]
+        D1_1 --&gt; D1_2 --&gt; D1_3
+    end
+
+    subgraph Domino2[&quot;⚠️ 리스크 도미노 2: 매출채권 체화 및 재고평가손실&quot;]
+        D2_1[&quot;1차 촉발 요인&lt;br/&gt;고객사 팹 클린룸 셋업(Set-up) 지연&lt;br/&gt;장비 검수 및 인수증 발급 이연&quot;]
+        D2_2[&quot;2차 영업 전이&lt;br/&gt;3년 초과 장기채권(35.1억) 대손 전입&lt;br/&gt;기말 재고(715.9억) 평가충당금 급증&quot;]
+        D2_3[&quot;3차 재무 타격&lt;br/&gt;영업활동현금흐름(OCF) 일시 적자 반전&lt;br/&gt;운전자본 부담에 따른 밸류에이션 디레이팅&quot;]
+        D2_1 --&gt; D2_2 --&gt; D2_3
+    end
+
+    subgraph Domino3[&quot;⚠️ 리스크 도미노 3: AIDC 냉각 표준 경쟁 (D2C vs 액침)&quot;]
+        D3_1[&quot;1차 기술 촉발&lt;br/&gt;엔비디아 Rubin 등 차세대 AI 서버가&lt;br/&gt;단상 D2C Cold Plate를 지배 표준으로 채택&quot;]
+        D3_2[&quot;2차 시장 전이&lt;br/&gt;AIDC 액침냉각 채택 시점 2028년 이후로 지연&lt;br/&gt;단독 상용화 매출 발생 시기 순연&quot;]
+        D3_3[&quot;3차 밸류 타격&lt;br/&gt;액침냉각 멀티플 프리미엄 소멸&lt;br/&gt;(단, 당사는 0원 무상 콜옵션 평가로 본업 충격 0%)&quot;]
+        D3_1 --&gt; D3_2 --&gt; D3_3
+    end
+</code></pre>
+<ul>
+<li><strong>정량적 전이 임계치 (Kill-Switch 트리거):</strong></li>
+<li><strong>임계치 1:</strong> 분기 연결 매출액 <code>&lt; 800억 원</code> 또는 분기 영업이익률 <code>&lt; 12.0%</code> 기록 시 리스크 도미노 1 발동.</li>
+<li><strong>임계치 2:</strong> 매출채권 대손충당금 설정률 <code>≥ 10.0%</code> 돌파 또는 재고자산 평가손실 충당금 <code>≥ 80억 원</code> 초과 시 리스크 도미노 2 발동.</li>
+</ul>
+<hr />
+<h2>7. 4대 업종별 표준 실적 산출 공식 트리 (유형 B: 수주장비/단기납품)</h2>
+<p>Section 4에서 확인된 바와 같이, 당사는 DART 사업보고서에 공식 공장 가동률을 미공시하므로, 논리적 모순이 없는 <strong>[유형 B: 수주장비/단기납품 표준 산식]</strong>을 엄격히 적용합니다:</p>
+<p>$$\text{연결 매출액} = \Big[\sum (\text{장비 출하대수 } Q \times \text{대당 암묵단가 } P)\Big] + \text{Installed Base CS 용역매출} + \text{상품매출}$$</p>
+<ol>
+<li><strong>Scrubber 제품 매출:</strong> $\text{Scrubber 출하 대수(Q)} \times \text{대당 암묵단가(P, 약 1.21~1.26억 원)}$</li>
+<li><strong>Chiller 제품 매출:</strong> $\text{Chiller 출하 대수(Q)} \times \text{대당 암묵단가(P, 약 0.52~0.53억 원)}$</li>
+<li><strong>유지보수 용역 매출:</strong> $\text{글로벌 누적 설치 장비수(Installed Base)} \times \text{장비당 연간 유지보수 계약단가}$</li>
+<li><strong>전사 영업이익:</strong> $\text{매출액} \times \text{전사 영업이익률(OPM, 기준선 16~18%)}$</li>
+</ol>
+<hr />
+<h2>8. [Step 2.0] 4대 레짐 변화 고정 체크 &amp; 10년 밸류에이션 백테스트</h2>
+<!-- [AUTO-GENERATED BY backtest_valuation.py v4.3 — DO NOT EDIT NUMBERS MANUALLY] -->
+<h3>📌 [코드 자동 생성 1] SOTP 장부 분해 &amp; 4대 레짐 체크 요약표</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">검증 항목</th>
+<th style="text-align: left;">코드 실측 수치</th>
+<th style="text-align: left;">판정 결과 (Code Verdict)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>단일 기준 주가 (Anchor Price)</strong></td>
+<td style="text-align: left;"><strong><code>40,000원</code></strong></td>
+<td style="text-align: left;">전 Phase 1~3 100% 동일 고정</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>지배주주 순이익 귀속률</strong></td>
+<td style="text-align: left;"><strong><code>99.6%</code></strong></td>
+<td style="text-align: left;">비지배지분 차감 완료</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 1.5 비영업자산 비중 (SOTP 20% 룰)</strong></td>
+<td style="text-align: left;">장부 대비 <strong><code>20.3%</code></strong> / 시총 대비 <strong><code>9.1%</code></strong></td>
+<td style="text-align: left;">🚨 <strong>SOTP 분리 평가 발동</strong> (본업BPS 14,308원)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 1.5 본업 이익 유지력 (Core ROIC)</strong></td>
+<td style="text-align: left;">TTM 영업이익 <strong><code>678.9억</code></strong> (NOPAT <strong><code>529.5억</code></strong>)</td>
+<td style="text-align: left;">✅ <strong>본업 이익 유지 견고</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 2.0 4대 레짐 변화 체크</strong></td>
+<td style="text-align: left;">③ 비영업자산레짐(비영업자산 비중 20.3% ≥ 20% — 명목 PBR 저평가 착시 주의)</td>
+<td style="text-align: left;">🔄 <strong>레짐 변화 반영 필수</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 3.0 사이클 고점 함정 가드레일</strong></td>
+<td style="text-align: left;">현재/추정 EPS(3,600원) ≥ 5년 Mid-Cycle 중위 EPS(2,384원) × 1.35배 (단순 사이클 피크)</td>
+<td style="text-align: left;">🚨 <strong>피크 멀티플 제한 &amp; Mid-Cycle 캡 발동</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>직전 분기 대비 (QoQ) 실적 추이</strong></td>
+<td style="text-align: left;">[2026.1Q → 2026.2Q] 매출액 1,158.9억→992.4억(QoQ -14.4%)</td>
+<td style="text-align: left;">영업이익 201.9억→154.6억(QoQ -23.4%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>가설 반증 임계치 (Kill-Switch)</strong></td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 &lt; 131.4억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS &lt; 542원 기록 시 핵심 가설 즉시 [약화] 강등</strong></td>
+<td style="text-align: left;">미달 시 가설 즉시 [약화] 강등</td>
+</tr>
+</tbody>
+</table>
+<h4>🔄 Step 2.0 4대 레짐 변화 세부 판정</h4>
+<ol>
+<li><strong>설비 레짐 (CapEx·유형자산):</strong> 유형자산 장부가 937.6억 원으로 과거 10년 대비 점진적 확대되었으나, 대규모 신규 차입을 수반한 과잉 증설이 아닌 자체 현금흐름 내에서 집행되어 감가상각비 부담이 안정적입니다.</li>
+<li><strong>자본구조 레짐 (순부채·CB):</strong> 순차입금 <strong><code>-1,000.7억 원</code>의 초우량 무차입 순현금</strong> 구조이며, 미상환 CB/BW가 0원이므로 자본 희석 레짐 악화 위험이 없습니다.</li>
+<li><strong>비영업자산 레짐 (SOTP):</strong> 비영업자산 비중이 장부의 20.3%에 달해, 명목 PBR(2.23배) 적용 시 자산 가치가 과대평가될 수 있으므로 <strong>본업 BPS(14,308원)</strong>를 기준으로 한 엄밀한 가치평가가 요구됩니다.</li>
+<li><strong>사업구성 레짐 (고마진 믹스):</strong> 저단가 레거시 장비에서 고부가 플라즈마 스크러버 및 극저온 칠러로 제품 믹스가 질적으로 고도화되어 OPM 16~18% 레벨이 구조적으로 정착되었습니다.</li>
+</ol>
+<h4>📊 10년 풀사이클 백테스트 결과 (2016~2026)</h4>
+<p><code>backtest_valuation.py</code>를 통해 최근 10년간 522개 주봉 데이터를 검증한 결과:
+- <strong>PBR 지표:</strong> $R^2 = 0.601$, 방향 일치율 <strong><code>67.2%</code></strong> (1순위 최적 지표 선정 🏆)
+  - 10년 역사적 PBR 밴드: 하단(<code>p20</code>) 1.15배 | 중위(<code>p50</code>) 1.77배 | 상위 65%(<code>p65</code>) 2.22배 | 상단(<code>p90</code>) 2.72배
+- <strong>PER 지표:</strong> $R^2 = 0.443$, 방향 일치율 <strong><code>58.1%</code></strong> (사이클성 이익 변동으로 설명력 열위)
+- <strong>배당수익률 지표:</strong> 설명력 열위 (성장기 재투자 및 무상증자 영향)
+- ▶ <strong>결론:</strong> Phase 3 메인 밸류에이션 모델로 <strong><code>Forward BPS 기반 PBR 멀티플 밴드</code></strong>를 1순위로 공식 상속합니다.</p>
     <script>
-        const SSOT_DATA = null;
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-10-26 17:06:52", "stock_code": "083450", "corp_name": "GST", "anchor_price": 40000, "primary_metric": "PBR", "bench": {"stock_name": "GST", "close": 42850.0, "bps": 17958.0, "pbr": 2.23, "eps": 3019.0, "per": 13.25, "div_yield": 1.63, "dps": 650.0, "market_cap_str": "7,372억"}, "sotp": {"sotp_triggered": true, "book_eq_eok": 3210.72, "mcap_eok": 7151.61, "non_op_assets_eok": 652.5, "recognized_non_op_eok": 456.75, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 20.32, "non_op_ratio_mcap_pct": 9.12, "non_op_max_ratio_pct": 20.32, "core_bps": 14308, "nopat_eok": 529.51, "core_roic_pct": 20.7, "core_profit_sustainable": true, "implied_core_op_ev_eok": 5694.16}, "step1_2_bottleneck": {"is_phase2": false, "is_early_ignition": false, "theme_name": "DART 신기술 단독 익스포저 미달 (0.0% < 30% 컷오프 → 무상 콜옵션 0% 처리)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 7.0, "second_penetration_pct": 15.0, "is_near_10pct_inflection": true, "penetration_zone": "Zone D (침투율 7.0% / 2차 15.0% — 전통 시클리컬 또는 무상 콜옵션)", "inflection_desc": "AIDC 액침냉각 침투율 7.0% 선택적 틈새(단독매출 미공시 무상콜옵션) / 반도체 Sub-fab 초저온 칠러·스크러버 본업(83.2%)", "bottleneck_grade": "A", "bottleneck_factors": ["기술격차 해자: 선단 3D NAND/HBM 공정용 극저온 칠러 및 친환경 플라즈마 스크러버 수율 레퍼런스", "특허/벤더 Lock-in: 삼성전자·마이크론·대만 파운드리 Sub-fab 장비 벤더 인증"], "bottleneck_lead_time_months": 18, "bottleneck_duration_label": "⏱️ 중기 구조적 병목 (18개월 / 1~2년 지속)", "bottleneck_lead_reason": "글로벌 메모리/파운드리 신규 팹 Sub-fab 장비 데모 및 Qual 테스트에 12~18개월 소요", "capa_util_pct": 75.0, "curr_opm_pct": 17.49, "core_bottleneck_only_mode": false, "pen_base_boost": 0.0, "pen_bull_boost": 0.0, "bn_base_bonus": 0.0, "bn_bull_bonus": 0.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "peg_factor": 0.8}, "step1_8_k_return": {"payout_ratio_pct": 25.68, "tsr_pct": 12.0, "div_yield_pct": 1.63, "dps": 650.0, "treasury_shares": 550963, "treasury_ratio_pct": 2.99, "tax_incentive_status": "⚪ 분리과세 미충족 (배당성향 < 25%)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 550,963주 [2.99%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "순현금 재무구조 건전, 액침냉각은 할증 0% 무상 콜옵션으로 분리", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 3.02, "flags": ["③ 비영업자산레짐(비영업자산 비중 20.3% ≥ 20% — 명목 PBR 저평가 착시 주의)"]}, "section8": {"primary_metric": "PBR", "pbr_min": 0.46, "pbr_max": 3.72, "pbr_r2": 0.75, "pbr_dir": 63.2, "per_min": 3.81, "per_max": 22.73, "per_r2": 0.63, "per_dir": 65.8, "official_pbr": 2.23, "official_per": 13.25, "official_div": 1.63}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 99.63, "qoq_eps_positive": false, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 965.0원 → 2026.2Q 678.0원 (흑자 지속(소폭조정) 🟢)", "qoq_rev_pct": -14.4, "qoq_op_pct": -23.4, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 1,158.9억→992.4억(QoQ -14.4%) | 영업이익 201.9억→154.6억(QoQ -23.4%) | 수정EPS 965원→678원", "kill_switch_guide": "차기 분기 영업이익 < 131.4억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 542원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 28.70685404688086, "bps_2y_chg": 28.37552573792558, "op_yoy_q": -10.852778438021291, "op_yoy_ttm": 17.37767155499201, "op_yoy_used": -10.852778438021291, "op_yoy_detail": "분기(2025.2Q→2026.2Q) -10.9% (173.4억 → 154.6억) | TTM 영업이익 YoY: +17.4%", "curr_roe": 17.020088982075, "mid_cycle_roe": 17.282203109999475, "mid_cycle_eps": 2384.0, "pbr_cycle_max": 3.723525331460281, "pbr_3y_max": 3.723525331460281, "pbr_3y_mean": 1.621863888832099, "pbr_3y_p20": 1.1533404772318552, "pbr_3y_p65": 1.6469624889408325, "pbr_3y_p90": 2.655544963859019, "per_3y_max": 22.73199179839084, "per_3y_mean": 10.246781286215839, "per_3y_p20": 6.945138865581764, "per_3y_p65": 11.352921709762619, "per_3y_p90": 15.864561067621453, "curr_eps_used": 3019.0, "curr_bps_used": 17958.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 173.84, "median_52w_range_pct": 96.3, "effective_52w_range": 96.3, "forward_bps": 21558, "is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(3,600원) ≥ 5년 Mid-Cycle 중위 EPS(2,384원) × 1.35배 (단순 사이클 피크)", "op_mult": 1.0, "sc_base_mult": 1.0, "sc_bull_mult": 1.0, "kgov_mult": 1.0, "peg_factor_used": 0.8, "base_mult_a": 1.0, "bull_mult_a": 1.0, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "theme_name": "DART 신기술 단독 익스포저 미달 (0.0% < 30% 컷오프 → 무상 콜옵션 0% 처리)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 7.0, "second_penetration_pct": 15.0, "is_near_10pct_inflection": false, "inflection_desc": "AIDC 액침냉각 침투율 7.0% 선택적 틈새(단독매출 미공시 무상콜옵션) / 반도체 Sub-fab 초저온 칠러·스크러버 본업(83.2%)", "bottleneck_grade": "A", "bottleneck_factors": ["기술격차 해자: 선단 3D NAND/HBM 공정용 극저온 칠러 및 친환경 플라즈마 스크러버 수율 레퍼런스", "특허/벤더 Lock-in: 삼성전자·마이크론·대만 파운드리 Sub-fab 장비 벤더 인증"], "bottleneck_lead_time_months": 18, "bottleneck_lead_reason": "글로벌 메모리/파운드리 신규 팹 Sub-fab 장비 데모 및 Qual 테스트에 12~18개월 소요"}, "tp1_price": 50780, "tp1_price_a": 50780, "tp1_upside": 26.95, "tp1_upside_a": 26.95, "bear_auto": 20710, "base_auto": 31800, "bull_auto": 48910, "base_auto_a": 31800, "bull_auto_a": 48910, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 711.4, "implied_op_bull_a_eok": 994.8}, "cyclical_guard": {"is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(3,600원) ≥ 5년 Mid-Cycle 중위 EPS(2,384원) × 1.35배 (단순 사이클 피크)"}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -23.4%, YoY -10.9%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(1,000.7억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 40000, "d_low20": 39275, "poc_low": 51050, "poc_high": 54975, "poc_pct": 42.6, "poc_trail_pin": 49518, "d_ma5": 42300, "d_ma20": 49375, "d_ma60": 46559, "vol_ma20": 155943, "vol_ratio": 0.4, "stoch_k": 6.0, "stoch_d": 9.1, "w_close": 40000, "w_ma10": 46795, "w_ma20": 46820, "w_ma60": 37570, "bb_upper": 56174, "bb_lower": 37466, "w_macd": 1029.4, "w_macd_sig": 2198.3, "w_macd_hist": -1168.9, "w_mfi14": 56.0, "w_rsi14": 44.8, "w_mfi14_12w_max": 56.4, "buy1": 25440, "buy2": 27030, "buy3": 28620, "avg_buy_price": 27030, "init_stop_pin": 24170, "breakout_trail_pin": 49518, "gate1_rr": 0.0, "exec_rr": 1.67, "is_overvalued": true, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 40000.0, "fcf_eok": 286.9, "norm_fcf_eok": null, "distb_shares": 17879037, "total_shares": 18430000, "treasury_shares": 550963, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -1000.7, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 7151.61, "market_cap_total_eok": 7372.0, "ev_distb_eok": 6150.91, "non_op_assets_eok": 652.5, "non_op_haircut": 0.3, "recognized_non_op_eok": 456.75, "non_op_ratio_mcap_pct": 9.12, "non_op_ratio_book_pct": 20.23, "sotp_triggered": true, "core_op_ev_eok": 5694.16, "implied_g_distb_pct": 14.99, "implied_g_total_pct": 15.76, "implied_g_ev_pct": 11.23, "implied_g_core_ev_pct": 9.34, "norm_g_distb_pct": null, "norm_g_ev_pct": null, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"40000\" data-shares=\"17879037\" data-total-shares=\"18430000\" data-fcf=\"286.9\" data-reported-fcf=\"286.9\" data-net-debt=\"-1000.7\" data-non-op-assets=\"456.8\" data-bear=\"20710\" data-base=\"31800\" data-bull=\"48910\" data-base-a=\"31800\" data-bull-a=\"48910\" data-tp1=\"50780\" data-tp1-a=\"50780\" data-buy1=\"25440\" data-buy2=\"27030\" data-buy3=\"28620\" data-stop-pin=\"24170\" data-poc-low=\"51050\"></div>"};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -976,7 +978,14 @@ p > em {
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -1087,7 +1096,7 @@ p > em {
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +

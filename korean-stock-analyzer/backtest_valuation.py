@@ -1037,12 +1037,16 @@ def compute_step1_2_scurve_bottleneck_matrix(
     bottleneck_grade=None,
     bottleneck_months=None,
     capa_util_pct=None,
+    shortage_easing=False,
+    slope_decel=False,
+    policy_headwind=False,
 ):
     """
-    [NEW v4.3 #1] Step 1.2: S-Curve 10% 변곡점 & 3축 구조적 병목(Capa·기술격차·특허) 및 해소 소요기간(Lead Time) 판독기
+    [NEW v4.3 / v5.1] Step 1.2: S-Curve 10% 변곡점 & 3축 구조적 병목(Capa·기술격차·특허) · 리드타임 & 3대 매도(디레이팅) 시그널 판독기
     - 질문 1: 해당 기술이 관련 시장에서 침투율이 10% 언저리(8.0%~18.0% 변곡점 초입)인가? (또는 2차 S-Curve가 10% 언저리인가?)
     - 질문 2: 해당 기업의 비즈니스가 구조적 병목을 유발하는가? (① 생산 Capa 한계, ② 기술격차 해자, ③ 특허/벤더인증 Lock-in)
     - 질문 3: 구조적 병목을 해결하기 위해 예상되는 소요기간(Lead Time)이 얼마나 긴가? (>=24M 장기 / 12~23M 중기 / <12M 단기)
+    - 질문 4 (v5.1 신설): S-Curve 3대 매도·디레이팅 시그널(① 쇼티지 해소/리드타임 축소, ② 침투율·실적 성장 기울기 둔화, ③ 정책·보조금 역풍)이 발생했는가?
     """
     print("\n======================================================================")
     print("🔬 [Step 1.2 — S-Curve 10% 변곡점 & 3축 구조적 병목(Capa·기술·특허) · 리드타임 판독]")
@@ -1139,8 +1143,78 @@ def compute_step1_2_scurve_bottleneck_matrix(
             else:
                 bn_base_bonus, bn_bull_bonus = 0.05, 0.07
 
-    total_sc_bn_base_mult = round(1.0 + max(0.0, pen_base_boost + bn_base_bonus), 4)
-    total_sc_bn_bull_mult = round(1.0 + max(0.0, pen_bull_boost + bn_bull_bonus), 4)
+    # [NEW v5.1] Axis 4: S-Curve 3-Axis Sell / De-rating Signals (with Strict Noise-Prevention Guardrails)
+    # 1) Shortage Easing (리드타임 축소 / 경쟁사 진입 / 가동률 급락):
+    auto_shortage_easing = bool(
+        sc_info.get("is_phase2")
+        and bn_months < 12
+        and (capa_util_pct is not None and float(capa_util_pct) < 70.0)
+    )
+    shortage_easing_active = bool(shortage_easing or auto_shortage_easing)
+
+    # 2) Slope Deceleration (침투율/실적 성장 기울기 둔화 — 3중 노이즈 차단 필터):
+    #    Only auto-triggers when: (a) mature/mid-late S-Curve (pen1 >= 25% and not 10% inflection),
+    #    (b) recent 4Q peak OP YoY growth >= +40% and current OP YoY dropped by >= 50%p from peak,
+    #    AND (c) latest quarter OP QoQ <= -15.0% (eliminates 1-quarter seasonal noise).
+    auto_slope_decel = False
+    auto_slope_detail = ""
+    if not s3.empty and "영업이익" in s3.columns and pen1 >= 25.0 and not is_near_10pct:
+        op_ser = pd.to_numeric(s3["영업이익"], errors="coerce").dropna()
+        if len(op_ser) >= 8:
+            yoy_list = []
+            for idx_q in range(-4, 0):
+                curr_v = float(op_ser.iloc[idx_q])
+                prev_v = float(op_ser.iloc[idx_q - 4])
+                if prev_v > 0:
+                    yoy_list.append(((curr_v / prev_v) - 1.0) * 100.0)
+            qoq_latest = (
+                ((float(op_ser.iloc[-1]) / float(op_ser.iloc[-2])) - 1.0) * 100.0
+                if float(op_ser.iloc[-2]) > 0
+                else 0.0
+            )
+            if len(yoy_list) >= 3:
+                peak_yoy = max(yoy_list[:-1])
+                curr_yoy = yoy_list[-1]
+                if peak_yoy >= 40.0 and (peak_yoy - curr_yoy) >= 50.0 and qoq_latest <= -15.0:
+                    auto_slope_decel = True
+                    auto_slope_detail = f"최근 4분기 피크 YoY({peak_yoy:+.1f}%) ➔ 현 YoY({curr_yoy:+.1f}%) 기울기 급감 & 직전분기 QoQ({qoq_latest:+.1f}%)"
+    slope_decel_active = bool(slope_decel or auto_slope_decel)
+    policy_headwind_active = bool(policy_headwind)
+
+    sell_signals = []
+    sell_base_penalty = 0.0
+    sell_bull_penalty = 0.0
+
+    if shortage_easing_active:
+        sell_signals.append("🚨쇼티지해소·리드타임축소(Base -6%/Bull -8%)")
+        sell_base_penalty -= 0.06
+        sell_bull_penalty -= 0.08
+    if slope_decel_active:
+        desc_s = f"📉침투율·성장기울기둔화({auto_slope_detail or 'YoY/QoQ 기울기 감속'}, Base -5%/Bull -7%)"
+        sell_signals.append(desc_s)
+        sell_base_penalty -= 0.05
+        sell_bull_penalty -= 0.07
+    if policy_headwind_active:
+        sell_signals.append("🏛️정책·보조금축소/규제역풍(Base -7%/Bull -10%)")
+        sell_base_penalty -= 0.07
+        sell_bull_penalty -= 0.10
+
+    scurve_sell_triggered = len(sell_signals) > 0
+    if scurve_sell_triggered:
+        # When any genuine S-Curve sell signal triggers: strip all upside S-Curve/bottleneck boosts (0%)
+        # and apply bounded de-rating penalty (floored at Base -15% / Bull -18% to prevent noise distortion).
+        pen_base_boost, pen_bull_boost = 0.0, 0.0
+        bn_base_bonus = max(-0.15, round(sell_base_penalty, 4))
+        bn_bull_bonus = max(-0.18, round(sell_bull_penalty, 4))
+        core_bottleneck_only_mode = False
+        peg_factor = 0.65 if (shortage_easing_active or policy_headwind_active) else 0.70
+        total_sc_bn_base_mult = round(1.0 + bn_base_bonus, 4)
+        total_sc_bn_bull_mult = round(1.0 + bn_bull_bonus, 4)
+        sell_signal_summary = " / ".join(sell_signals)
+    else:
+        total_sc_bn_base_mult = round(1.0 + max(0.0, pen_base_boost + bn_base_bonus), 4)
+        total_sc_bn_bull_mult = round(1.0 + max(0.0, pen_bull_boost + bn_bull_bonus), 4)
+        sell_signal_summary = "🟢 해당 없음 (병목 유지 · 성장 기울기 건전 · 정책 역풍 미감지)"
 
     inflection_str = sc_info.get("inflection_desc") or pen_zone_code
     print(f"    - [질문 1 — 침투율 10% 언저리 변곡점 판별]: {'🔥 YES (10% 언저리 변곡점 포착!)' if is_near_10pct else '⚪ NO (비해당/성숙/캐즘)'}")
@@ -1150,7 +1224,13 @@ def compute_step1_2_scurve_bottleneck_matrix(
         print(f"      • 병목 원천 {idx_f}: {fac}")
     print(f"    - [질문 3 — 구조적 병목 해소 예상 소요기간]: {duration_label}")
     print(f"      • 리드타임 근거: {bn_lead_reason}")
-    if core_bottleneck_only_mode:
+    print(f"    - [질문 4 — S-Curve 3대 매도·디레이팅 시그널 점검]: {sell_signal_summary}")
+    if scurve_sell_triggered:
+        print(
+            f"    - 🚨 [Phase 3 목표주가 디레이팅 결론]: S-Curve 매도 신호 감지! 기존 할증을 전액 박탈(0%)하고 "
+            f"🚀대안 A 목표주가에 디레이팅 할인(Base ×{total_sc_bn_base_mult:.2f} [{bn_base_bonus*100:+.1f}%] / Bull ×{total_sc_bn_bull_mult:.2f} [{bn_bull_bonus*100:+.1f}%], PEG {peg_factor:.2f})을 반영합니다!"
+        )
+    elif core_bottleneck_only_mode:
         print(
             f"    - 🎯 [Phase 3 목표주가 반영 결론]: 신사업 S-Curve는 무상 콜옵션(0%)으로 보수적 차단하되, "
             f"본업 자체의 [{bn_grade}등급 구조적 병목(가동률 {util_pct:.0f}%·OPM {curr_opm_pct:.1f}%·해소기간 {bn_months}개월)]을 반영하여 "
@@ -1181,6 +1261,11 @@ def compute_step1_2_scurve_bottleneck_matrix(
         "capa_util_pct": util_pct,
         "curr_opm_pct": curr_opm_pct,
         "core_bottleneck_only_mode": core_bottleneck_only_mode,
+        "scurve_sell_triggered": scurve_sell_triggered,
+        "shortage_easing": shortage_easing_active,
+        "slope_decel": slope_decel_active,
+        "policy_headwind": policy_headwind_active,
+        "sell_signal_summary": sell_signal_summary,
         "pen_base_boost": pen_base_boost,
         "pen_bull_boost": pen_bull_boost,
         "bn_base_bonus": bn_base_bonus,
@@ -2199,9 +2284,21 @@ def compute_section3_stock_nature_and_tp1(
         early_ignition=early_ignition,
     )
 
-    # [NEW v4.3] Use Step 1.2 3-Axis S-Curve (10% Inflection + Structural Bottleneck + Lead Time) & Step 1.8 K-Return Multipliers
+    # [NEW v4.3 / v5.1] Use Step 1.2 3-Axis S-Curve (10% Inflection + Structural Bottleneck + Lead Time + 3 Sell Signals) & Step 1.8 K-Return Multipliers
+    sc_sell_triggered = bool((step1_2_res or {}).get("scurve_sell_triggered", False))
+    if sc_sell_triggered and op_mult > 1.0:
+        op_mult = 1.0
+        op_reason = "🚨 S-Curve 매도/디레이팅 시그널 발동 → 후행 영업이익 모멘텀 할증(+8%) 자동 중립화(0.0%)"
+
     if step1_2_res and not is_type_b:
-        if sc_info.get("is_early_ignition") and (op_yoy is not None and op_yoy < -5.0):
+        if sc_sell_triggered:
+            sc_base_mult = float(step1_2_res.get("total_sc_bn_base_mult", 1.0))
+            sc_bull_mult = float(step1_2_res.get("total_sc_bn_bull_mult", 1.0))
+            sc_reason = (
+                f"🚨 [S-Curve 매도·디레이팅 발동: {step1_2_res.get('sell_signal_summary', '')}] "
+                f"➔ 기존 할증 전액 박탈 및 목표주가 디레이팅 반영"
+            )
+        elif sc_info.get("is_early_ignition") and (op_yoy is not None and op_yoy < -5.0):
             sc_base_mult = 1.0
             sc_bull_mult = 1.0
             sc_reason = f"미적용 🚫 [선행 발화 가드레일 미충족: 영업이익 YoY {op_yoy:+.1f}% < -5%] → 할증 0%"
@@ -2235,19 +2332,19 @@ def compute_section3_stock_nature_and_tp1(
     kgov_mult = float((step1_8_res or {}).get("kgov_mult", 1.0)) if not is_type_b else 1.0
     kgov_reason = (step1_8_res or {}).get("k_gov_note", "K-주주환원·지배구조 중립 (×1.00)")
 
-    # Total Model A multiplier with v4.3 Dual Hard Cap (Base <= 1.38x, Bull <= 1.45x)
+    # Total Model A multiplier with v5.1 Two-Way Bound (Floor >= 0.80x, Cap Base <= 1.38x / Bull <= 1.45x)
     raw_base_mult_a = op_mult * sc_base_mult * kgov_mult
     raw_bull_mult_a = op_mult * sc_bull_mult * kgov_mult
-    base_mult_a = round(min(raw_base_mult_a, 1.38), 4)
-    bull_mult_a = round(min(raw_bull_mult_a, 1.45), 4)
+    base_mult_a = round(max(0.80, min(raw_base_mult_a, 1.38)), 4)
+    bull_mult_a = round(max(0.80, min(raw_bull_mult_a, 1.45)), 4)
     bear_auto_a = bear_auto_b
 
-    base_auto_a = round((base_auto_b * base_mult_a) / 10) * 10
-    bull_auto_a = round((bull_auto_b * bull_mult_a) / 10) * 10
+    base_auto_a = max(bear_auto_b + 10, round((base_auto_b * base_mult_a) / 10) * 10)
+    bull_auto_a = max(base_auto_a + 10, round((bull_auto_b * bull_mult_a) / 10) * 10)
 
-    # [v4.3] Dynamic PEG(0.80 ~ 0.95) Rerating based on Bottleneck Lead Time + 10% Inflection
+    # [v4.3] Dynamic PEG(0.80 ~ 0.95) Rerating based on Bottleneck Lead Time + 10% Inflection (disabled if sell signal active)
     peg_factor_used = float((step1_2_res or {}).get("peg_factor", 0.80))
-    if forward_eps_g is not None and forward_eps_g > 0 and eps > 0 and sc_info["is_phase2"] and not is_type_b:
+    if forward_eps_g is not None and forward_eps_g > 0 and eps > 0 and sc_info["is_phase2"] and not is_type_b and not sc_sell_triggered:
         capped_g = min(float(forward_eps_g), 35.0)
         peg_target_per = capped_g * peg_factor_used
         peg_price = round((eps * peg_target_per) / 10) * 10
@@ -2348,13 +2445,13 @@ def compute_section3_stock_nature_and_tp1(
         if (base_target is not None and base_target > 0)
         else base_auto_b
     )
-    final_base_a = round((final_base_b * base_mult_a) / 10) * 10
+    final_base_a = max(bear_auto_b + 10, round((final_base_b * base_mult_a) / 10) * 10)
     final_bull_b = (
         round(bull_target / 10) * 10
         if (bull_target is not None and bull_target > 0)
         else bull_auto_b
     )
-    final_bull_a = round((final_bull_b * bull_mult_a) / 10) * 10
+    final_bull_a = max(final_base_a + 10, round((final_bull_b * bull_mult_a) / 10) * 10)
 
     # [NEW v4.3] Red-Team Reverse Implied Capa & Margin Ceiling Audit
     capa_util_pct = float((step1_2_res or {}).get("capa_util_pct", 80.0))
@@ -2412,6 +2509,7 @@ def compute_section3_stock_nature_and_tp1(
         "peg_factor_used": peg_factor_used,
         "base_mult_a": base_mult_a,
         "bull_mult_a": bull_mult_a,
+        "scurve_sell_triggered": sc_sell_triggered,
         "scurve_info": sc_info,
         "tp1_price": tp1_price_b,
         "tp1_price_a": tp1_price_a,
@@ -2646,9 +2744,11 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
     track2_ceiling = max(int(round(base_a * 0.98)), int(round(track2_target * 0.88)))
     weekly_trend_ok = (curr_p >= w_ma20_val * 0.95) and (w_ma20_val >= w_ma60_val * 0.97)
 
+    sc_sell_active = bool(sec3_res.get("scurve_sell_triggered", False))
     is_track2 = (
         sc_info.get("is_phase2", False)
         and not sec3_res.get("is_peak_trap", False)
+        and not sc_sell_active
         and (curr_p >= primary_t * 0.96)
         and (curr_p <= track2_ceiling)
         and weekly_trend_ok
@@ -2918,6 +3018,7 @@ def export_pipeline_ssot(
 | **②-B 기술격차 해자 (OPM/수율/단가결정력)** | 현 OPM **`{s12.get('curr_opm_pct', 0.0):.1f}%`** — {bn_f_tech} | 고마진 가격전가력(Pricing Power) 점검 |
 | **②-C 원천특허 · 글로벌 벤더 퀄(Qual) 락인** | {bn_f_pat} | 후발주자 진입장벽(Switching Cost) 점검 |
 | **③ 병목 해소 예상 소요기간 (Lead Time)** | **`{s12.get('bottleneck_grade', 'C')}등급`** (해소 리드타임 **`{s12.get('bottleneck_lead_time_months', 0)}개월`**) | {s12.get('bottleneck_lead_reason', 'N/A')} (PEG 계수 `{s12.get('peg_factor', 0.80):.2f}`) |
+| **③-B S-Curve 3대 매도·디레이팅 시그널** | {s12.get('sell_signal_summary', '🟢 해당 없음')} | {'🚨 **S-Curve 할증 박탈 & 목표주가 디레이팅 반영**' if s12.get('scurve_sell_triggered') else '🟢 **매도 시그널 미감지 (정상 평가)**'} |
 | **④ K-마켓 주주환원 · 지배구조 (Step 1.8)** | 배당수익률 **`{s18.get('div_yield_pct', 0.0):.2f}%`** (성향 `{s18.get('payout_ratio_pct', 0.0):.1f}%`) / 특수관계인 `{s18.get('related_party_eok', 0.0):.1f}억` | {s18.get('tax_incentive_status', 'N/A')} / {s18.get('cliff_status', 'N/A')} (`kgov_mult = ×{s18.get('kgov_mult', 1.0):.4f}`) |
 | **⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)** | 대안 A 내재 영업이익: Base **`{sec3_res.get('implied_op_base_a_eok', 0.0):,.1f}억`** / Bull **`{sec3_res.get('implied_op_bull_a_eok', 0.0):,.1f}억`** | {sec3_res.get('red_team_capa_verdict', 'N/A')} |
 
@@ -2971,6 +3072,9 @@ def run_valuation_backtest(
     related_party_eok=None,
     governance_discount=None,
     anchor_price=None,
+    shortage_easing=False,
+    slope_decel=False,
+    policy_headwind=False,
 ):
     reset_warnings()
     print("\n======================================================================")
@@ -3086,6 +3190,9 @@ def run_valuation_backtest(
         bottleneck_grade=bottleneck_grade,
         bottleneck_months=bottleneck_months,
         capa_util_pct=capa_util_pct,
+        shortage_easing=shortage_easing,
+        slope_decel=slope_decel,
+        policy_headwind=policy_headwind,
     )
 
     # [v4.3 Step 1.8] K-Market Specifics & Shareholder Return Scorecard
@@ -3236,6 +3343,9 @@ if __name__ == "__main__":
     parser.add_argument("--related-party-eok", type=float, default=None, help="Override related-party revenue in 억 원")
     parser.add_argument("--governance-discount", type=float, default=None, help="Override K-governance discount %% (e.g. -5.0)")
     parser.add_argument("--anchor-price", type=float, default=None, help="Optional single price anchor override (KRW) to sync with an existing report date")
+    parser.add_argument("--shortage-easing", action="store_true", help="Trigger S-Curve Sell Signal #1: Shortage Easing / Lead-time compression / Dual-vendor entry")
+    parser.add_argument("--slope-decel", action="store_true", help="Trigger S-Curve Sell Signal #2: Penetration or YoY/QoQ growth slope deceleration")
+    parser.add_argument("--policy-headwind", action="store_true", help="Trigger S-Curve Sell Signal #3: Policy/subsidy rollback or regulatory headwind")
 
     args = parser.parse_args()
     sc_override = True if args.s_curve_phase2 else (False if args.no_s_curve else None)
@@ -3272,4 +3382,7 @@ if __name__ == "__main__":
         related_party_eok=args.related_party_eok,
         governance_discount=args.governance_discount,
         anchor_price=args.anchor_price,
+        shortage_easing=args.shortage_easing,
+        slope_decel=args.slope_decel,
+        policy_headwind=args.policy_headwind,
     )

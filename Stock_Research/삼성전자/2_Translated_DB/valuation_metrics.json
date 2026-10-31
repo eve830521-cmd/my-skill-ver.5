@@ -244,16 +244,16 @@
     "non_op_haircut": 0.3,
     "recognized_non_op_eok": 297500.0,
     "non_op_ratio_mcap_pct": 3.33,
-    "non_op_ratio_book_pct": 14166.67,
-    "sotp_triggered": true,
+    "non_op_ratio_book_pct": 8.65,
+    "sotp_triggered": false,
     "core_op_ev_eok": 10787904.62,
     "implied_g_distb_pct": 34.82,
     "implied_g_total_pct": 35.5,
     "implied_g_ev_pct": 30.84,
-    "implied_g_core_ev_pct": 30.08,
+    "implied_g_core_ev_pct": null,
     "norm_g_distb_pct": 31.04,
     "norm_g_ev_pct": 27.14,
-    "norm_g_core_ev_pct": 26.4
+    "norm_g_core_ev_pct": null
   },
   "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"223500\" data-shares=\"5709551509\" data-total-shares=\"5846278608\" data-fcf=\"245000.0\" data-reported-fcf=\"245000.0\" data-net-debt=\"-1675443.0\" data-non-op-assets=\"297500.0\" data-bear=\"85330\" data-base=\"185400\" data-bull=\"637340\" data-base-a=\"228260\" data-bull-a=\"819110\" data-tp1=\"273500\" data-tp1-a=\"295380\" data-buy1=\"148320\" data-buy2=\"157590\" data-buy3=\"166860\" data-stop-pin=\"140900\" data-poc-low=\"269900\"></div>"
 }

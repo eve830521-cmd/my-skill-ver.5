@@ -406,118 +406,39 @@ p > em {
     </script>
 </head>
 <body>
-    <h1>🎯 JW생명과학(234080) Phase 3: 밸류에이션 및 전략</h1>
+    <h1>🎯 JW생명과학 (234080) Phase 3: 가격 판독기 (DCF &amp; 시나리오 밸류에이션 — v4.3)</h1>
 <blockquote>
-<p><strong>[S-Curve 국면 인증 뱃지]</strong>: <code>[⚪ S-Curve N/A: 전통 시클리컬 / 성숙기 BM]</code><br />
-<strong>[하이브리드 밸류체인 지위]</strong>: <code>[⚪ 전통 필수 헬스케어 과점 BM (CAPEX 해자 &amp; 정부 배당소득 분리과세 적격)]</code><br />
-<strong>평가 기준일</strong>: 2026년 10월 19일<br />
-<strong>단일 기준 주가</strong>: <strong>10,520원</strong> (최신 일봉 종가 1개로 통일) | 명목 시총: 1,665.8억 원<br />
-<strong>주식수 현황</strong>: 총 발행주식수 15,834,554주, 자기주식수 350,000주, <strong>실질 유통주식수 15,484,554주</strong> (실질 유통 시가총액: 1,629.0억 원) <code>[공시 팩트: 26년 반기보고서 p.37, 40]</code><br />
-<strong>순차입금</strong>: <strong>+184.3억 원</strong> (총차입금 305.0억 원 − 현금및현금성자산/단기금융자산 120.7억 원) ➔ <strong>실질 기업가치(EV): 1,813.3억 원</strong> <code>[공시 팩트: 26년 반기보고서 p.91]</code><br />
-<strong>기준 FCF</strong>: 271.0억 원 (2025 결산 FCF, 대신증권 집계 312.6억 원 <code>[글로벌 트렌드: 대신증권 p.59]</code>, 2026E 정상화 FCF 320.0억 원)<br />
-<strong>공식 지표 (Sanity Check 통과)</strong>: 실질 유통 BPS 14,644원, <strong>공식 PBR 0.72배</strong>(10년 역사적 최하단 바닥), <strong>공식 PER 6.40배</strong>, <strong>공식 배당수익률 5.23%</strong>(DPS 550원 확정 기준, Phase 1 백테스트 1위 $R^2=0.9003$)</p>
+<p>💡 <strong>[핵심 가치평가 요약]</strong>
+- <strong>[역DCF 내재 공포 판독]</strong>: 단일 기준 주가 <strong><code>10,470원</code></strong>에 내재된 향후 5개년 FCF 요구 성장률은 <strong>연간 <code>-17.67% ~ -20.37%</code></strong>로, 시장은 당사의 현금창출력이 매년 20% 가까이 소멸할 것이라는 극단적 비이성적 공포를 가격에 반영하고 있습니다.
+- <strong>[가치함정 판정 &amp; 4대 레짐]</strong>: 비영업자산 비중 9.5%(&lt;20%), 본업 ROIC 12.67%, 상반기 300억 원 사채 전액 상환에 따른 순차입금 229억 원 축소로 재무적 무차입화에 도달했습니다. 펀더멘털 훼손에 의한 가치함정이 아닌, 저PBR·소외주 프레임에 기인한 <strong>'유형 B (역사적 하단 극단적 눌림목)'</strong>으로 판정합니다.
+- <strong>[S등급 병목 프리미엄 vs 레드팀 Capa 천장 균형]</strong>: 당진공장 가동률 98.30% 및 EU-GMP 락인(리드타임 24개월+ S등급)으로 공급 과잉 우려는 전무하나, 신규 증설 없는 Bull 내재 영업이익(493억)은 현 설비 하에서 물리적으로 불가능합니다. 따라서 현실적 목표가는 <strong>TP1 <code>13,040원</code> (+24.6%)</strong> 및 <strong>Base <code>13,770원</code> (+31.5%)</strong>으로 보수적 수렴시킵니다.</p>
 </blockquote>
 <hr />
-<h2>1. 시장 프라이싱 역산 (역DCF 및 요구 성장률 진단 — Equity &amp; EV 병기)</h2>
-<h3>Step 0.5: FCF 품질 검증 및 정상화 FCF(Normalized FCF) 점검 (역DCF 연산 직전 필수 수행)</h3>
-<p>[공시 팩트] DART 2026년 반기보고서 연결 현금흐름표를 바탕으로 역DCF 입력 FCF의 질적 건전성을 4개 항목으로 분리 점검합니다 <code>[공시 팩트: 26년 반기보고서 p.35, 37, 40]</code>.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">품질 체크</th>
-<th style="text-align: left;">점검 기준</th>
-<th style="text-align: left;">기업 현황 (DART 반기 공시 수치)</th>
-<th style="text-align: center;">판정</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>OCF/순이익 갭</strong></td>
-<td style="text-align: left;">OCF÷지배순이익 비율이 1.5배 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">OCF 316.0억 원 ÷ 지배순이익 147.0억 원 = <strong>2.15배</strong> (장치산업 감가상각비 환원 영향)</td>
-<td style="text-align: center;">⚠️ 경고</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>운전자본(WC) 변동</strong></td>
-<td style="text-align: left;">WC 순변동이 OCF의 30% 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">WC 순변동 +48.9억 원 (OCF 대비 <strong>15.5%</strong>로 30% 이내 정상)</td>
-<td style="text-align: center;"><strong>정상</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>CapEx 사이클 착시</strong></td>
-<td style="text-align: left;">상반기 FCF 단순 ×2 연환산 시 하반기 CapEx 누락 또는 증설 왜곡 여부</td>
-<td style="text-align: left;">반기 CapEx 50.7억 원 (정상 유지보수 수준, 연환산 약 100억 원)</td>
-<td style="text-align: center;"><strong>정상</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>비지배지분 귀속 괴리</strong></td>
-<td style="text-align: left;">연결 FCF 중 비지배지분 유출이 15% 초과 시 경고</td>
-<td style="text-align: left;">비지배지분 유출 0원 (지배주주 귀속률 <strong>100.0%</strong>)</td>
-<td style="text-align: center;"><strong>정상</strong></td>
-</tr>
-</tbody>
-</table>
+<h3>📌 단일 기준 주가 및 핵심 재무 지표 (Single Price Anchor — SSOT)</h3>
 <ul>
-<li><strong>경고 발생 원인 및 정상화 FCF 산출</strong>:</li>
-<li>OCF가 순이익의 2.15배에 달하는 사유는 부실채권이나 허수 매출이 아니라, 아시아 최대 수액 전용 장치설비(당진공장) 가동에 따른 <strong>비현금성 감가상각비 환원</strong> 때문입니다.</li>
-<li>당사는 2026년 상반기 이미 <strong>265.3억 원의 순수 FCF</strong>를 창출하여 2025년 온기 FCF(271.0억 원) 수준에 육박했습니다.</li>
-<li>가이드라인에 따라 아래 역DCF 표에는 <strong>"보고 FCF(2025 결산 271.0억 원) 기준"과 "2026E 정상화 FCF(320.0억 원) 기준"을 병기</strong>합니다.</li>
+<li><strong>단일 기준 주가(최신 일봉 종가)</strong>: <strong><code>10,470원</code></strong> (2026-10-26 기준, 전 Phase 1~3 100% 동일 일치)</li>
+<li><strong>공식 실질 유통 BPS / PBR</strong>: <strong><code>14,644원</code> / <code>0.71배</code></strong> (10년 역사적 최저 바닥 10,380원 대비 +0.87%)</li>
+<li><strong>공식 기본 EPS / PER</strong>: <strong><code>1,643원</code> / <code>6.37배</code></strong> (10년 중위 PER 12.5배 대비 약 50% 할인)</li>
+<li><strong>시가배당수익률 / 배당성향</strong>: <strong><code>5.25%</code> (DPS 550원) / <code>29.8%</code></strong> (조특법 제104조의27 고배당 분리과세 요건 2 충족)</li>
+<li><strong>공식 유통주식수</strong>: <strong><code>15,484,554주</code></strong> (총발행 15,834,554주 - 자기주식 350,000주)</li>
+<li><strong>실질 유통 시가총액</strong>: <strong><code>1,621.2억 원</code></strong> (명목 시총 1,657.9억 원)</li>
+<li><strong>순차입금 (Net Debt)</strong>: <strong><code>+229.0억 원</code></strong> (총차입금 321.0억 - 현금성자산 91.7억, 사채 0원)</li>
+<li><strong>실질 기업가치 (EV)</strong>: <strong><code>1,850.2억 원</code></strong> (유통시총 1,621.2억 + 순차입금 229.0억)</li>
+<li><strong>기준 FCF</strong>: <strong><code>313.0억 원</code></strong> (2025 결산 FCF 312.6억 원, 2026 상반기 실측 FCF 265.3억 원)</li>
 </ul>
-<h3>Step 1: 역DCF 연산 — 유통시총(Equity) &amp; 실질 기업가치(EV) 2행 병기 필수 양식</h3>
-<p>[공시 팩트] DART 정기보고서상 확정 공시 데이터를 추출하여 역DCF 입력 변수를 확정했습니다 <code>[공시 팩트: 26년 반기보고서 p.37, 40, 91]</code>.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">입력 변수</th>
-<th style="text-align: left;">수치</th>
-<th style="text-align: left;">출처 (DART 문서명 + 페이지/항목)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>단일 기준 주가</strong></td>
-<td style="text-align: left;"><strong>10,520원</strong></td>
-<td style="text-align: left;">2026년 10월 19일 최신 일봉 종가 (<code>Phase 1~3 공통 단일 앵커</code>)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>총 발행주식수</strong></td>
-<td style="text-align: left;"><strong>15,834,554주</strong></td>
-<td style="text-align: left;">DART 26년 반기보고서 p.37 「주식의 총수」</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>자기주식수</strong></td>
-<td style="text-align: left;"><strong>350,000주</strong></td>
-<td style="text-align: left;">DART 26년 반기보고서 p.37 「자기주식 취득 및 처분 현황」</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>실질 유통주식수</strong></td>
-<td style="text-align: left;"><strong>15,484,554주</strong></td>
-<td style="text-align: left;">DART 공식 유통주식수 (<code>distb_stock_co</code>, 자사주 차감)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>순차입금 (Net Debt)</strong></td>
-<td style="text-align: left;"><strong>+184.3억 원</strong></td>
-<td style="text-align: left;">총차입금 305.0억 원 − 현금성자산/단기금융자산 120.7억 원 <code>[공시 팩트: p.91]</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>실질 기업가치 (EV)</strong></td>
-<td style="text-align: left;"><strong>1,813.3억 원</strong></td>
-<td style="text-align: left;">실질 유통 시가총액(1,629.0억) + 순차입금(+184.3억)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>기준 FCF (및 정상화 FCF)</strong></td>
-<td style="text-align: left;"><strong>271.0억 원 (정상화 320.0억 원)</strong></td>
-<td style="text-align: left;">2025년 결산 FCF 271.0억 원 (대신증권 집계 312.6억 원 <code>[글로벌 트렌드: p.59]</code>)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>WACC / 영구성장률</strong></td>
-<td style="text-align: left;"><strong>9.0% / 2.0%</strong></td>
-<td style="text-align: left;">제약/바이오 필수소비재 제조업 기본값 / 한국 장기 잠재성장률</td>
-</tr>
-</tbody>
-</table>
+<hr />
+<h2>1. 역DCF 정밀 판독 (Equity · EV · SOTP 본업EV 3대 병기)</h2>
+<h3>1.1 FCF 건전성 및 정상화 FCF(Normalized FCF) 검증</h3>
+<p>[공시 팩트] 2026년 반기보고서 연결 현금흐름표를 바탕으로 FCF 품질을 정밀 검증했습니다 <code>[공시 팩트: 2026년 반기보고서 p.35, 37]</code>:
+- <strong>영업활동현금흐름(OCF)</strong>: <strong><code>316.0억 원</code></strong> (당반기 순이익 147.0억 원 대비 2.15배 — 감가상각비 등 비현금성 비용 환원에 기인).
+- <strong>설비투자(CapEx)</strong>: <strong><code>50.7억 원</code></strong> (유형자산 46.5억 + 무형자산 4.2억 — 유지보수 수준).
+- <strong>상반기 실측 FCF</strong>: OCF 316.0억 - CapEx 50.7억 = <strong><code>265.3억 원</code></strong> 달성.
+- <strong>기준 FCF 선정</strong>: 2025년 결산 FCF 312.6억 원(대신증권 80p 집계 312.6억) 및 2026년 상반기 실측치(265.3억)를 감안하여 <strong><code>313.0억 원</code></strong>을 보수적 단일 기준 FCF로 채택했습니다.</p>
+<h3>1.2 역DCF 연산 결과 (<code>calc_reverse_dcf.py</code> 실측 도출)</h3>
 <ul>
-<li><strong>역DCF 연산 결과 (<code>calc_reverse_dcf.py</code> v4.1 실측 도출 — Equity &amp; EV 2행 병기):</strong></li>
+<li>할인율(WACC): <strong><code>9.0%</code></strong> (제약/바이오 장치산업 기본값)</li>
+<li>영구성장률(g): <strong><code>2.0%</code></strong> (한국 장기 잠재성장률)</li>
+<li>추정 기간: <strong><code>5년</code></strong></li>
 </ul>
 <table>
 <thead>
@@ -525,259 +446,164 @@ p > em {
 <th style="text-align: left;">평가 기준 및 FCF 구분</th>
 <th style="text-align: center;">유통 시총 / 실질 EV</th>
 <th style="text-align: center;">향후 5개년 FCF 요구 성장률</th>
-<th style="text-align: left;">판정 및 해석</th>
+<th style="text-align: left;">판정 및 시장 심리 해석</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>① [보고 FCF (271.0억) | 유통시총(Equity) 기준]</strong></td>
-<td style="text-align: center;">1,629.0억 원</td>
-<td style="text-align: center;"><strong>연간 -17.32%</strong> (총주식 기준: -16.86%)</td>
-<td style="text-align: left;">극심한 역성장 반영 ➔ 극단적 저평가 (안전마진 완비)</td>
+<td style="text-align: left;"><strong>① [보고 FCF (313.0억) | 유통시총(Equity) 기준]</strong></td>
+<td style="text-align: center;">1,621.2억 원</td>
+<td style="text-align: center;"><strong>연간 <code>-20.37%</code></strong> (총주식 기준: -19.91%)</td>
+<td style="text-align: left;">매년 FCF가 20%씩 급감해도 현재가 정당화 ➔ 극단적 저평가 안전마진</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>② [보고 FCF (271.0억) | 실질 기업가치(EV) 기준]</strong></td>
-<td style="text-align: center;"><strong>1,813.3억 원</strong></td>
-<td style="text-align: center;"><strong>연간 -15.10%</strong> <em>(차입기업 필수 주 지표)</em></td>
-<td style="text-align: left;"><strong>부채 감안 실질 기업가치 기준 비이성적 공포 반영</strong></td>
+<td style="text-align: left;"><strong>② [보고 FCF (313.0억) | 실질 기업가치(EV) 기준]</strong></td>
+<td style="text-align: center;"><strong>1,850.2억 원</strong></td>
+<td style="text-align: center;"><strong>연간 <code>-17.67%</code></strong> <em>(차입기업 필수 기준)</em></td>
+<td style="text-align: left;"><strong>순차입금(229억)을 전액 감안해도 연간 -18% 역성장을 내재한 비이성적 공포</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>③ [정규화 FCF (320.0억) | 유통시총(Equity) 기준]</strong></td>
-<td style="text-align: center;">1,629.0억 원</td>
-<td style="text-align: center;"><strong>연간 -20.72%</strong></td>
-<td style="text-align: left;">정상화 현금흐름 대비 파멸적 역성장 프라이싱</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>④ [정규화 FCF (320.0억) | 실질 기업가치(EV) 기준]</strong></td>
-<td style="text-align: center;"><strong>1,813.3억 원</strong></td>
-<td style="text-align: center;"><strong>연간 -18.54%</strong></td>
-<td style="text-align: left;"><strong>정상 체력 기준 극대화된 하방 안전마진</strong></td>
+<td style="text-align: left;"><strong>③ [비영업자산 안전가치 차감 본업 EV 기준]</strong></td>
+<td style="text-align: center;">1,699.7억 원</td>
+<td style="text-align: center;"><strong>연간 <code>-19.34%</code></strong></td>
+<td style="text-align: left;">비영업자산 30% 할인 반영 시 본업 가치 대비 극단적 저평가 확인</td>
 </tr>
 </tbody>
 </table>
+<p>🎯 <strong>역DCF 핵심 결론</strong>:
+시장은 당사의 FCF가 매년 17~20%씩 붕괴할 것이라는 시나리오를 주가(10,470원)에 반영하고 있습니다. 그러나 당사는 국내 TPN 시장 1위 과점 지위와 상반기 실측 FCF 265억 원 창출력을 보유하고 있어 역성장 가정이 현실화될 가능성은 극히 희박합니다.</p>
+<hr />
+<h2>2. 가치함정 이원화 판정(유형 A vs 유형 B) &amp; 4대 레짐 변화 종합 판독</h2>
+<h3>2.1 가치함정(Value Trap) 이원화 진단</h3>
 <ul>
-<li><strong>[역DCF 요구성장률 해석 기준 및 시장 괴리율 진단]:</strong></li>
-<li><strong>판정: <code>&lt; 0% (극심한 역성장 요구) ➡️ 극단적 저평가 및 비이성적 공포 (안전마진 완비)</code></strong></li>
-<li>시장은 이란전쟁 장기화(브렌트유 107$)에 따른 유가 상승 공포와 정부의 약가 인하 우려로 인해, JW생명과학의 잉여현금흐름(FCF)이 향후 5년간 매년 <strong>-15% ~ -18%씩 급감하여 반토막 날 것이라는 극단적인 파멸 시나리오를 주가에 프라이싱</strong>하고 있습니다.</li>
-<li>그러나 Step 0.5 및 Phase 2에서 실측 검증된 바와 같이 당사의 FCF는 전방 캡티브 유통사 JW중외제약의 수액 매출 두 자릿수 성장(+13.7%)과 당진공장 완제수액 생산량 폭증(+11.2%)에 기반한 순수 제조 캐시플로우입니다.</li>
-<li>특히 최신 글로벌 트렌드 <code>[26.10.07.대신증권.배당투자 오디세이.pdf p.54, 59]</code>에서 <strong>정부 배당소득 분리과세 요건 2 충족(○)</strong> 및 <strong>추가배당여력 227.4억 원</strong>을 공식 입증받았으므로, <strong>시장의 요구 성장률(-15.10%)은 실체적 펀더멘털 대비 극단적인 안전마진을 제공</strong>하고 있습니다.</li>
+<li><strong>유형 A (구조적 가치함정)</strong>: 설비 노후화, 과도한 순차입금, 주력 사업 사양화, 지배주주 사익편취로 영구적 디레이팅이 정당한 기업.</li>
+<li><strong>유형 B (일시적 눌림목 저평가)</strong>: 설비 풀가동, 재무 건전성 개선, 안정적 고마진 캐시카우 유지에도 불구하고 거래량 소외 및 저PBR 프레임으로 밴드 하단에 갇힌 기업.</li>
+<li><strong>판정: 🟢 [유형 B (진성 저평가 눌림목)]</strong></li>
+<li><em>설비 레짐</em>: 당진공장 가동률 98.30% 풀가동으로 설비 가동력 최고조.</li>
+<li><em>자본구조 레짐</em>: 2026년 상반기 300억 원 사채 전액 상환으로 순차입금이 229억 원으로 급감하여 이자부담 소멸.</li>
+<li><em>주주환원 레짐</em>: 조특법상 배당소득 분리과세 요건 충족(배당성향 29.8% &amp; 10% 증가)으로 배당 매력 정점.</li>
+<li><em>결론</em>: 단순 소외주 현상에 불과하며, 하방 위험이 극도로 제한된 안전마진 구간임.</li>
 </ul>
 <hr />
-<h2>2. 3대 가치함정(Value Trap) 진단 필터 🚨</h2>
-<p>저PER(6.40배), 저PBR(0.72배), 고배당수익률(5.23%) 상태인 JW생명과학이 '침몰하는 가치함정'인지 '시장 오판에 의한 진주'인지 3대 정량 임계값 필터와 <code>backtest_valuation.py</code> 실측 연동으로 전수 검증합니다.</p>
+<h2>3. 시나리오 밸류에이션 (<code>🛡️대안 B | 🚀대안 A (v4.3)</code>) &amp; <code>[Step 3.0] 사이클 피크 함정 차단</code></h2>
+<h3>📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PBR)</h3>
+<!-- [AUTO-GENERATED BY backtest_valuation.py v4.3 — DO NOT EDIT NUMBERS MANUALLY] -->
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">가치함정 진단 지표</th>
-<th style="text-align: left;">점검 기준 (Check Point)</th>
-<th style="text-align: left;">🚨 정량 경보 임계값</th>
-<th style="text-align: left;">기업 현황 팩트</th>
-<th style="text-align: center;">위험 판정 (정상 / 🚨경보)</th>
+<th style="text-align: left;">시나리오</th>
+<th style="text-align: center;">확률 (고정)</th>
+<th style="text-align: left;">핵심 드라이버 가정 (AI 해석 영역)</th>
+<th style="text-align: left;">적용 멀티플 (코드 산출)</th>
+<th style="text-align: left;">적정주가 (🛡️대안 B / 🚀대안 A)</th>
+<th style="text-align: left;">현재가 대비 등락률 (🛡️대안 B / 🚀대안 A)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>① 해자 훼손<br>(Moat Decay)</strong></td>
-<td style="text-align: left;">최근 2~3개 분기 OPM 지속 하락, 특허 패소, 점유율 침투 여부</td>
-<td style="text-align: left;">• OPM <strong>연속 2분기</strong> 전년동기 대비 <strong>3%p 이상</strong> 하락<br>• 핵심 제품 시장점유율 <strong>5%p 이상</strong> 감소<br>• 특허 소송 패소 또는 핵심 라이선스 만료 공시</td>
-<td style="text-align: left;">• <strong>OPM 턴어라운드</strong>: 2025년 OPM 12.89%에서 <strong>2026년 상반기 OPM 14.73%로 +1.84%p 반등</strong> 성공 <code>[공시 팩트: 26년 반기 p.35]</code>.<br>• <strong>독점적 점유율 유지</strong>: 국내 TPN 1위(약 40%), 기초수액 1위(약 45%) 확고.<br>• <strong>특허 해자</strong>: 위너프에이플러스 종합병원 처방 확대, 특허 패소 공시 0건.</td>
-<td style="text-align: center;"><strong>정상</strong></td>
+<td style="text-align: left;"><strong>Bull (호황 상단)</strong></td>
+<td style="text-align: center;"><strong>25%</strong></td>
+<td style="text-align: left;">대형병원 수술 정상화 &amp; TPN 처방 급증, 박스터향 유럽 수출 확대</td>
+<td style="text-align: left;">PBR 상위 90% (대안A ×1.2400)</td>
+<td style="text-align: left;">🛡️ <strong>16,060원</strong> / 🚀 <strong>19,910원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+53.4%</strong> / 🚀 <strong>+90.2%</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>② 사이클 피크아웃<br>(Peak-out)</strong></td>
-<td style="text-align: left;"><strong>[섹터 맞춤형: 의약품/바이오]</strong><br>약가 인하 정책, 임상 실패, 제네릭 진입 여부 등 2개 이상 동시 악화 시 경보</td>
-<td style="text-align: left;">• 급여 약가 대규모 인하 발표<br>• 핵심 파이프라인 임상 실패 공시<br>• 수주/처방 수량 역성장 반전</td>
-<td style="text-align: left;">• <strong>처방 수요 구조적 확대</strong>: 65세 이상 인구 1,000만 돌파 및 수술 정상화.<br>• <strong>전방 유통사 수액 매출 급증</strong>: JW중외제약 2분기 수액 매출 <strong>724억 원(+13.7% YoY)</strong> <code>[공시 팩트: JW중외제약 26년 반기 p.23]</code>.<br>• <strong>생산량 폭증</strong>: 당진공장 완제수액 상반기 8,440만 개(연환산 1억 6,800만 개, <strong>+11.2% YoY</strong>) 풀가동 <code>[공시 팩트: 26년 반기 p.15]</code>.</td>
-<td style="text-align: center;"><strong>정상</strong></td>
+<td style="text-align: left;"><strong>Base (기본 적정)</strong></td>
+<td style="text-align: center;"><strong>50%</strong></td>
+<td style="text-align: left;">당진공장 풀가동 유지, 14%대 OPM 방어, 배당수익률 4.0% 수렴</td>
+<td style="text-align: left;">PBR 상위 65% (대안A ×1.1900)</td>
+<td style="text-align: left;">🛡️ <strong>13,770원</strong> / 🚀 <strong>16,390원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+31.5%</strong> / 🚀 <strong>+56.5%</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>③ 자본배치 왜곡<br>(Capital Distortion)</strong></td>
-<td style="text-align: left;">현금 축적 대비 신규 성장투자 부재로 ROIC 급락, 주주환원 전무 여부</td>
-<td style="text-align: left;">• ROIC <strong>2개년 연속</strong> WACC(9%) <strong>미만</strong> 하락<br>• 순현금 3년 연속 증가 + 배당성향 20% 미만<br>• TSR 3년 마이너스 지속</td>
-<td style="text-align: left;">• <strong>주주환원 확대(DPS +10%)</strong>: 2025년 결산 배당금 주당 500원 ➡️ <strong>550원으로 인상</strong>(배당금 총액 85.2억 원, 배당성향 29.77%, 시가배당률 5.23%) <code>[공시 팩트: 26년 반기 p.37]</code>.<br>• <strong>대신증권 딥리서치 공인</strong>: 배당소득 분리과세 요건 2 충족 및 추가배당여력 227.4억 원 확인 <code>[글로벌 트렌드: 대신증권 p.59]</code>.<br>• <strong>생산적 에너지 자립 투자</strong>: 2026.03 주총 '열병합발전 및 자가발전' 사업목적 추가 <code>[공시 팩트: 26년 반기 p.10]</code>.<br>• <strong>재무 건전성</strong>: 부채비율 44.3%, 현재 ROE 11.47% 건전.</td>
-<td style="text-align: center;"><strong>정상</strong></td>
+<td style="text-align: left;"><strong>TP1 (단기 박스권 1차)</strong></td>
+<td style="text-align: center;">-</td>
+<td style="text-align: left;">52주 75% 저항대 및 매물대 상단 돌파 타겟</td>
+<td style="text-align: left;">박스권 상단 목표</td>
+<td style="text-align: left;">🛡️ <strong>13,040원</strong> / 🚀 <strong>13,040원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+24.6%</strong> / 🚀 <strong>+24.6%</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bear (하방 지지)</strong></td>
+<td style="text-align: center;"><strong>25%</strong></td>
+<td style="text-align: left;">의료 대란 장기화 &amp; 입원환자 정체, 시가배당률 5.25% 절대 지지</td>
+<td style="text-align: left;">하방 지지선 (할증 0% 고정)</td>
+<td style="text-align: left;">🛡️ <strong>10,470원</strong> / 🚀 <strong>10,470원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+0.0%</strong> / 🚀 <strong>+0.0%</strong></td>
 </tr>
 </tbody>
 </table>
-<h3>[사이클 저점(유형 A) vs 구조적 버블 붕괴(유형 B) 이원화 판정 (<code>backtest_valuation.py</code> 실측 연동)]</h3>
+<hr />
+<h3>3.1 [Step 3.0] 사이클 피크 함정 가드레일 판정</h3>
 <ul>
-<li><strong><code>🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]</code></strong>:</li>
-<li><strong>실측 판정 데이터</strong>: 최근 2년 누적 BPS 증감률 <strong>+38.74%</strong> (≥ +15% 기준 충족) / 과거 3년 최고 PBR <strong>1.37배</strong> (&lt; 2.8배 기준 충족) / 현재 ROE <strong>11.47%</strong> (≥ 8.5% 건전) / 2년 EPS 증감률 <strong>-2.21%</strong> (&gt; -30% 방어) / 분기 EPS QoQ 432.0원 ➡️ 517.0원 반등 ✅</li>
-<li><strong>집행 조치</strong>: 가치함정 멀티플 페널티 면제 &amp; Bear 지하실(과거 3년 하위 20% PBR 또는 배당수익률 지지선) 보호막 정상 가동.</li>
+<li>당사는 경기순환주가 아닌 필수 치료제(수액) 과점 제조기업이며, 현재 OPM 14.73% 및 TTM 영업이익 333억 원은 역사적 평균 수준(13~15%)에 해당합니다.</li>
+<li>과도한 이익 급증이나 모멘텀 할증이 포함되어 있지 않으므로 <strong>사이클 피크 캡핑 대상이 아니며, 정상 멀티플 적용이 타당</strong>합니다.</li>
+</ul>
+<h3>3.2 🔬 레드팀 역산 Capa 천장 검증 (Red-Team Implied Capa Ceiling Audit)</h3>
+<ul>
+<li><strong>Base_A 내재 영업이익</strong>: <strong><code>458.5억 원</code></strong></li>
+<li><strong>Bull_A 내재 영업이익</strong>: <strong><code>493.0억 원</code></strong></li>
+<li><strong>물리적 설비 한계 실측 대조</strong>:</li>
+<li>당진공장 평균가동률은 이미 <strong><code>98.30%</code></strong>에 도달해 있습니다.</li>
+<li>신규 공장 증설(CapEx 300억+ 투자)이나 획기적인 판가 인상(ASP +15% 이상)이 없는 한, 현재 설비에서 달성 가능한 물리적 영업이익 상한은 <strong>약 420~425억 원</strong> 수준입니다.</li>
+<li>⚠️ <strong>경보 및 목표가 조정 결론</strong>: Bull_A(19,910원) 및 Base_A(16,390원)는 설비 증설이 입증되기 전까지는 상방 잠재력으로만 인식해야 하며, 현실적인 매매 목표가는 <strong>TP1 <code>13,040원</code> (+24.6%)</strong> 및 <strong>Base <code>13,770원</code> (+31.5%)</strong>으로 설정하여 분할 익절하는 것이 엄밀합니다.</li>
 </ul>
 <hr />
-<h2>3. 정량 바텀업 시나리오 스트레스 테스트</h2>
-<p>[채택 공식: 완제수액 생산 Capa(168백만 개) × 공장 가동률 × 제품 ASP → 매출액 → 영업이익(OPM) → 지배순이익(100%) → EPS (Phase 1 ## 7 확정 상속)]</p>
-<blockquote>
-<p><strong>산식 선택 근거</strong>: 당사는 1일 15시간 가동 시 연간 1억 6,800만 개의 완제수액을 생산하는 아시아 최대 장치산업 생산기지를 갖추고 있으며, 매출의 75% 이상이 JW중외제약에 확정 납품되는 B2B 팩토리형 비즈니스 구조입니다 <code>[공시 팩트: 26년 반기보고서 p.13, 15]</code>. 따라서 공장 가동률이 매출 외형을 결정하고, 원가 스프레드(환율/유가) 및 고정비 레버리지가 OPM을 결정하여 EPS로 직결되는 산식이 당사의 실적을 가장 정밀하게 설명합니다.<br />
-<strong>밸류에이션 지표</strong>: Phase 1 <code>## 8</code> 채택 주 지표 = <strong><code>배당수익률</code>($R^2 = 0.9003$, 방향 일치율 97.0%)</strong>, 2순위 지표 = <strong><code>PBR</code>($R^2 = 0.8262$, 방향 일치율 93.6%)</strong>. 리레이팅 적용 여부: 미적용 (신사업 비중 30% 미만이므로 10년 역사적 Peak PER 12.0배 이하 상한선 엄수).<br />
-<strong>종목 체질 판정 (<code>backtest_valuation.py</code> 실측)</strong>: <strong><code>🛡️ [저변동 고배당 박스권주 (유효 52주 등락폭 28.9% &lt; 36% &amp; PBR 0.72배 &lt; 1.35배)]</code></strong> ➔ 시나리오 표에 단기 실전거래요 <strong><code>| **TP1 (단기 실전 1차)** |</code></strong> 행 필수 추가!<br />
-<strong>대안 A 가중 계수 (<code>backtest_valuation.py</code> 실측)</strong>: <code>① 실적 모멘텀(영업이익 YoY -0.4%, ROE 11.5%) = ×1.00</code> × <code>② S-Curve Phase 2 할증 = +0.0% (N/A)</code> ➡️ <strong>최종 대안 A 가중치: <code>Base ×1.0000 (+0.0%) / Bull ×1.0000 (+0.0%) / Bear ×1.0000 (하방 고정)</code></strong></p>
-</blockquote>
-<h3>[시나리오 표 (6열 표준 구조 엄수 — 🛡️대안 B vs 🚀대안 A 병기)]</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">시나리오 구분</th>
-<th style="text-align: left;">핵심 드라이버 가정 <code>[출처 뱃지]</code> 및 산출 체인</th>
-<th style="text-align: center;">매출 → 영업이익(OPM) → 지배순이익(100%) / EPS</th>
-<th style="text-align: center;">Target PER / 배당수익률 (🛡️대안 B | 🚀대안 A)</th>
-<th style="text-align: center;"><strong>적정주가 (🛡️대안 B | 🚀대안 A)</strong></th>
-<th style="text-align: center;">현재가(10,520원) 대비 등락률 (🛡️대안 B | 🚀대안 A)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Bull (호황)</strong></td>
-<td style="text-align: left;">• 완제 Capa 168백만 개 <code>[공시 팩트: 26년 반기 p.15]</code> × 가동률 100% 풀가동<br>• 환율 1,300원 안착 원가율 급감 + 위너프에이플러스 믹스 확대<br>• 산출 체인: 매출 2,750억 → OP 454억(16.5%) → 지배순익 350억 / EPS 2,210원</td>
-<td style="text-align: center;">매출 2,750억 → OP 454억(16.5%) → 지배순익 350억 / EPS 2,210원</td>
-<td style="text-align: center;">8.58배 (B) / 8.58배 (A) <code>[10년 Peak 12.0배 이하 / DPS 550원 ÷ 배당률 2.90%]</code></td>
-<td style="text-align: center;"><strong>18,960원 (대안B)</strong> / <strong>18,960원 (대안A)</strong></td>
-<td style="text-align: center;"><strong>+80.2% (대안B)</strong> / <strong>+80.2% (대안A)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Base (기본)</strong></td>
-<td style="text-align: left;">• 완제 Capa 168백만 개 × 가동률 95% <code>[공시 팩트: 상반기 115일 조업]</code><br>• JW중외제약 수액 매출 +13.7% 견인 <code>[공시 팩트: JW중외제약 반기 p.23]</code><br>• 4분기 환율 1,350원 투입원가 본격 반영 vs 초고유가(브렌트유 107$) 상쇄<br>• 산출 체인: 매출 2,600억 → OP 377억(14.5%) → 지배순익 285억 / EPS 1,800원</td>
-<td style="text-align: center;">매출 2,600억 → OP 377억(14.5%) → 지배순익 285억 / EPS 1,800원</td>
-<td style="text-align: center;">8.49배 (B) / 8.49배 (A) <code>[역사적 중간값 / DPS 550원 ÷ 역사적 평균 배당률 3.60%]</code></td>
-<td style="text-align: center;"><strong>15,280원 (대안B)</strong> / <strong>15,280원 (대안A)</strong></td>
-<td style="text-align: center;"><strong>+45.2% (대안B)</strong> / <strong>+45.2% (대안A)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>TP1 (단기 실전 1차)</strong></td>
-<td style="text-align: left;"><em>(저변동 박스권주 필수 추가: 52주 70~75% 분위수: 12,967~13,150원 및 일봉 60일 저항선 11,111원 돌파 기준)</em></td>
-<td style="text-align: center;">단기 박스권 상단 멀티플 회귀 (배당수익률 4.18% 수렴)</td>
-<td style="text-align: center;">52주 75% 분위수 / 60일 저항 돌파</td>
-<td style="text-align: center;"><strong>13,150원 (대안B)</strong> / <strong>13,150원 (대안A)</strong></td>
-<td style="text-align: center;"><strong>+25.0% (대안B)</strong> / <strong>+25.0% (대안A)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Bear (침체)</strong></td>
-<td style="text-align: left;">• 완제 Capa 168백만 개 × 가동률 85% 하락 + 이란전쟁 초고유가 지속 원가 압박<br>• 정부의 급여 약가 인하 우려<br>• 10년 역사적 최저가(10,380원) 및 현재 단일 기준 주가 바닥 지지<br><em>(대체 밸류: Phase 1 ## 8 1위 지표인 DPS 550원 ÷ 최고 배당수익률 5.23% 적용)</em></td>
-<td style="text-align: center;">10년 풀사이클 하방 지하실 보호막 정상 가동</td>
-<td style="text-align: center;">배당수익률 5.23% / PBR 0.72배 <code>[역사적 하단 Trough 지지선]</code></td>
-<td style="text-align: center;"><strong>10,520원 (대안B·A 공통)</strong></td>
-<td style="text-align: center;"><strong>+0.0% (대안B·A 공통)</strong></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>손익비(Risk/Reward) 정량 산출 및 듀얼 게이트 판정 (<code>🛡️ 대안 B</code> vs <code>🚀 대안 A</code> 나란히 비교):</strong></li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">구분</th>
-<th style="text-align: center;">등락률 (🛡️대안 B | 🚀대안 A)</th>
-<th style="text-align: center;">확률 가중치 (영구 고정)</th>
-<th style="text-align: center;">가중 기대값 (🛡️대안 B | 🚀대안 A)</th>
-<th style="text-align: left;">비고</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Bull (호황)</strong></td>
-<td style="text-align: center;">+80.2% (B) / +80.2% (A)</td>
-<td style="text-align: center;">25%</td>
-<td style="text-align: center;">+20.05% (B) / +20.05% (A)</td>
-<td style="text-align: left;">익절 전용 트레일링 타겟</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Base (기본)</strong></td>
-<td style="text-align: center;">+45.2% (B) / +45.2% (A)</td>
-<td style="text-align: center;">50%</td>
-<td style="text-align: center;">+22.60% (B) / +22.60% (A)</td>
-<td style="text-align: left;">진입 판단 기준점 (정규분포 중심 닻)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>TP1 (단기실전)</strong></td>
-<td style="text-align: center;">+25.0% (B/A)</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;">—</td>
-<td style="text-align: left;">단기 52주 상단 회귀 목표가</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Bear (침체)</strong></td>
-<td style="text-align: center;">+0.0% (공통)</td>
-<td style="text-align: center;">25%</td>
-<td style="text-align: center;">+0.00% (공통)</td>
-<td style="text-align: left;">과거 10년 역사적 진바닥 펀더멘털 보호막</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>확률가중 기대수익률</strong></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;"><strong>100%</strong></td>
-<td style="text-align: center;"><strong>+42.65% (대안B) / +42.65% (대안A)</strong></td>
-<td style="text-align: left;">(25-50-25 대칭 정규분포 닻 고정 기준)</td>
-</tr>
-</tbody>
-</table>
-<h3>[손익비 듀얼 게이트(Dual-Gate) 및 상방가중 꼼수 원천 금지 규칙 적용]</h3>
+<h2>4. 비관론자 반론(Pre-mortem) &amp; 리스크 도미노 연쇄 시나리오 및 가설 Kill-Switch</h2>
+<h3>4.1 사전 부검(Pre-mortem): "우리가 1년 뒤 손실을 본다면 왜일까?"</h3>
 <ol>
-<li><strong>Gate 1 [펀더멘털 안전마진 게이트 (Valuation R:R)]</strong>:</li>
-<li><strong>산식</strong>: Bear 하방 지지선이 현재가(10,520원)와 일치(하방 0%)하므로, 10년 역사적 최저가(10,380원, -1.33%)를 대입하여 보수적으로 측정:
-     <code>Base 상승폭(+45.2%) ÷ 최저가 하방폭(1.33%)</code> = <strong>33.98 : 1 (대안B·A 공통)</strong> <em>(TP1 기준 시 </em><em>18.80 : 1</em><em>)</em> ($\ge 1.5 : 1$ 안전마진 압도적 합격 ✅)</li>
-<li><strong>Gate 2 [마스터 SOP 실전 트레이딩 게이트 (Execution R:R)]</strong>:</li>
-<li><strong>산식</strong>: <code>TP1 상승폭(+25.0%) ÷ 완성 평단가(10,851원) 대비 1단계 안전핀(10,050원, -7.38%) 거리</code> = <strong>3.39 : 1</strong> ($\ge 2.0 : 1$ 실전 트레이딩 손익비 합격 ✅)</li>
-<li><strong>4분면 투자의견 매트릭스 판정</strong>:</li>
-<li><strong>Gate 1 합격(≥1.5) &amp; Gate 2 합격(≥2.0)</strong> ➡️ <strong><code>[👑 적극 매수 (Strong Buy — 압도적 안전마진)]</code></strong> (박스권 하단 분할 매수 ➔ TP1 50% 반타작 후 Base 추세 완주)</li>
-<li><strong>판정 근거</strong>: 5.23%의 확정 배당수익률과 PBR 0.72배(10년 최하단 바닥)가 하방을 철통 방어하여 손실 위험 대비 기대수익이 압도적인 비대칭적 매수 타점입니다.</li>
+<li><strong>병원 대란 장기화에 따른 내수 Q 침체</strong>: 대형병원 전공의 공백 장기화로 병상 가동률이 하락하여 기초/영양수액 출하량이 -10% 이상 역성장하는 경우.</li>
+<li><strong>지배구조 마진 압박 &amp; 계열사 우발채무 전이</strong>: JW중외제약이 자체 수익성 방어를 위해 당사 납품단가를 인하하거나, JW메디칼 지급보증(36억)/담보(20억)가 실행되어 손실이 확정되는 경우.</li>
+<li><strong>배당 컷(Dividend Cut) 발생</strong>: 실적 둔화 시 주당 배당금을 550원에서 400원대로 삭감하여 분리과세 수급이 이탈하는 경우.</li>
+</ol>
+<h3>4.2 포퍼식 정량 Kill-Switch 점검 기준</h3>
+<ul>
+<li><strong>트리거 수치</strong>: 차기 분기 영업이익 <strong><code>&lt; 79.4억 원 (직전 분기 대비 -15% 급락)</code></strong> 또는 분기 수정EPS <strong><code>&lt; 414원</code></strong> 기록 시, 핵심 투자 가설(TH-01, TH-03)을 즉시 <strong>[약화]</strong>로 강등하고 포지션을 축소합니다.</li>
+</ul>
+<hr />
+<h2>5. 마스터 SOP 실전 액션 플랜 (3분할 매수가 · 이중 안전핀 · 분할 익절)</h2>
+<pre><code>[마스터 SOP 정예 보조지표 &amp; 가격 구조 — 기준일 2026-10-26 종가 10,470원]
+• 일봉 매물대 (POC): 10,530원 ~ 10,730원 (거래 비중 32.7%)
+• 이동평균선: 5일선 10,526원 | 20일선 10,786원 | 60일선 11,068원
+• 주봉 밴드: 볼린저밴드 하단 10,507원 | 중심선 11,120원 | 10년 역사적 최저 바닥 10,380원
+• 주봉 RSI(14) = 33.5 | 주봉 MFI(14) = 40.2 (극심한 과매도 바닥권)
+</code></pre>
+<h3>5.1 무결성 3분할 매수가 &amp; 위계질서 (오름차순 정렬)</h3>
+<ul>
+<li><strong>1차 매수 (30% 비중 · 가치/눌림목 선취매)</strong>: <strong><code>9,840원</code></strong> (10년 밴드 하단 이탈 시 극단적 패닉 바닥 매수)</li>
+<li><strong>2차 매수 (40% 비중 · 현재가 / 1차 지지선)</strong>: <strong><code>10,470원</code></strong> (현재가 수준, 볼린저 하단 10,507원 및 배당수익률 5.25% 지지선)</li>
+<li><strong>3차 매수 (30% 비중 · 20일선 및 POC 상단 안착)</strong>: <strong><code>10,790원</code></strong> (일봉 20일선 10,786원 돌파 확인사살)</li>
+<li>▶ <strong>3분할 완성 평균단가</strong>: <strong><code>10,377원</code></strong></li>
+</ul>
+<hr />
+<h3>5.2 이중 안전핀 (Dual Stop-Pin) 절대 부등식 검증</h3>
+<ol>
+<li><strong>🚨 [1단계: 초입 고정 손절 안전핀 (Hard Stop 1)]</strong>: <strong><code>9,350원</code></strong></li>
+<li>1차 매수가(9,840원) 대비 -5.0%, 완성 평단가(10,377원) 대비 -9.89%.</li>
+<li>10년 역사적 최저가(10,380원)를 완전히 하향 이탈하는 비상 상황에만 발동.</li>
+<li><strong>Gate 1 R:R (최대 손익비)</strong>: <code>(13,040 - 10,470) ÷ (10,470 - 10,365) = 2,570 ÷ 105 =</code> <strong><code>24.55 : 1</code></strong></li>
+<li><strong>Gate 2 실전 R:R (완성 평단 기준)</strong>: <code>(13,040 - 10,377) ÷ (10,377 - 9,350) = 2,663 ÷ 1,027 =</code> <strong><code>2.59 : 1</code></strong> <em>(기준 2.0 : 1 통과!)</em></li>
+<li><strong>절대 부등식 성립 확인</strong>:
+     $$\text{안전핀}(9,350\text{원}) &lt; \text{1차}(9,840) &lt; \text{평단}(10,377) &lt; \text{2차}(10,470) &lt; \text{3차}(10,790) &lt; \text{목표가}(13,040)$$</li>
+<li><strong>🔒 [2단계: 상단 매물대 돌파 후 본절 보호핀 (Trailing Stop 2)]</strong>: <strong><code>10,214원</code></strong></li>
+<li>주가가 20일 매물대 POC 상단(10,730원) 및 60일선(11,068원)을 종가로 안착 돌파 시, 손절선을 완성 평단가 부근인 10,214원으로 상향 이동하여 원금 100% 보존.</li>
 </ol>
 <hr />
-<h2>3.5 ⚖️ 비관론자 반론 및 핵심 리스크 역검증 (Pre-mortem &amp; Devil's Advocate)</h2>
+<h3>5.3 분할 익절(Take-Profit) 실행 가이드</h3>
 <ul>
-<li><strong>반론 ① [전방 캡티브 유통사(JW중외제약) 편중 및 조업일수 계절성 리스크]</strong>: 별도 매출의 75.7%가 JW중외제약 단일 거래처에 종속되어 있어, 전방 유통 전략 변화나 하계휴가·명절에 따른 조업일수 감소 시 3분기 일시적 실적 정체 가능성이 존재합니다.</li>
-<li><strong>반론 ② [초고유가 고착화 및 유틸리티 비용 압박 리스크]</strong>: 이란전쟁 장기화로 브렌트유 107달러선이 고착화될 경우, 당진공장 멸균/스팀 유틸리티 비용 및 석유화학 수지(CT703) 원가가 상승하여 4분기 OPM 상단이 13.5~14.5% 수준으로 제한될 수 있습니다.</li>
-<li><strong>반론 ③ [정부 보험약가 인하 규제 및 가설 폐기 정량 기준(Kill Switch)]</strong>: 보건복지부의 수액제 급여상한금액 직권 인하 정책이 단행될 경우 완제품 판가 하락으로 마진이 축소될 수 있습니다. ➔ <strong>가설 폐기 Kill Switch: 분기 연결 OPM이 2개 분기 연속 11.0% 미만으로 추락하거나, 연간 배당금(DPS)이 500원 미만으로 삭감 공시될 경우 즉시 전량 매도 및 투자 가설을 공식 폐기</strong>합니다.</li>
+<li><strong>1차 익절 (50% 비중 매도)</strong>: <strong><code>13,040원</code> (TP1, 기대수익률 +25.7%)</strong></li>
+<li>52주 박스권 상단 저항대 도달 시 절반 수익 실현.</li>
+<li><strong>2차 익절 (30% 비중 매도)</strong>: <strong><code>13,770원</code> (Base 적정가, 기대수익률 +32.7%)</strong></li>
+<li>10년 PBR 중위 밴드(상위 65%) 도달 시 분할 실현.</li>
+<li><strong>잔여 20% 비중 (트레일링 런)</strong>: <strong><code>16,390원</code> (Base_A)</strong></li>
+<li>신규 설비 증설 또는 수출 급증 공시 확인 시까지 트레일링 스탑을 유지하며 상방 향유.</li>
 </ul>
 <hr />
-<h2>4. 최종 투자 전략 및 액션 플랜</h2>
-<h3>[역DCF ↔ 시나리오 결론 동기화 검증]</h3>
-<ul>
-<li><strong>괴리 현상</strong>: 역DCF 요구성장률은 <strong>실질 EV 기준 연간 -15.10%</strong> (극심한 FCF 역성장 요구)이나, 바텀업 시나리오는 <strong>Base +45.2% (TP1 +25.0%) 매수 권고</strong>를 제시함.</li>
-<li><strong>브릿지 논리 (합리성 검증)</strong>:</li>
-<li>역DCF의 극단적 역성장 요구(-15.10%)는 이란전쟁 장기화에 따른 초고유가 공포와 약가 인하 트라우마가 겹치며 시장이 과도한 파멸 시나리오를 주가에 반영한 결과입니다.</li>
-<li>그러나 Step 0.5 및 Phase 2에서 실측 검증된 바와 같이, 당사의 잉여현금흐름은 전방 캡티브 유통사 JW중외제약의 수액 매출 두 자릿수 성장(+13.7%)과 당진공장 풀가동(+11.2%), 그리고 Phase 1 백테스트 1위($R^2=0.9003$)인 <strong>5.23%의 확정 배당수익률(DPS 550원)</strong>에 의해 강력하게 지지되고 있습니다.</li>
-<li>특히 대신증권 80p 딥리서치 <code>[글로벌 트렌드: 대신증권 p.59]</code>에서 <strong>정부 배당소득 분리과세 요건 2 충족(○)</strong> 및 <strong>추가배당여력 227.4억 원</strong>을 공식 입증받았습니다.</li>
-<li>따라서 역DCF의 극단적 마이너스 성장률은 '실제 기업의 펀더멘털 붕괴'가 아니라 <strong>'시장의 비이성적 공포가 만들어낸 막대한 안전마진'</strong>으로 확증되며, 바텀업 시나리오의 매수 권고와 완벽히 정합성을 이룹니다.</li>
-</ul>
-<h3>📋 실전 매매 액션 플랜 및 트리거 (마스터 SOP 4단계 차트 트리거 — <code>backtest_valuation.py</code> 실측값 100% 주입)</h3>
-<ul>
-<li><strong>투자의견:</strong> <strong>👑 적극 매수 (Strong Buy — 압도적 안전마진)</strong> (확정 배당수익률 5.23% &amp; 10년 최저 PBR 0.72배 지지, 듀얼 R:R 게이트 동시 통과)</li>
-<li><strong>목표가 밴드 (🛡️대안 B / 🚀대안 A 병기):</strong> <strong>🛡️대안 B(보수적 주 닻): 13,150원(TP1) ~ 15,280원(Base) | 🚀대안 A(동일): 13,150원(TP1) ~ 15,280원(Base) / Bull 18,960원</strong> (가치함정 0개 및 유형 A 정상 매수 유효)</li>
-<li><strong>매수 트리거 (Buy Trigger — 마스터 SOP 3분할 매수 전술 | <code>Hard Stop 1 &lt; Buy 1 &lt; Buy 2 &lt; Buy 3 &lt; Base/TP1</code> 위계 엄수):</strong></li>
-<li><strong>1차 정찰병 (비중 30% — 가치/눌림목 선취매):</strong> 주가 <strong>10,520원</strong> (10년 역사적 최저가 10,380원 부근이자 배당수익률 5.23% 절대 바닥권에서 30% 선진입. 현재 일봉 Slow Stochastic(12,5,5) <code>%K=24.4% / %D=24.0%</code> 침체권 골든크로스 상승우위 확인 완료)</li>
-<li><strong>2차 본대 투입 (비중 40% — 1차 추세선/매물대 돌파):</strong> 주가 <strong>10,860원</strong> (일봉 종가가 <strong>20일 매물대(5칸 POC: 10,610원 ~ 10,860원, 거래비중 42.0%) 상단</strong> 및 일봉 20일선(10,906원)을 돌파하거나 안착 확인 시 40% 본대 투입).</li>
-<li><strong>3차 확인사살 (비중 30% — 주봉 추세 안착):</strong> 주가 <strong>11,170원</strong> (주봉 종가가 <strong>주봉 20주선(11,167원)</strong> 및 일봉 60일선(11,111원) 위로 안착 시 잔여 30% 투입 완성. <strong>3분할 완성 평단가 <code>10,851원</code> &lt; 1차 목표가 <code>13,150원</code> 검증 완료</strong>).</li>
-<li><strong>매도/손절 트리거 (Sell &amp; Stop-Loss Trigger — 이중 안전핀 &amp; 허리 홀딩 &amp; 2단계 익절):</strong></li>
-<li><strong>[포지션 방어 이원화 (1·2단계 이중 안전핀 vs 상승 허리 주봉 20주선 홀딩)]:</strong><ul>
-<li><strong>🚨 1단계 초입 고정 안전핀 (Hard Stop 1 — 진입 직후 ~ 수익률 +15% 미만):</strong> 1차 매수가(10,520원) 및 완성 평단가(10,851원) 아래로 설정된 <strong><code>10,050원</code></strong>(1차 매수가 대비 -4.5%, 완성 평단 대비 -7.4%)을 일봉 종가 기준 하향 이탈 시 기계적 손절. (<code>10,050원 &lt; min(10,520, 10,851)</code> 위계 엄수)</li>
-<li><strong>🔒 2단계 매물대 돌파 후 트레일링 보호핀 (Trailing Stop 2):</strong> 주가가 20일 매물대 상단(10,860원)을 돌파 안착 성공 시에만 손절 라인을 <strong><code>10,292원</code></strong>으로 격상하여 본절 및 수익 방어.</li>
-<li><strong>상승 허리 (평단가 대비 수익률 ≥ +15% &amp; 주봉 20주선 위):</strong> 일봉 단기 노이즈는 무시하고, <strong>주봉 종가가 주봉 20주선(11,167원)을 깨기 전까지 끝까지 추세 홀딩</strong>.</li>
-</ul>
-</li>
-<li><strong>[1단계 반타작 익절 (보유 물량의 50% 차익 실현 — 🛡️대안 B vs 🚀대안 A 병기)]:</strong><ul>
-<li>저변동 박스권주 특성에 따라 <strong>TP1 단기 실전 1차 목표가(<code>🛡️대안B 13,150원 / 🚀대안A 13,150원</code>, +25.0%) 도달 시 50% 기계적 분할 익절</strong>하여 현금 회전율을 극대화.</li>
-<li>이후 잔여 물량은 <strong>Base 2차 목표가(<code>🛡️대안B 15,280원 / 🚀대안A 15,280원</code>, +45.2%)</strong>까지 홀딩.</li>
-</ul>
-</li>
-<li><strong>[2단계 잔여 물량(50%) 전량 청산 — 3대 고점경보 시그널 (하나라도 발생 시 즉시 매도)]:</strong><ul>
-<li><strong>🚨 고점경보 1호 (수급 과열 이탈):</strong> 주봉 MFI(14)가 80 이상 과열권 진입 후 <strong>80 아래로 하향 이탈</strong> 시 (현재 주봉 MFI <code>38.9</code>, 최근 12주 최고 <code>56.3</code>).</li>
-<li><strong>🚨 고점경보 2호 (신고가 가격-수급 다이버전스):</strong> 주가는 Base/Bull 목표가를 경신하고 <strong>주봉 RSI(14)(현재 34.1) ≥ 70</strong>인데, <strong>주봉 MFI(14) &lt; 70</strong>에 머물며 스마트머니 유입이 멈추는 다이버전스 발생 시.</li>
-<li><strong>🚨 고점경보 3호 (추세 붕괴 트레일링 스탑):</strong> 최고점 대비 <strong>-8% 이상 하락함과 동시에 일봉 20일선(10,906원) 종가 이탈</strong>, 또는 <strong>주봉 20주선(11,167원) 종가 이탈</strong> 시 잔여 물량 전량 청산.</li>
-</ul>
-</li>
-<li><strong>핵심 모니터링 체크리스트:</strong></li>
-<li>3Q26(11월 공시) 당진공장 조업일수 및 외화환산이익 반영 여부</li>
-<li>4Q26(내년 3월 공시) 9월 환율(1,300원대) 매입 원재료 투입에 따른 OPM 반등 강도 (14%대 안착 여부)</li>
-<li>대신증권 리포트상 확인된 정부 배당소득 분리과세 요건 2 충족 지속 및 2026 결산 배당금(DPS 550원 이상 유지) 확정 공시</li>
-</ul>
-<hr />
-<h3>[인터랙티브 역DCF 및 실전 SOP 계산기 검증]</h3>
-<p><code>&lt;div id="dcf-calculator-root"&gt;</code> 태그의 속성값이 본문 Step 1 입력값 및 Section 3·4의 마스터 SOP 목표가/매물대 수치와 <strong>1원/1주 단위까지 정확히 일치</strong>하도록 배치되었습니다.</p>
-<div id="dcf-calculator-root" data-price="10520" data-shares="15484554" data-total-shares="15834554" data-fcf="271.0" data-net-debt="184.3" data-bear="10520" data-base="15280" data-bull="18960" data-base-a="15280" data-bull-a="18960" data-buy1="10520" data-buy2="10860" data-buy3="11170" data-stop-pin="10050" data-poc-low="10610"></div>
+<h3>📌 [코드 자동 생성 3] HTML 계산기 직결 태그 (플레이스홀더 0건)</h3>
+<div id="dcf-calculator-root" data-price="10470" data-shares="15484554" data-total-shares="15834554" data-fcf="313.0" data-reported-fcf="313.0" data-net-debt="229.0" data-non-op-assets="150.5" data-bear="10470" data-base="13770" data-bull="16060" data-base-a="16390" data-bull-a="19910" data-tp1="13040" data-tp1-a="13040" data-buy1="9840" data-buy2="10470" data-buy3="10790" data-stop-pin="9350" data-poc-low="10530"></div>
     <script>
-        const SSOT_DATA = null;
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-10-26 09:43:05", "stock_code": "234080", "corp_name": "JW생명과학", "anchor_price": 10470, "primary_metric": "PBR", "bench": {"stock_name": "JW생명과학", "close": 10520.0, "bps": 14644.0, "pbr": 0.71, "eps": 1643.0, "per": 6.37, "div_yield": 5.25, "dps": 550.0, "market_cap_str": "1,658억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 2267.56, "mcap_eok": 1621.23, "non_op_assets_eok": 215.0, "recognized_non_op_eok": 150.5, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 9.48, "non_op_ratio_mcap_pct": 13.26, "non_op_max_ratio_pct": 13.26, "core_bps": 13256, "nopat_eok": 259.96, "core_roic_pct": 12.67, "core_profit_sustainable": true, "implied_core_op_ev_eok": 1699.73}, "step1_2_bottleneck": {"is_phase2": false, "is_early_ignition": false, "theme_name": "S-Curve 할증 미적용 (--no-s-curve)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 35.0, "second_penetration_pct": 10.0, "is_near_10pct_inflection": true, "penetration_zone": "더블 S-Curve Zone A (1차 35.0% 캐시카우 + 2차 10.0% 🔥10% 언저리 변곡점)", "inflection_desc": "해당 없음 (기초·영양수액제 국내 과점 캐시카우 BM)", "bottleneck_grade": "S", "bottleneck_factors": ["생산 Capa/인허가: 당진 수액 전용 자동화 공장 및 KGMP/유럽 GMP 인허가 장벽 (국내 시장점유율 1위)"], "bottleneck_lead_time_months": 24, "bottleneck_duration_label": "⏳ 장기 구조적 병목 (24개월 / 2년+ 지속)", "bottleneck_lead_reason": "수액제 무균 생산라인 구축 및 식약처/유럽 의약품 품목허가에 24개월 이상 소요", "capa_util_pct": 98.3, "curr_opm_pct": 13.14, "core_bottleneck_only_mode": true, "pen_base_boost": 0.11, "pen_bull_boost": 0.14, "bn_base_bonus": 0.08, "bn_bull_bonus": 0.1, "total_sc_bn_base_mult": 1.19, "total_sc_bn_bull_mult": 1.24, "peg_factor": 0.8}, "step1_8_k_return": {"payout_ratio_pct": 29.8, "tsr_pct": 33.0, "div_yield_pct": 5.25, "dps": 550.0, "treasury_shares": 350000, "treasury_ratio_pct": 2.21, "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 33%+ 고배당 지속)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 350,000주 [2.21%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 1927.0, "tunneling_status": "⚠️ [오너 개인회사 내부거래 감시]: 특수관계자(오너 일가 개인회사 등) 연간 내부거래 약 1,927.0억 원 — 일감 몰아주기(터널링) 확대 시 밸류에이션 할인 트리거 작동", "k_gov_note": "안정적 고배당 박스권 캐시카우", "kgov_mult": 1.0}, "regime": {"regime_changed": false, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": -2.61, "flags": []}, "section8": {"primary_metric": "PBR", "pbr_min": 0.71, "pbr_max": 4.57, "pbr_r2": 0.01, "pbr_dir": 50.0, "per_min": 5.94, "per_max": 25.35, "per_r2": 0.03, "per_dir": 47.4, "official_pbr": 0.71, "official_per": 6.37, "official_div": 5.25}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": true, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 432.0원 → 2026.2Q 517.0원 (QoQ 반등/흑자유지 ✅)", "qoq_rev_pct": -0.4, "qoq_op_pct": 0.2, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 635.2억→632.5억(QoQ -0.4%) | 영업이익 93.2억→93.5억(QoQ +0.2%) | 수정EPS 432원→517원", "kill_switch_guide": "차기 분기 영업이익 < 79.4억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 414원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": -2.211874272409779, "bps_2y_chg": 38.74295221854182, "op_yoy_q": -0.37922153919440715, "op_yoy_ttm": -11.035269633342212, "op_yoy_used": -0.37922153919440715, "op_yoy_detail": "분기(2025.2Q→2026.2Q) -0.4% (93.8억 → 93.5억) | TTM 영업이익 YoY: -11.0%", "curr_roe": 11.47439684427622, "mid_cycle_roe": 13.77155826962855, "mid_cycle_eps": 1680.0, "pbr_cycle_max": 4.573355956197679, "pbr_3y_max": 1.365144473577187, "pbr_3y_mean": 1.020254315229281, "pbr_3y_p20": 0.8902265917166637, "pbr_3y_p65": 1.043620610389591, "pbr_3y_p90": 1.2945193522443101, "per_3y_max": 8.510259057959848, "per_3y_mean": 7.096346053750584, "per_3y_p20": 6.473545755231369, "per_3y_p65": 7.4642013777012455, "per_3y_p90": 8.016866689507005, "curr_eps_used": 1643.0, "curr_bps_used": 14644.0}, "section3": {"is_low_vol_box": true, "nature_badge": "🛡️ [저변동 고배당 박스권주 (52주 등락폭 < 36% & PBR < 1.35배)]", "range_52w_pct": 46.13, "median_52w_range_pct": 29.58, "effective_52w_range": 29.58, "forward_bps": 14644.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.0, "sc_base_mult": 1.19, "sc_bull_mult": 1.24, "kgov_mult": 1.0, "peg_factor_used": 0.8, "base_mult_a": 1.19, "bull_mult_a": 1.24, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "theme_name": "S-Curve 할증 미적용 (--no-s-curve)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 0.0, "second_penetration_pct": 0.0, "is_near_10pct_inflection": false, "inflection_desc": "해당 없음 (기초·영양수액제 국내 과점 캐시카우 BM)", "bottleneck_grade": "A", "bottleneck_factors": ["생산 Capa/인허가: 당진 수액 전용 자동화 공장 및 KGMP/유럽 GMP 인허가 장벽 (국내 시장점유율 1위)"], "bottleneck_lead_time_months": 24, "bottleneck_lead_reason": "수액제 무균 생산라인 구축 및 식약처/유럽 의약품 품목허가에 24개월 이상 소요"}, "tp1_price": 13040, "tp1_price_a": 13040, "tp1_upside": 24.55, "tp1_upside_a": 24.55, "bear_auto": 10470, "base_auto": 13770, "bull_auto": 16060, "base_auto_a": 16390, "bull_auto_a": 19910, "red_team_capa_verdict": "⚠️ [레드팀 Capa 천장 경보] 현재 가동률(98.3%)에서 신규 증설/단가인상(ASP) 없이 가능한 물리적 영업이익 상한(약 423.8억) 대비 Bull 내재 영업이익(493.0억) 도달을 위해선 신공장 가동 또는 고마진 믹스 개선 확인 필수", "implied_op_base_a_eok": 458.5, "implied_op_bull_a_eok": 493.0}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ +0.2%, YoY -0.4%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 축소 ➔ 순차입금(+229.0억) 이자부담 가중·CB 리픽싱/풋옵션 또는 배당 축소 ➔ 멀티플 하단(Bear) 회귀"}, "section4": {"d_close": 10470, "d_low20": 10330, "poc_low": 10530, "poc_high": 10730, "poc_pct": 32.7, "poc_trail_pin": 10214, "d_ma5": 10526, "d_ma20": 10786, "d_ma60": 11068, "vol_ma20": 16324, "vol_ratio": 0.08, "stoch_k": 24.1, "stoch_d": 28.2, "w_close": 10470, "w_ma10": 10941, "w_ma20": 11120, "w_ma60": 12348, "bb_upper": 11733, "bb_lower": 10507, "w_macd": -404.1, "w_macd_sig": -383.3, "w_macd_hist": -20.8, "w_mfi14": 40.2, "w_rsi14": 33.5, "w_mfi14_12w_max": 56.3, "buy1": 9840, "buy2": 10470, "buy3": 10790, "avg_buy_price": 10377, "init_stop_pin": 9350, "breakout_trail_pin": 10214, "gate1_rr": 24.55, "exec_rr": 2.59, "is_overvalued": false, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 10470.0, "fcf_eok": 313.0, "norm_fcf_eok": null, "distb_shares": 15484554, "total_shares": 15834554, "treasury_shares": 350000, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": 229.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 1621.23, "market_cap_total_eok": 1657.88, "ev_distb_eok": 1850.23, "non_op_assets_eok": 215.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 150.5, "non_op_ratio_mcap_pct": 13.26, "non_op_ratio_book_pct": 9.48, "sotp_triggered": false, "core_op_ev_eok": 1699.73, "implied_g_distb_pct": -20.37, "implied_g_total_pct": -19.91, "implied_g_ev_pct": -17.67, "implied_g_core_ev_pct": null, "norm_g_distb_pct": null, "norm_g_ev_pct": null, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"10470\" data-shares=\"15484554\" data-total-shares=\"15834554\" data-fcf=\"313.0\" data-reported-fcf=\"313.0\" data-net-debt=\"229.0\" data-non-op-assets=\"150.5\" data-bear=\"10470\" data-base=\"13770\" data-bull=\"16060\" data-base-a=\"16390\" data-bull-a=\"19910\" data-tp1=\"13040\" data-tp1-a=\"13040\" data-buy1=\"9840\" data-buy2=\"10470\" data-buy3=\"10790\" data-stop-pin=\"9350\" data-poc-low=\"10530\"></div>"};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -830,7 +656,14 @@ p > em {
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -941,7 +774,7 @@ p > em {
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +

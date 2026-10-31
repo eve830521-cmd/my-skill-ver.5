@@ -1,42 +1,70 @@
 # -*- coding: utf-8 -*-
-import markdown
-import re
+"""
+convert_guide.py - Converts 이용방법.md into a styled, interactive HTML dashboard (이용방법.html v5.0)
+Dynamically binds Tier-1 (Flagship) and Tier-2 (High-Speed) model names from korean-stock-analyzer/model_config.json.
+"""
+import json
 import os
+import re
 import sys
+import markdown
 
-md_path = r'E:\antigravity-work\my-skill\이용방법.md'
-html_path = r'E:\antigravity-work\my-skill\이용방법.html'
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-with open(md_path, 'r', encoding='utf-8') as f:
+WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
+md_path = os.path.join(WORKSPACE_DIR, "이용방법.md")
+html_path = os.path.join(WORKSPACE_DIR, "이용방법.html")
+model_cfg_path = os.path.join(WORKSPACE_DIR, "korean-stock-analyzer", "model_config.json")
+
+tier1_name = "Gemini 4.0 Argon (Medium)"
+tier2_name = "Gemini 3.8 Flash High"
+tier1_short = "4.0 Argon Medium"
+tier2_short = "3.8 Flash High"
+
+if os.path.exists(model_cfg_path):
+    try:
+        with open(model_cfg_path, "r", encoding="utf-8") as cf:
+            mcfg = json.load(cf)
+            tier1_name = mcfg.get("tier1_model", {}).get("name", tier1_name)
+            tier2_name = mcfg.get("tier2_model", {}).get("name", tier2_name)
+            tier1_short = mcfg.get("tier1_model", {}).get("short_name", tier1_short)
+            tier2_short = mcfg.get("tier2_model", {}).get("short_name", tier2_short)
+    except Exception:
+        pass
+
+with open(md_path, "r", encoding="utf-8") as f:
     raw_md = f.read()
 
-# Convert markdown to html with extra extensions
-html_body = markdown.markdown(raw_md, extensions=['extra', 'tables', 'fenced_code', 'toc', 'nl2br'])
+html_body = markdown.markdown(
+    raw_md, extensions=["extra", "tables", "fenced_code", "toc", "nl2br"]
+)
 
-# Custom replacement for callout blocks (> **...**)
+
 def format_callouts(text):
     text = re.sub(
-        r'<blockquote>\s*<p>\s*<strong>💡(.*?)</strong>(.*?)</p>\s*</blockquote>',
-        r'<div class="callout callout-tip"><div class="callout-header"><span class="callout-icon">💡</span><strong>\1</strong></div><div class="callout-body"><p>\2</p></div></div>',
+        r"<blockquote>\s*<p>\s*<strong>(.*?)</strong>(.*?)</p>\s*</blockquote>",
+        r'<div class="callout callout-tip"><div class="callout-header"><strong>\1</strong></div><div class="callout-body"><p>\2</p></div></div>',
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
     text = re.sub(
-        r'<blockquote>\s*<p>(.*?)</p>\s*</blockquote>',
-        r'<div class="callout"><div class="callout-body"><p>\1</p></div></div>',
+        r"<blockquote>\s*(.*?)\s*</blockquote>",
+        r'<div class="callout"><div class="callout-body">\1</div></div>',
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
     return text
 
+
 html_body = format_callouts(html_body)
 
-full_html = f'''<!DOCTYPE html>
+full_html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity 시나리오별 실전 이용방법 & 액션플랜 (v4.3.2)</title>
+    <title>Antigravity 한국 주식 분석 시스템 마스터 이용방법 (v5.0)</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <style>
@@ -65,47 +93,46 @@ full_html = f'''<!DOCTYPE html>
         }}
 
         body {{
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             line-height: 1.75;
             font-size: 15px;
-            padding: 40px 20px;
+            padding: 36px 20px;
             -webkit-font-smoothing: antialiased;
         }}
 
         .container {{
-            max-width: 1040px;
+            max-width: 1120px;
             margin: 0 auto;
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 48px;
+            padding: 44px;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
         }}
 
-        /* Header / Hero */
         .doc-header {{
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 24px;
-            margin-bottom: 32px;
+            padding-bottom: 22px;
+            margin-bottom: 28px;
         }}
 
         .badge-row {{
             display: flex;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             flex-wrap: wrap;
         }}
 
         .badge {{
             display: inline-flex;
             align-items: center;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
         }}
 
         .badge-primary {{
@@ -120,71 +147,71 @@ full_html = f'''<!DOCTYPE html>
             border: 1px solid rgba(139, 92, 246, 0.35);
         }}
 
-        .badge-success {{
+        .badge-tier1 {{
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }}
+
+        .badge-tier2 {{
             background: rgba(16, 185, 129, 0.15);
             color: #34d399;
             border: 1px solid rgba(16, 185, 129, 0.35);
         }}
 
         h1 {{
-            font-size: 28px;
+            font-size: 27px;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 14px;
             line-height: 1.35;
         }}
 
-        /* Headings */
         h2 {{
-            font-size: 21px;
+            font-size: 20.5px;
             font-weight: 700;
             color: #ffffff;
-            margin-top: 44px;
-            margin-bottom: 20px;
+            margin-top: 42px;
+            margin-bottom: 18px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }}
 
         h3 {{
             font-size: 17px;
             font-weight: 600;
             color: #60a5fa;
-            margin-top: 32px;
-            margin-bottom: 14px;
+            margin-top: 28px;
+            margin-bottom: 12px;
         }}
 
         h4 {{
             font-size: 15px;
             font-weight: 600;
             color: #ffffff;
-            margin-top: 22px;
-            margin-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 8px;
         }}
 
         p {{
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }}
 
-        /* Lists */
         ul, ol {{
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             padding-left: 24px;
         }}
 
         li {{
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }}
 
-        /* Callouts */
         .callout {{
             background: rgba(59, 130, 246, 0.08);
             border-left: 4px solid var(--accent-blue);
             border-radius: 10px;
-            padding: 18px 22px;
-            margin: 24px 0;
+            padding: 16px 20px;
+            margin: 20px 0;
             border: 1px solid rgba(59, 130, 246, 0.2);
             border-left-width: 4px;
         }}
@@ -197,26 +224,17 @@ full_html = f'''<!DOCTYPE html>
         }}
 
         .callout-header {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
             color: #22d3ee;
             font-size: 15px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }}
 
-        .callout-body p {{
-            margin-bottom: 0;
-            color: var(--text-primary);
-        }}
-
-        /* Tables */
         .table-wrapper {{
             overflow-x: auto;
-            margin: 24px 0;
+            margin: 22px 0;
             border-radius: 10px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }}
 
         table {{
@@ -230,13 +248,13 @@ full_html = f'''<!DOCTYPE html>
             background-color: var(--table-header-bg);
             color: #ffffff;
             font-weight: 600;
-            padding: 14px 16px;
+            padding: 13px 15px;
             border-bottom: 2px solid var(--border-color);
             white-space: nowrap;
         }}
 
         td {{
-            padding: 13px 16px;
+            padding: 12px 15px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: top;
             line-height: 1.65;
@@ -254,12 +272,11 @@ full_html = f'''<!DOCTYPE html>
             background-color: var(--surface-hover);
         }}
 
-        /* Code & Pre */
         code {{
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             background-color: rgba(148, 163, 184, 0.15);
             color: #f87171;
-            padding: 3px 7px;
+            padding: 2px 6px;
             border-radius: 5px;
             font-size: 13px;
         }}
@@ -270,7 +287,7 @@ full_html = f'''<!DOCTYPE html>
             border-radius: 10px;
             padding: 16px 20px;
             overflow-x: auto;
-            margin: 16px 0 20px 0;
+            margin: 14px 0 18px 0;
             position: relative;
         }}
 
@@ -283,20 +300,37 @@ full_html = f'''<!DOCTYPE html>
             display: block;
         }}
 
-        /* Horizontal Rule */
+        .copy-btn {{
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }}
+
+        .copy-btn:hover {{
+            background: rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+        }}
+
         hr {{
             border: none;
             border-top: 1px solid var(--border-color);
-            margin: 36px 0;
+            margin: 34px 0;
         }}
 
-        /* Print Optimization */
         @media print {{
             body {{
                 background-color: #ffffff !important;
                 color: #1e293b !important;
                 padding: 0 !important;
-                font-size: 11pt !important;
+                font-size: 10.5pt !important;
             }}
             .container {{
                 max-width: 100% !important;
@@ -305,76 +339,8 @@ full_html = f'''<!DOCTYPE html>
                 box-shadow: none !important;
                 background: #ffffff !important;
             }}
-            h1 {{
-                font-size: 18pt !important;
-                color: #1e3a8a !important;
-                page-break-after: avoid;
-            }}
-            h2 {{
-                font-size: 14pt !important;
-                color: #1e3a8a !important;
-                border-bottom: 2px solid #cbd5e1 !important;
-                page-break-after: avoid;
-                margin-top: 24pt !important;
-            }}
-            h3 {{
-                font-size: 12pt !important;
-                color: #2563eb !important;
-                page-break-after: avoid;
-                margin-top: 16pt !important;
-            }}
-            .badge {{
-                border: 1px solid #cbd5e1 !important;
-                color: #334155 !important;
-                background: #f1f5f9 !important;
-            }}
-            .callout {{
-                background: #f8fafc !important;
-                border-left: 4px solid #0284c7 !important;
-                color: #1e293b !important;
-                border: 1px solid #e2e8f0 !important;
-                border-left-width: 4px !important;
-            }}
-            .callout-header {{ color: #0369a1 !important; }}
-            .callout-body p {{ color: #1e293b !important; }}
-            .table-wrapper {{
-                border: 1px solid #cbd5e1 !important;
-                box-shadow: none !important;
-            }}
-            table {{
-                font-size: 9pt !important;
-            }}
-            th {{
-                background-color: #f1f5f9 !important;
-                color: #0f172a !important;
-                border-bottom: 2px solid #cbd5e1 !important;
-            }}
-            td {{
-                border-bottom: 1px solid #e2e8f0 !important;
-                color: #334155 !important;
-            }}
-            tr:nth-child(even), tr:nth-child(odd) {{
-                background-color: #ffffff !important;
-            }}
-            pre {{
-                background-color: #f8fafc !important;
-                border: 1px solid #cbd5e1 !important;
-                color: #0f172a !important;
-            }}
-            pre code {{
-                color: #15803d !important;
-            }}
-            code {{
-                background-color: #f1f5f9 !important;
-                color: #b91c1c !important;
-                border: 1px solid #e2e8f0 !important;
-            }}
-            tr, .callout, pre {{
-                page-break-inside: avoid;
-            }}
-            @page {{
-                size: A4;
-                margin: 12mm 15mm 12mm 15mm;
+            .copy-btn {{
+                display: none !important;
             }}
         }}
     </style>
@@ -383,9 +349,10 @@ full_html = f'''<!DOCTYPE html>
     <div class="container">
         <div class="doc-header">
             <div class="badge-row">
-                <span class="badge badge-primary">Antigravity Guide</span>
-                <span class="badge badge-version">korean-stock-analyzer v4.3.2</span>
-                <span class="badge badge-success">Gemini 4.0 Argon & 3.8 Flash High</span>
+                <span class="badge badge-primary">Korean Stock Analyzer v5.0</span>
+                <span class="badge badge-version">원샷 오케스트레이터 (ksa_orchestrator.py)</span>
+                <span class="badge badge-tier1">👑 1순위 최상위 모델: {tier1_name}</span>
+                <span class="badge badge-tier2">⚡ 2순위 고속 모델: {tier2_name}</span>
             </div>
         </div>
         <div class="content">
@@ -393,18 +360,30 @@ full_html = f'''<!DOCTYPE html>
         </div>
     </div>
     <script>
-        // Wrap tables with responsive wrapper
         document.querySelectorAll('table').forEach(tbl => {{
             const wrapper = document.createElement('div');
             wrapper.className = 'table-wrapper';
             tbl.parentNode.insertBefore(wrapper, tbl);
             wrapper.appendChild(tbl);
         }});
+        document.querySelectorAll('pre').forEach(pre => {{
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = '명령어 복사';
+            btn.addEventListener('click', () => {{
+                const code = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                navigator.clipboard.writeText(code.trim()).then(() => {{
+                    btn.textContent = '✅ 복사됨!';
+                    setTimeout(() => {{ btn.textContent = '명령어 복사'; }}, 1500);
+                }});
+            }});
+            pre.appendChild(btn);
+        }});
     </script>
 </body>
-</html>'''
+</html>"""
 
-with open(html_path, 'w', encoding='utf-8') as f:
+with open(html_path, "w", encoding="utf-8") as f:
     f.write(full_html)
 
-print(f'Generated HTML: {html_path} ({os.path.getsize(html_path):,} bytes)')
+print(f"Generated HTML: {html_path} ({os.path.getsize(html_path):,} bytes) | Tier-1: {tier1_name} | Tier-2: {tier2_name}")

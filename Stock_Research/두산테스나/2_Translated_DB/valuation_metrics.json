@@ -246,7 +246,7 @@
     "non_op_haircut": 0.3,
     "recognized_non_op_eok": 59.5,
     "non_op_ratio_mcap_pct": 0.4,
-    "non_op_ratio_book_pct": 2.83,
+    "non_op_ratio_book_pct": 1.88,
     "sotp_triggered": false,
     "core_op_ev_eok": 22216.62,
     "implied_g_distb_pct": 51.14,

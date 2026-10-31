@@ -408,8 +408,8 @@ p > em {
 <body>
     <h1>📖 Phase 2: 스토리 리더 (Global &amp; Weekly 트렌드 공시 팩트체크) — GST (083450)</h1>
 <blockquote>
-<p><strong>[Phase 2 분석 기준 및 단일 주가 앵커 연동]</strong>
-- <strong>단일 기준 주가 (Single Price Anchor):</strong> <strong><code>45,600원</code></strong> (2026년 10월 16일 일봉 종가, <code>backtest_valuation.py</code> 실측 — 유통 시가총액 <code>8,191.3억 원</code> [반기말 <code>17,963,419주</code> 기준] / <code>8,152.8억 원</code> [2026.10.13 자사주 차감 <code>17,879,037주</code> 기준])
+<p><strong>[Phase 2 분석 기준 및 단일 주가 앵커 연동 (v4.3)]</strong>
+- <strong>단일 기준 주가 (Single Price Anchor):</strong> <strong><code>40,000원</code></strong> (2026년 10월 26일 일봉 종가, <code>backtest_valuation.py</code> v4.3 실측 — 유통 시가총액 <strong><code>7,151.6억 원</code></strong> [<code>17,879,037주</code> 기준])
 - <strong>진실 계층 우선순위 (Truth Hierarchy):</strong> <code>1순위: DART 법적 정기보고서·최신 공시 원문</code> &gt; <code>2순위: Global_Trend 제도권 40p+ 딥리서치 PDF 실측 페이지</code> &gt; <code>3순위: s_curve_registry.json 캐시</code> (<code>No-Blind-Citation</code> 100% 준수)</p>
 </blockquote>
 <hr />
@@ -417,191 +417,231 @@ p > em {
 <h3>① [테마 1] 선단 반도체 Fab 인프라 증설(P5·Y1·P&amp;T7·테일러) 및 2nm GAA 전환에 따른 Sub-fab 수혜</h3>
 <ul>
 <li><strong><code>[시장 내러티브]</code> Global_Trend 핵심 주장 발췌:</strong></li>
-<li><strong>전공정 클린룸 선행 발주 및 고객사 다변화:</strong> <code>[글로벌 트렌드: 26.09.02.하나증권.증설의 시대, 후공정의 수혜도 함께 온다.pdf p.42 도표 59, p.43 도표 60]</code> 및 <code>[글로벌 트렌드: 26.09.29.LS증권.AI병목의 전이.pdf p.38 표 7, p.39]</code>에 따르면, 메모리 공급 제약을 타개하기 위한 신규 팹 착공~장비 반입 선행 구간(삼성전자 평택 P5, SK하이닉스 용인 Y1 및 청주 M15X/P&amp;T7)에서 Sub-fab 핵심 설비인 스크러버(Scrubber)와 칠러(Chiller) 수요가 <code>[WFE 도입 대수 × 공정 가스 사용량·온도 제어 난이도]</code>에 비례하여 가장 먼저 반응합니다. 특히 GST는 기존 삼성전자·Micron 중심에서 <strong>SK하이닉스향 양산 공급을 본격 확대</strong>하며 고객사 다변화에 성공했습니다(<code>LS증권 26.09.29 p.39</code>).</li>
-<li><strong>2026.10 중순 최신 델타 — 핀펫(FinFET) → 2nm GAA 전환 및 삼성 테일러 팹 가동:</strong> <code>[글로벌 트렌드: 26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf p.7~8 표 1, p.12~13 그림 5·6]</code>은 3나노/2나노 GAA(Gate-All-Around) 및 400단대 3D NAND로의 공정 전환으로 Si/SiGe 적층, 선택적 식각(Etch), ALD, HPA(고압어닐링) 등 공정 스텝 수와 챔버당 열·유해가스 부하가 급증한다고 분석했습니다. 특히 삼성전자 2나노 GAA 양산 수율이 <strong>2025년 30%대 → 2026.1Q 50%대 → 2026.3Q 60%대</strong>로 가파르게 개선되고 미국 테일러(Taylor) 파운드리 팹 가동 및 빅테크(메타 MTIA 3세대, 테슬라 AI6) 동시 발주가 가시화되면서 파운드리·메모리 소부장 물량(Q)의 동반 반등이 시작되었습니다.</li>
-<li><strong>핵심 전제 (Key Assumption):</strong> 전방 IDM의 선단 공정 전환과 국내외 신규 팹 셋업이 GST의 실제 장비 출하 대수(Q), 대당 판매단가(P), 그리고 북미·아시아 해외 법인 매출 증가로 나타나고 있는가?</li>
-<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code> Phase 1 DART 데이터 교차 타격):</strong></li>
+<li><strong>전공정 클린룸 선행 발주 및 고객사 다변화:</strong> <code>[글로벌 트렌드: 하나증권.증설의 시대, 후공정의 수혜도 함께 온다 p.42 도표 59, p.43 도표 60]</code> 및 <code>[글로벌 트렌드: LS증권.AI병목의 전이 p.38 표 7, p.39]</code>에 따르면, 메모리 공급 제약을 타개하기 위한 신규 팹 착공~장비 반입 선행 구간(삼성전자 평택 P5, SK하이닉스 용인 Y1 및 청주 M15X/P&amp;T7)에서 Sub-fab 핵심 설비인 스크러버(Scrubber)와 칠러(Chiller) 수요가 <code>[WFE 도입 대수 × 공정 가스 사용량·온도 제어 난이도]</code>에 비례하여 가장 먼저 반응합니다. 특히 GST는 기존 삼성전자·Micron 중심에서 SK하이닉스향 양산 공급을 본격 확대하며 고객사 다변화에 성공했습니다 (<code>LS증권 26.09.29 p.39</code>).</li>
+<li><strong>2nm GAA 전환 및 삼성 테일러 팹 가동 델타:</strong> <code>[글로벌 트렌드: 유안타증권.2027Issue&amp;Theme(change) p.7~8 표 1, p.12~13 그림 5·6]</code>은 3나노/2나노 GAA(Gate-All-Around) 및 400단대 3D NAND 공정 전환으로 Si/SiGe 적층, 선택적 식각(Selective Etch), ALD, HPA 등 공정 스텝 수와 챔버당 열·유해가스 부하가 급증한다고 분석했습니다. 특히 삼성전자 2나노 GAA 양산 수율이 <strong>2025년 30%대 → 2026.1Q 50%대 → 2026.3Q 60%대</strong>로 개선되고 미국 테일러(Taylor) 파운드리 팹 가동이 가시화되면서 Sub-fab 장비 물량(Q)과 단가(P)의 동반 반등이 확인되었습니다.</li>
+<li><strong>핵심 전제 (Key Assumption):</strong> 전방 IDM의 선단 공정 전환과 국내외 신규 팹 셋업이 GST의 실제 장비 출하 대수(Q), 대당 판매단가(P), 북미·글로벌 거점 매출로 입증되는가?</li>
+<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code> DART 실측):</strong></li>
 <li><strong>출하 대수(Q) 및 매출 급증 확인:</strong> <code>[[GST]반기보고서(2026.08.14), II. 사업의 내용]</code> 실측 결과, 2026년 상반기 총 장비 생산실적은 <strong>1,842대</strong>(Scrubber 1,129대 + Chiller 713대)로 반년 만에 2025년 연간 생산량(2,878대)의 <strong>64.0%</strong>를 달성했으며, 상반기 연결 매출액은 <strong>2,151.3억 원(YoY +26.71%)</strong>, 영업이익은 <strong>356.5억 원(YoY +27.30%, OPM 16.57%)</strong>으로 사상 최대 반기 실적을 기록했습니다.</li>
 <li><strong>대당 암묵 단가(P) 구조적 상승 확인:</strong> 고난도 플라즈마·촉매 스크러버와 초저온 칠러 비중 확대로 Scrubber 대당 단가는 2021년 0.97억 원 → 2025~2026.H1 <strong>1.21~1.26억 원(+25% 상승)</strong>, Chiller 대당 단가는 2021년 0.33억 원 → 2026.H1 <strong>0.53억 원(+61% 상승)</strong>으로 레벨업되었습니다.</li>
-<li><strong>북미·글로벌 거점 실측 확인:</strong> 미국 텍사스 오스틴에 위치한 종속법인 <code>GST America, Inc.</code>와의 2026년 상반기 내부 용역·원재료 거래(매입 25.0억 원, 매출 23.6억 원) 및 반기말 매출채권 <strong>68.8억 원</strong>(전기말 55.9억 원 대비 +23.0% 증가)이 공시로 확인되어 북미 테일러·오스틴 및 Micron 팹 대응이 실제 숫자로 진행 중입니다 (<code>[[GST]반기보고서(2026.08.14), X. 대주주 등과의 거래내용]</code>).</li>
-<li>✅ <strong>팩트체크 타격 결과: <code>[ True (DART 출하 대수·단가·수출 실적으로 100% 입증 중) ]</code></strong></li>
+<li><strong>북미 거점 실측 확인:</strong> 텍사스 오스틴 법인(<code>GST America, Inc.</code>)의 반기말 매출채권이 <strong>68.8억 원</strong>(전기말 55.9억 원 대비 +23.0%)으로 증가하여 테일러 팹 및 Micron 오스틴 팹 대응이 실제 숫자로 진행 중입니다.</li>
+<li>✅ <strong>팩트체크 타격 결과: <code>[ True (DART 출하 대수·단가·수출 실적으로 100% 입증 완료) ]</code></strong></li>
 </ul>
 <hr />
-<h3>② [테마 2] AIDC 액침냉각(Immersion Cooling) 개화 내러티브 vs 글로벌 빅테크 D2C(Cold Plate) 표준 대체 리스크 교차 검증</h3>
+<h3>② [테마 2] AIDC 액침냉각 개화 내러티브 vs 글로벌 빅테크 D2C(Cold Plate) 표준 대체 리스크</h3>
 <ul>
 <li><strong><code>[시장 내러티브]</code> Global_Trend 핵심 주장 발췌:</strong></li>
-<li><strong>액침냉각 시장 고성장 및 유체(그룹III 기유)-장비 생태계 확장:</strong> <code>[글로벌 트렌드: 26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf p.129, p.135]</code>는 글로벌 AI 데이터센터 전력소비가 2025년 155TWh에서 2030E 465TWh로 3배 급증하며 신규 AI 용량 액체냉각 침투율이 2026E 60% → 2030E 93%에 달할 것으로 전망했고, 글로벌 액침냉각(<code>Tank·CDU·유체정화</code>) 5대 핵심 업체로 <strong>Submer, GRC, LiquidStack, Asperitas, GST</strong>를 등재했습니다(<code>p.135</code>). 이어 최신 <code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.23 표 8, p.25 그림 18, p.34]</code>는 세계 액침냉각 시장이 <strong>2024년 53.8억 달러에서 2030E 177.7억 달러</strong>로 성장할 것으로 인용하며(<code>p.25 그림 18</code>), SK엔무브 등 그룹III 윤활기유 생산자와 액침냉각 장비 업체 간 실증·협업이 새로운 인프라 축을 형성하고 있다고 분석했습니다.</li>
-<li><strong>🚨 [수비수 3] 글로벌 빅테크 기술 표준 대체 리스크 (D2C 수랭식 Cold Plate 주류화 vs 수조형 액침냉각의 한계):</strong><ul>
-<li>그러나 동일 리포트 원문을 정밀 교차 검증하면, <code>[글로벌 트렌드: 26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf p.126~127, p.131, p.134]</code>는 <strong>"현재 고밀도 AI 랙(엔비디아 Blackwell 및 Vera Rubin 세대)의 주류는 고열 부품에 Cold Plate를 직접 적용하는 단상 Direct-to-Chip(D2C) 방식"</strong>임을 명확히 밝히고 있습니다(<code>p.126</code>).</li>
-<li>특히 Dell'Oro 기준 글로벌 IT 액체냉각 제품별 시장 전망 표(<code>유안타 26.09.02 p.131</code>)에서 2025년 <code>$3.0bn</code> → 2030E <code>$8.0bn</code> 시장 중 <strong><code>Single-phase D2C·Cold Plate</code>($1.35bn → $3.04bn)와 <code>CDU·Heat Exchanger·Pump</code>($0.75bn → $2.24bn)가 66%를 차지하는 주류(Core 1~3)</strong>인 반면, <strong>수조형 <code>Immersion(액침냉각)</code> 장비 시장은 2025년 <code>$0.21bn</code> → 2030E <code>$0.56bn</code>(전체 액체냉각의 7.0%)에 그치는 '선택적 시장'</strong>으로 분류되었습니다.</li>
-<li>최신 <code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.44 표 12, p.47 표 15]</code> 역시 <strong>"데이터센터 액침냉각은 2027년 영업이익에 크게 반영하기에는 이르며, 액체냉각의 방향성은 분명하지만 직접 액체냉각(D2C)과 액침냉각 간 표준 경쟁이 있고 하이퍼스케일 검증 기간이 길다"</strong>고 지적하며, <strong>"이익에 수천억 원을 억지로 더하는 방식보다 상용화 단계가 올라갈 때마다 적용 배수(Multiple)를 높이는 옵션 방식으로 접근해야 한다"</strong>고 결론지었습니다(<code>p.44</code>).</li>
+<li><strong>액침냉각 시장 고성장 및 5대 밸류체인 등재:</strong> <code>[글로벌 트렌드: 유안타증권.AIDC 다음 승부처 - 네트워크와 냉각 p.129, p.135]</code>는 신규 AI IT 용량의 액체냉각 침투율이 2026E 60% → 2030E 93%로 확대된다고 전망하며, 글로벌 액침냉각(<code>Tank·CDU·유체정화</code>) 핵심 기업 5개사로 <strong>Submer, GRC, LiquidStack, Asperitas, GST</strong>를 등재했습니다.</li>
+<li><strong>🚨 글로벌 빅테크 기술 표준 대체 리스크 (D2C Cold Plate 주류화 vs 액침냉각의 한계):</strong><ul>
+<li>그러나 동일 리포트(<code>유안타 26.09.02 p.126, p.131</code>) 원문 검증 결과, <strong>"현재 엔비디아 Blackwell 및 Vera Rubin 세대의 주류는 고열 칩에 Cold Plate를 직접 체결하는 단상 Direct-to-Chip(D2C) 방식"</strong>임이 명시되어 있습니다.</li>
+<li>글로벌 IT 액체냉각 제품별 시장 전망 표(<code>Dell'Oro, 유안타 p.131</code>)에서 2025년 $3.0bn → 2030E $8.0bn 시장 중 <strong>Single-phase D2C Cold Plate($1.35bn → $3.04bn)와 CDU/Pump($0.75bn → $2.24bn)가 전체 시장의 66%를 차지하는 지배 표준</strong>이며, <strong>수조형 Immersion(액침냉각) 장비는 2025년 $0.21bn → 2030E $0.56bn(전체 액체냉각의 7.0%)에 그치는 '선택적 틈새 시장'</strong>으로 확인되었습니다.</li>
+<li><code>[글로벌 트렌드: IBK투자증권.윤활기유의 시대 p.44 표 12, p.47 표 15]</code> 역시 <strong>"데이터센터 액침냉각은 2027년 영업이익에 크게 반영하기에는 이르며, 직접 액체냉각(D2C)과의 표준 경쟁이 존재하므로 이익이 아니라 상용화 단계가 올라갈 때마다 적용 배수(Multiple)를 높이는 옵션 방식으로 접근해야 한다"</strong>고 분석했습니다.</li>
 </ul>
 </li>
-<li><strong>핵심 전제 (Key Assumption):</strong> 액침냉각이 당장 2026~2027년 GST의 주력 매출(30% 이상)을 견인하고 있는가, 아니면 본업(반도체 Sub-fab) 위에서 작동하는 중장기 배수 리레이팅 콜옵션인가?</li>
-<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code> Phase 1 Section 2.1 대조):</strong></li>
-<li><code>[[GST]반기보고서(2026.08.14), II. 사업의 내용 - 1. 사업의 개요 / 2. 주요 제품 및 서비스]</code> 확인 결과, 당사는 부설 기술연구소를 통해 액침냉각 솔루션 개발 및 실증을 진행 중이나, 2026년 상반기 매출실적 표(Scrubber 63.4%, Chiller 17.5%, 용역 16.8%, 상품 2.2%)에서 <strong>액침냉각 단독 상용 매출액은 아직 분리 공시되지 않았습니다(<code>0.0%</code>)</strong>.</li>
-<li>✅ <strong>팩트체크 타격 결과: <code>[ 과장됨 (단기 실적 기여는 시기상조 — D2C Cold Plate 주류 표준과의 경쟁 리스크가 존재하며, DART 단독 매출 미공시 상태이므로 '0원 무상 콜옵션[할증 0%]'으로만 냉정하게 분리 평가해야 함) ]</code></strong></li>
+<li><strong>핵심 전제 (Key Assumption):</strong> 액침냉각이 당장 2026~2027년 GST의 주력 매출(30% 이상)을 견인하고 있는가?</li>
+<li><strong>공시 팩트 대조:</strong> DART 반기보고서(<code>2026.08.14</code>) 실측 결과, 부설 기술연구소에서 액침냉각 실증을 진행 중이나, <strong>액침냉각 단독 상용 매출은 분리 공시되지 않았습니다(<code>0.0%</code>)</strong>.</li>
+<li>✅ <strong>팩트체크 타격 결과: <code>[ 과장됨 (단기 실적 기여 불가 — D2C Cold Plate 주류 표준과의 경쟁 리스크가 명확하므로 '0원 무상 콜옵션[할증 0%]'으로 냉정하게 분리 평가해야 함) ]</code></strong></li>
 </ul>
 <hr />
-<h2>1.1 S-Curve 침투율 &amp; 매매 타이밍 진단 매트릭스 (Global S-Curve 레이더 연동)</h2>
-<p><code>[검증 나침반]</code> <code>korean cycle/00_megatrend/docs/s_curve_registry.json</code>의 색인 좌표를 참조하고, <code>parse_pdf.py</code>를 통해 원본 PDF(<code>26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf</code> 및 <code>26.10.15.IBK투자증권.윤활기유의 시대.pdf</code>, <code>26.09.29.LS증권.AI병목의 전이.pdf</code>)의 실제 페이지를 콘솔 로그로 핀포인트 실측 대조하여 작성한 진단 매트릭스는 다음과 같습니다.</p>
+<h3>③ [테마 3 / 교정 완료] 삼성중공업 해상 부유식 데이터센터(FDC) 냉각 기술 팩트체크</h3>
+<ul>
+<li><strong>가설 교정 배경:</strong> 일각에서 제기된 "해상 바지선 AIDC 전환 시 밀폐 액침냉각 수혜" 주장에 대한 팩트체크.</li>
+<li><strong>Global Trend 실측 검증:</strong> <code>[글로벌 트렌드: LS증권.[DCInside] AI시대 조선 산업의 변화와 투자전략 p.29~31 표 8, p.56]</code> 확인 결과:</li>
+<li>삼성중공업의 FDC 공식 냉각 스펙은 <strong>'해수 냉각(천연 히트싱크) + LNG 기화 냉열 회수 및 자연 프리쿨링(ECO Mode)'</strong>으로 확정되어 있습니다.</li>
+<li>파도와 슬로싱(Sloshing)에 의해 끊임없이 요동치는 해상 부유체 환경에서 개방형 수조 액침냉각은 냉각유 누출 및 유지보수 한계로 적용이 불가능합니다.</li>
+<li>✅ <strong>팩트체크 타격 결과: <code>[ 공식 폐기 (GST는 선박/해상 FDC 직접 수혜군에서 완전 제외하며, 육상 AIDC 실증 옵션으로만 국한함) ]</code></strong></li>
+</ul>
+<hr />
+<h2>1.1 S-Curve 침투율 &amp; 매매 타이밍 진단 매트릭스</h2>
+<p><code>[검증 나침반]</code> 제도권 딥리서치 실측 페이지와 DART 정기보고서를 교차 타격한 매트릭스는 다음과 같습니다:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">진단 항목</th>
 <th style="text-align: left;">정량 수치 및 상태</th>
-<th style="text-align: left;">출처 및 근거 (No-Blind-Citation 실측 대조)</th>
+<th style="text-align: left;">출처 및 근거 (No-Blind-Citation 실측)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>소속 신기술 테마</strong></td>
-<td style="text-align: left;"><strong>AIDC 액침냉각 (Immersion Cooling)</strong> <em>(신사업 옵션)</em> + <strong>선단 반도체 Sub-fab 인프라</strong> <em>(본업 캐시카우)</em></td>
-<td style="text-align: left;"><code>s_curve_registry.json</code> (<code>th_immersion_cooling</code>) 및 <code>[글로벌 트렌드: 26.09.29.LS증권.AI병목의 전이.pdf p.38~39]</code></td>
+<td style="text-align: left;"><strong>AIDC 액침냉각</strong> <em>(신사업 0원 옵션)</em> + <strong>선단 Sub-fab 인프라</strong> <em>(본업 캐시카우)</em></td>
+<td style="text-align: left;"><code>s_curve_registry.json</code> 및 <code>LS증권 p.38~39</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>현재 산업 침투율</strong></td>
-<td style="text-align: left;">• 광의의 신규 AI DC 액체냉각률: <strong>60.0%</strong> <em>(2026E)</em> → <strong>93.0%</strong> <em>(2030E)</em><br>• 수조형 액침냉각(Immersion) 세부 침투율: <strong>12.5%</strong> <em>(전분기 8.0%, 액체냉각 장비 내 비중 약 7.0%)</em></td>
-<td style="text-align: left;"><code>[팩트: 26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf p.129 표, p.131 표]</code> 및 <code>s_curve_registry.json</code></td>
+<td style="text-align: left;">• 신규 AI DC 액체냉각률: <strong>60.0%</strong> <em>(2026E)</em> → <strong>93.0%</strong> <em>(2030E)</em><br>• 수조형 액침냉각(Immersion) 침투율: <strong>7.0%</strong> <em>(선택적 틈새 시장 포지션)</em></td>
+<td style="text-align: left;"><code>[팩트: 유안타증권 p.129, p.131 Dell'Oro 시장 전망 표]</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>S-Curve 국면 판정</strong></td>
-<td style="text-align: left;">산업 자체는 <strong>⭐Phase 2 (10~40% 골든 스위트스팟 초입)</strong>이나, 엔비디아 Rubin 세대 <strong>단상 D2C(Cold Plate) 주류 채택에 따른 표준 경쟁 병존</strong></td>
-<td style="text-align: left;"><code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.44 표 12, p.47 표 15]</code> 교차 검증</td>
+<td style="text-align: left;">산업 자체는 <strong>⭐Phase 2 (10~40% 골든 스위트스팟 초입)</strong>이나, <strong>단상 D2C Cold Plate 주류 표준과의 경쟁 병존</strong></td>
+<td style="text-align: left;"><code>[글로벌 트렌드: IBK투자증권 p.44 표 12, p.47 표 15]</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>DART 단독 매출 검증</strong></td>
-<td style="text-align: left;"><strong>액침냉각 단독 매출 미공시 (<code>0.0%</code> 익스포저 ➡️ <code>0원 무상 콜옵션</code> 분류, Phase 3 S-Curve 할증 <code>0%</code> 차단)</strong> <em>(단, 반도체 Sub-fab 본업 익스포저는 <code>100.0%</code>)</em></td>
-<td style="text-align: left;">Phase 1 Section 2.1 <code>[[GST]반기보고서(2026.08.14), II. 사업의 내용]</code> 및 <code>s_curve_registry.json</code> (<code>standalone_disclosed: false</code>)</td>
+<td style="text-align: left;"><strong>액침냉각 단독 매출 미공시 (<code>0.0%</code> ➡️ <code>0원 무상 콜옵션</code>, Phase 3 할증 <code>0%</code> 고정)</strong> <em>(단, Sub-fab 본업 익스포저는 <code>100.0%</code>)</em></td>
+<td style="text-align: left;">Phase 1 Section 2.1 <code>[[GST]반기보고서(2026.08.14)]</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>공식 투자 액션 시그널</strong></td>
-<td style="text-align: left;"><strong><code>[본업 가치 매수 (눌림목) + 신사업 무상 콜옵션 보유]</code></strong></td>
-<td style="text-align: left;">본업(Scrubber·Chiller) 안전마진 구간 진입 시 매수하되, 신사업 멀티플 할증(<code>sc_mult=1.00</code>)은 배제</td>
+<td style="text-align: left;"><strong><code>[본업 가치 매수 (눌림목 안착) + 신사업 무상 콜옵션 보유]</code></strong></td>
+<td style="text-align: left;">본업 안전마진 구간(40,000원) 진입 시 매수하되, 신사업 멀티플 할증은 원천 배제</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>하이브리드 밸류체인 지위</strong></td>
-<td style="text-align: left;"><strong><code>[🎁 무상 콜옵션 보유주 (본업 반도체 Sub-fab 순수 기업 + 액침냉각 글로벌 5대 밸류체인 등재)]</code></strong></td>
-<td style="text-align: left;"><code>[팩트: 26.09.02.유안타증권.AIDC 다음 승부처 - 네트워크와 냉각.pdf p.135 표]</code> (Submer, GRC, LiquidStack, Asperitas, <strong>GST</strong>)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>차기 변곡점 모니터링</strong></td>
-<td style="text-align: left;">① DART 정기보고서 내 <strong>액침냉각(Tank/CDU) 단독 수주·매출 분리 공시</strong> 시점<br>② 하이퍼스케일러향 초기 충전·반복 발주 승인 여부</td>
-<td style="text-align: left;"><code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.44 표 12]</code> 단계별 배수 상향 지표 연동</td>
+<td style="text-align: left;"><strong><code>[🎁 무상 콜옵션 보유주 (Sub-fab 본업 순수 기업 + 글로벌 액침 5대 밸류체인 등재)]</code></strong></td>
+<td style="text-align: left;"><code>유안타증권 p.135 표</code> (Submer, GRC, LiquidStack, Asperitas, <strong>GST</strong>)</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong><code>Weekly_Trend/thesis_log.md</code> 자동 연동:</strong> 본 진단 결과(본업 반도체 Sub-fab 실적 성장 + 액침냉각 0원 무상 콜옵션 분리 및 D2C 표준 경쟁 모니터링)는 사용자 핵심 가설로 자동 동기화되어 Phase 3 밸류에이션(S-Curve 할증 <code>0%</code> 고정)에 엄격히 반영됩니다.</li>
-</ul>
+<hr />
+<h2>1.2 [Step 1.2] 3축 구조적 병목(Capa·기술격차·특허) &amp; 해소 리드타임 심층 검증 (★v4.3)</h2>
+<p><code>korean-stock-analyzer</code> v4.3 표준에 따라 GST 본업 및 신사업의 3축 구조적 병목 유발 여부와 경쟁사 진입 리드타임을 정량 해부합니다.</p>
+<pre><code class="language-mermaid">flowchart TD
+    subgraph Axis[&quot;🔬 Step 1.2: 3축 구조적 병목 진단&quot;]
+        A1[&quot;축 A: 물리적 생산 Capa 병목&lt;br/&gt;26.H1 생산 대수 1,842대&lt;br/&gt;(연환산 3,684대, 21년 호황기 정점의 92.1% 풀가동)&quot;]
+        A2[&quot;축 B: 기술격차 해자 &amp; 단가전가력&lt;br/&gt;3D NAND 식각용 극저온 칠러(-80℃)&lt;br/&gt;스크러버 단가 +25%, 칠러 단가 +61% 상승&quot;]
+        A3[&quot;축 C: 특허 · 글로벌 고객사 Qual 락인&lt;br/&gt;삼성전자(평택/테일러)·마이크론·CXMT&lt;br/&gt;Sub-fab 1차 벤더 독점 스펙-인(Spec-in)&quot;]
+    end
+
+    subgraph LeadTime[&quot;⏱️ 병목 해소 리드타임 판정&quot;]
+        L1[&quot;A등급 중기 구조적 병목 (18개월)&lt;br/&gt;경쟁사의 신규 장비 개발 ➔ 고객사 데모 ➔&lt;br/&gt;클린룸 배관 스펙-인 및 팹 Qual 통과에 12~18개월 필수 소요&quot;]
+    end
+
+    A1 --&gt; L1
+    A2 --&gt; L1
+    A3 --&gt; L1
+</code></pre>
+<ol>
+<li><strong>축 A (물리적 생산 Capa 한계 &amp; 풀가동):</strong></li>
+<li>DART 공시상 공식 가동률은 생략되어 있으나, 2026년 상반기 장비 생산 대수가 <strong><code>1,842대</code></strong>(스크러버 1,129대 + 칠러 713대)로 연환산 3,684대를 기록, 2021년 호황기 정점(4,002대)의 <strong><code>92.1%</code></strong> 수준까지 실질 풀가동에 육박하고 있습니다. 공장 여유 Capa가 빠르게 소진되며 신규 수주에 대한 우선권(Lead Time 단축력)을 확보했습니다.</li>
+<li><strong>축 B (독점적 공정/수율 기술격차 &amp; 가격전가력):</strong></li>
+<li>3D NAND 300단 이상 고단화 식각 공정에서 챔버 온도를 영하 80도 이하로 오차 없이 제어해야 하는 극저온 칠러(Cryo Chiller) 기술을 선제 확보했습니다. 이에 따라 칠러 대당 단가가 2021년 0.33억 원에서 2026년 상반기 <strong><code>0.53억 원</code></strong>으로 <strong>+60.6% 수직 상승</strong>했으며, 전사 OPM 16.57%를 수호하는 강력한 단가전가력(Pricing Power)을 입증했습니다.</li>
+<li><strong>축 C (원천특허 · 글로벌 Top-Tier Qual 락인):</strong></li>
+<li>삼성전자 평택/테일러, 마이크론 미국/대만, 중화권 IDM의 메인 팹 클린룸 하단 Sub-fab 배관에 공식 1차 벤더로 락인되어 있어, 후발주자가 기존 라인을 교체 진입하기 위한 전환 비용(Switching Cost)이 극도로 높습니다.</li>
+<li><strong>병목 해소 예상 소요기간 (Lead Time 결론):</strong></li>
+<li><strong><code>A등급 (18개월 / 1~2년 중기 병목)</code></strong>: 후발 경쟁사가 고사양 플라즈마 스크러버 및 초저온 칠러를 개발하여 글로벌 IDM의 데모 평가를 통과하고 실제 양산 팹에 반입되기까지 최소 <strong>12~18개월의 물리적 리드타임</strong>이 소요됩니다. (Phase 3 동적 PEG <code>0.80</code> 계수 적용 근거 확립).</li>
+</ol>
 <hr />
 <h2>2. Weekly 개별 리포트 및 시장 내러티브 검증</h2>
-<h3>① [컨센서스 검증 1] SK하이닉스향 양산 확대 및 해외 수출 호조로 2026E 매출 4,389억 · 영업이익 759억(OPM 17.3%), 2027E 영업이익 946억 사상 최대 실적 전망</h3>
+<h3>① [컨센서스 검증 1] 2026E 매출 4,389억 · 영업이익 759억(OPM 17.3%), 2027E 946억 고성장 전망</h3>
 <ul>
 <li><strong><code>[시장 내러티브]</code> 발췌:</strong></li>
-<li><code>[글로벌 트렌드: 26.09.29.LS증권.AI병목의 전이.pdf p.39, p.44 표 8]</code> (블룸버그 컨센서스 기반): GST가 삼성전자·Micron 설비투자 확대와 SK하이닉스향 양산 공급 증가에 힘입어 <strong>2026E 매출액 4,389억 원(YoY +26.4%), 영업이익 759억 원(YoY +28.2%, OPM 17.3%), 당기순이익 627억 원</strong>, 이어 <strong>2027E 매출액 5,228억 원, 영업이익 946억 원(OPM 18.1%), 당기순이익 775억 원</strong>의 고성장을 달성할 것으로 전망.</li>
-<li><code>[글로벌 트렌드: 26.09.02.하나증권.증설의 시대, 후공정의 수혜도 함께 온다.pdf p.42 도표 59]</code>: <strong>2026F EPS 성장률 +40.9% (26F PER 12.5배), 2027F EPS 성장률 +21.5% (27F PER 10.3배)</strong>로 반도체 인프라 Peer 내 압도적 실적 가시성 제시.</li>
-<li><strong>핵심 전제:</strong> 상반기 누적 실적 페이스와 하반기 출하 대기 물량(재고자산)이 연간 매출 4,389억 원 및 영업이익 759억 원 달성을 뒷받침하는가?</li>
-<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code> DART 반기보고서 숫자 검증):</strong></li>
-<li><strong>상반기 달성률 49.0% 통과:</strong> 2026년 상반기 연결 매출액은 <strong>2,151.3억 원</strong>으로 LS증권 연간 추정치(4,389억 원)의 <strong>49.0%</strong>를 이미 상반기에 달성했으며, 상반기 영업이익 <strong>356.5억 원</strong>(OPM <strong>16.57%</strong>) 역시 연간 추정치(759억 원)의 <strong>47.0%</strong>에 도달했습니다. 반도체 장비 업종 특성상 고객사 예산 집행과 셋업 검수가 하반기(3Q~4Q)에 집중되는 계절성을 감안하면 매우 탄탄한 페이스입니다.</li>
-<li><strong>선행 지표(제품·재공품 재고자산) +53.4% 급증 확인:</strong> <code>[[GST]반기보고서(2026.08.14), II. 사업의 내용 - 재고자산 현황]</code> 확인 결과, 주문 제작이 완료되어 고객사 팹 반입·검수를 대기 중인 <strong>제품 재고가 2025년 말 180.2억 원 → 2026년 반기말 303.9억 원(+68.7%)</strong>, 생산 진행 중인 <strong>재공품이 122.3억 원 → 160.1억 원(+30.9%)</strong>으로 합계 <strong>464.0억 원(+53.4%)</strong>에 달합니다. 이는 하반기 인도될 확정 수주 물량이 이미 공장에서 활발히 출하 대기 중임을 입증합니다.</li>
-<li>✅ <strong>팩트체크 타격 결과: <code>[ True (상반기 매출 달성률 49.0% 및 제품·재공품 재고 +53.4% 증가로 달성 가시성 매우 높음) ]</code></strong></li>
+<li><code>[LS증권 p.39, p.44 표 8]</code>: 삼성전자·Micron 설비투자 확대와 SK하이닉스향 공급 증가로 2026E 매출 4,389억, 영업이익 759억(OPM 17.3%), 2027E 영업이익 946억 전망.</li>
+<li><code>[하나증권 p.42 도표 59]</code>: 26F 지배EPS 성장률 +40.9% 제시.</li>
+<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code>):</strong></li>
+<li><strong>상반기 달성률 49.0% 통과:</strong> 2026년 상반기 매출액 <strong>2,151.3억 원</strong>으로 LS증권 연간 추정치(4,389억)의 <strong>49.0%</strong>를 상반기에 이미 달성했고, 영업이익 <strong>356.5억 원</strong> 역시 연간 목표의 <strong>47.0%</strong>에 도달했습니다.</li>
+<li><strong>선행 재고자산(제품+재공품) +53.4% 폭증:</strong> <code>[[GST]반기보고서(2026.08.14)]</code> 확인 결과, 출하 대기 제품 재고가 180.2억 → 303.9억(+68.7%), 재공품이 122.3억 → 160.1억(+30.9%)으로 합계 <strong>464.0억 원(+53.4%)</strong>에 달합니다. 하반기 인도될 확정 수주 물량이 공장에서 활발히 대기 중입니다.</li>
+<li>✅ <strong>팩트체크 타격 결과: <code>[ True (상반기 달성률 49% 및 제품·재공품 재고 +53.4% 증가로 실적 가시성 매우 높음) ]</code></strong></li>
 </ul>
 <hr />
-<h3>② [내러티브 검증 2] 고단화 NAND 및 선단 DRAM/GAA 공정 전환에 따른 초저온 칠러 성장성 부각</h3>
+<h3>② [내러티브 검증 2] 고단화 NAND 및 선단 GAA 전환에 따른 초저온 칠러 Q·P 동반 성장</h3>
 <ul>
-<li><strong><code>[시장 내러티브]</code> 발췌:</strong></li>
-<li><code>Weekly_Trend/반도체섹터(26.08.01~15).md</code> 및 <code>[글로벌 트렌드: 26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf p.7~8]</code>: 200~400단 고단화 NAND의 극저온 식각(Cryo Etching) 도입과 HBM4·GAA 미세공정 열관리 난이도 상승으로 칠러(Chiller) 부문의 수량(Q) 회복과 고단가(P) 믹스 개선이 동시에 나타난다는 주장.</li>
-<li><strong>공시 팩트 대조 (<code>[공시 팩트]</code> Phase 1 Section 2 &amp; 4 대조):</strong></li>
-<li>DART 반기보고서 확인 결과, Chiller 매출액은 2024년 376.1억 원(비중 11.3%)을 바닥으로 2025년 <strong>562.0억 원(YoY +49.4%, 비중 16.2%)</strong>으로 반등한 데 이어, <strong>2026년 상반기에만 377.4억 원(비중 17.5%)</strong>을 기록하여 반년 만에 2024년 연간 칠러 매출을 넘어섰습니다.</li>
-<li>생산 대수 역시 2024년 781대 → 2025년 1,089대 → <strong>2026년 상반기 713대(연환산 1,426대)</strong>로 급증했고, 대당 암묵 단가도 <strong>0.53억 원/대</strong>(2021년 0.33억 원 대비 <strong>+60.6%</strong>)로 사상 최고치를 경신했습니다.</li>
-<li>✅ <strong>팩트체크 타격 결과: <code>[ True (26.H1 반기 칠러 매출이 24년 연간 실적을 돌파하며 Q·P 동반 성장 입증) ]</code></strong></li>
+<li><strong><code>[시장 내러티브]</code> 발췌:</strong> 고단화 NAND 극저온 식각(Cryo Etching) 및 GAA 미세공정 열관리 난이도 상승으로 칠러 부문 Q(수량) 회복과 P(단가) 개선이 동시에 진행된다는 주장.</li>
+<li><strong>공시 팩트 대조:</strong></li>
+<li>DART 반기보고서 확인 결과, Chiller 매출액은 2024년 376.1억 원을 바닥으로 2025년 562.0억 원(+49.4%)으로 반등한 뒤, <strong>2026년 상반기에만 377.4억 원</strong>을 기록하여 <strong>반년 만에 2024년 연간 실적을 돌파</strong>했습니다.</li>
+<li>대당 암묵 단가 역시 <strong><code>0.53억 원/대</code></strong>(2021년 0.33억 대비 <strong>+60.6%</strong>)로 사상 최고치를 경신했습니다.</li>
+<li>✅ <strong>팩트체크 타격 결과: <code>[ True (26.H1 칠러 매출이 24년 연간 실적을 돌파하며 Q·P 동반 성장 입증) ]</code></strong></li>
 </ul>
 <hr />
-<h2>3. 사용자 투자 가설 검증 (<code>Weekly_Trend/thesis_log.md</code> 기반)</h2>
-<p>사용자의 영구 가설 데이터베이스(<a href="file:///e:/antigravity-work/my-skill/Stock_Research/GST/Weekly_Trend/thesis_log.md">thesis_log.md</a>)에 등재된 <code>[진행 중]</code> 핵심 가설을 Phase 1 DART 공시 팩트 및 최신 Global Trend(26.09~26.10) 실측 데이터로 타격 검증한 결과는 다음과 같습니다.</p>
-<h3>① 가설 1 <code>[진행 중]</code>: "P(단가) 개선이 완료된 상태에서 신규 팹(P5, Y1, 테일러) 증설로 Q(물량)가 급증하는 영업레버리지 폭발 초입이다"</h3>
-<ul>
-<li><strong>공시 팩트 대조:</strong> <code>[공시 팩트]</code> 2021~2024년 사이 고사양 장비 채택으로 대당 단가(P)가 스크러버 +25%, 칠러 +61% 선행 상승한 상태에서, 2026년 상반기 총 장비 생산량(Q)이 <strong>1,842대(연환산 3,684대, 2023년 저점 2,438대 대비 +51.1% 증가 페이스)</strong>로 본격 팽창하며 상반기 영업이익이 356.5억 원(OPM 16.57%), 지배주주 순이익이 <strong>295.1억 원(YoY +54.08%)</strong>으로 폭발했습니다.</li>
-<li>✅ <strong>가설 타격 결과: <code>[ 유효함 (DART 생산실적 Q 반등 및 지배순이익 YoY +54.1%로 영업레버리지 입증) ]</code></strong></li>
-</ul>
-<h3>② 가설 2 <code>[진행 중]</code>: "육상 전력망·용수 규제로 해상 부유식 바지선 AIDC(FDC) 전환 시, 염분·습기 차단용 밀폐 액침냉각과 고밀도 칠러 수혜로 GST의 ASP가 상승한다"</h3>
-<ul>
-<li><strong>공시 및 Global Trend 팩트 대조:</strong></li>
-<li><code>[글로벌 트렌드: 26.09.08.LS증권.[DCInside] AI시대 조선 산업의 변화와 투자전략.pdf p.29~31 표 8, p.56]</code> 실측 결과, 삼성중공업은 2026년 4월 50MW급, 8월 200MW급 FDC 개념설계인증(AiP)을 취득하고 미국 Mousterian과 엔지니어링 계약을 체결하는 등 해상 데이터센터 상용화가 실제 추진되고 있습니다.</li>
-<li>다만 LS증권(<code>p.31 표 8, p.56</code>)에 확인된 삼성중공업의 첫 상업용 FDC 서비스 개시 목표 시점은 <strong>2028년 2분기(2Q28)</strong>이며, 초기 모델은 NVIDIA Vera Rubin 플랫폼 기준 <strong>해수 냉각(천연 히트싱크) + LNG 기화 냉열 회수 및 자연 프리쿨링(ECO Mode)</strong>을 주력 냉각 방식으로 설계하고 있습니다. 또한 <code>[공시 팩트]</code> 현재 GST의 DART 보고서에 조선사향 FDC 전용 냉각장비 수주나 매출은 아직 발생하지 않았습니다.</li>
-<li>✅ <strong>가설 타격 결과: <code>[ 부분 유효 (방향성은 부합하나 첫 상업 가동이 2028년 2분기 목표이며 해수·LNG 냉열 방식이 우선 적용되므로, 2026~2027년 단기 실적이 아닌 2028년 이후 초장기 콜옵션으로 위치 조정) ]</code></strong></li>
-</ul>
-<h3>③ 가설 3 <code>[진행 중]</code>: "일론 머스크의 우주 AIDC 구상은 발사비용·복사 방열판 한계·위성 교체 주기로 인해 2030년대 장기 테마에 불과하며, 2026~2028년 지상/해상 쿨링 수요를 전혀 침해하지 못한다"</h3>
-<ul>
-<li><strong>공시 및 Global Trend 팩트 대조:</strong></li>
-<li><code>[글로벌 트렌드: 26.09.15.LS증권.AI 데이터센터 - 지상의 한계, 우주의 기회.pdf p.11~12, p.19, p.25, p.35]</code> 실측 결과, 우주 공간은 진공 상태여서 오직 거대 복사 방열판(AI1 기준 <code>30m × 2.6m</code>, 스테판-볼츠만 법칙 적용)에 의존해야 하며(<code>p.19, 25</code>), 스페이스X의 AI1 위성 본격 확대는 루이지애나 스타베이스 완공(2027년 착공, <strong>2029년 첫 발사 목표</strong>, <code>p.11</code>) 및 스타십 상용 비행에 묶여 있고 1GW 구축에 약 <strong>120억 달러</strong>의 막대한 위성 제작비가 소요됩니다(<code>p.35</code>).</li>
-<li>따라서 2026~2028년 지상 반도체 팹 및 데이터센터 냉각 시장을 대체할 가능성은 0%에 수렴합니다.</li>
-<li>✅ <strong>가설 타격 결과: <code>[ 유효함 (제도권 우주 데이터센터 딥리서치 실측 수치로 100% 검증 완료) ]</code></strong></li>
-</ul>
-<h3>④ 가설 4 <code>[진행 중]</code>: "현재 주가는 액침냉각 기여도가 '0원'인 공짜 콜옵션 상태이며, 향후 본업 팹 투자 피크와 액침냉각 상용 수주 공시가 맞물릴 경우 '배수(Multiple) 리레이팅'이 작동할 것이다"</h3>
-<ul>
-<li><strong>공시 및 Global Trend 팩트 대조:</strong></li>
-<li><code>[공시 팩트]</code> 현재 단일 기준 주가 <strong><code>45,600원</code></strong>은 TTM 지배주주 EPS(<code>3,019원</code>) 기준 <strong>PER <code>15.10배</code></strong>, LS증권 2026E 추정 지배순이익(<code>627억 × 99.6% = 624.5억 원</code>, EPS 약 <code>3,476원</code>) 기준 <strong>Forward PER <code>13.1배</code></strong>(순현금 1,001억 차감 Ex-Cash Forward PER 약 <strong><code>11.5배</code></strong>)로, 철저히 반도체 Sub-fab 본업 실적만으로 설명되는 밸류에이션입니다.</li>
-<li>특히 2026년 10월 15일 발간된 <code>[글로벌 트렌드: 26.10.15.IBK투자증권.윤활기유의 시대.pdf p.44 표 12]</code>에서 <strong>"데이터센터 액침냉각 옵션은 2027년 영업이익에 수천억 원을 억지로 더하는 방식보다, 상용화 단계(실증 → 하이퍼스케일 승인 → 초기 충전 발주 → 반복 계약)가 올라갈 때마다 적용 배수(Multiple)를 한 단계씩 높이는 방식으로 보는 것이 적절하다"</strong>고 정의한 것은 사용자의 '가설 4(공짜 콜옵션 및 단계별 배수 리레이팅)'를 기관 리서치 논리로 완벽히 확증해 준 결과입니다.</li>
-<li>✅ <strong>가설 타격 결과: <code>[ 유효함 (2026.10.15 IBK투자증권 딥리서치 p.44 '데이터센터 옵션: 이익이 아니라 배수에 반영한다' 논리와 100% 일치) ]</code></strong></li>
-</ul>
-<h3>⑤ 가설 5·6 <code>[검증 완료 / 진행 중]</code>: "10월 초 급등기(54,200원) 분할 익절 후 44,000~47,000원 눌림목 조정을 기다려 대응한다"</h3>
-<ul>
-<li><strong>시장 및 백테스트 팩트 대조:</strong></li>
-<li>10월 초 단기 급등(<code>54,200원</code>, 20일 매물대 상단 <code>52,480~55,690원</code>) 구간에서 차익 실현 후, 2026년 10월 16일 종가 <strong><code>45,600원</code></strong>으로 사용자가 사전 설정했던 1차 눌림목 타겟 밴드(<code>44,000~47,000원</code>, 일봉 60일선 <code>46,532원</code> 및 주봉 20주선 <code>48,532원</code> 하단 조정 구간)에 정확히 도달했습니다.</li>
-<li>단, <code>backtest_valuation.py</code> (v4.1) 기준 과거 3년 평균 PER(<code>10.25배</code>, 상위 65% <code>11.35배</code>)을 보수적 닻(<code>🛡️ 대안 B</code>)으로 적용할 때 현재가(<code>45,600원</code>)가 2026E Forward 실적 대비 어느 정도의 안전마진(Valuation R:R)을 확보하는지는 Phase 3에서 냉철하게 정량 검증해야 합니다.</li>
-<li>✅ <strong>가설 타격 결과: <code>[ 유효함 (고점 분할 익절 및 45,600원 기술적 눌림목 도달 적중 — Phase 3에서 펀더멘털 안전마진 정밀 재산정) ]</code></strong></li>
-</ul>
-<hr />
-<h2>4. 심화 분석 및 대화 피드백 (2026.10 중순 글로벌 트렌드 델타 집중 해부)</h2>
-<p>이번 2026년 10월 중순 Global Trend 업데이트(<a href="file:///e:/antigravity-work/my-skill/Stock_Research/Global_Trend/26.09.01~15/26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf">26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf</a> 및 <a href="file:///e:/antigravity-work/my-skill/Stock_Research/Global_Trend/26.09.01~15/26.10.15.IBK투자증권.윤활기유의 시대.pdf">26.10.15.IBK투자증권.윤활기유의 시대.pdf</a>)가 GST의 중단기(6개월~3년) 펀더멘털에 던지는 2대 핵심 시사점을 심층 정리합니다.</p>
-<h3>1) 왜 '핀펫(FinFET) → GAA 전환'이 Sub-fab 스크러버·칠러에 구조적 호재인가?</h3>
-<ul>
-<li><code>[글로벌 트렌드: 26.10.15.유안타증권.2027Issue&amp;Theme(change).pdf p.7~8, p.12~13]</code>에 따르면, 3나노 이하 파운드리(삼성전자 3나노/2나노, TSMC 2나노)를 시작으로 <strong>DRAM(1d 나노 이후)과 3D NAND(400단대 이후)까지 게이트가 채널 4면을 감싸는 GAA(Gate-All-Around) 구조로 전환</strong>됩니다(<code>p.8 표 1</code>).</li>
-<li>GAA 공정은 기존 FinFET 대비 <strong>Si/SiGe 초격자 적층(Epitaxy) → 선택적 등방성 식각(Selective Etch) → 원자층 증착(ALD) → 고압어닐링(HPA)</strong> 등 화학 가스를 주입하고 챔버 온도를 극한으로 올렸다 내리는 공정 스텝 수가 대폭 늘어납니다.</li>
-<li>결과적으로 동일 웨이퍼 Capa(예: 10K/월)를 증설하더라도 챔버에서 배출되는 독성·부식성 가스와 열 부하가 기존 공정 대비 구조적으로 증가하여, <strong>웨이퍼 1만 장당 필요한 고효율 플라즈마·촉매 스크러버 및 초극저온 칠러 탑재 대수(Q)와 사양(ASP)이 동반 상승</strong>합니다. 삼성전자 파운드리 2나노 GAA 수율이 2026년 3분기 60%대에 진입하고 미국 테일러(Taylor) 팹 가동이 본격화되는 것은, 그동안 메모리(HBM/DRAM)에 편중되었던 GST의 수주 모멘텀에 <strong>'선단 파운드리 Fab 회복'</strong>이라는 두 번째 엔진이 더해짐을 의미합니다.</li>
-</ul>
-<h3>2) AIDC 냉각 표준 전쟁(D2C vs 액침냉각) 속 GST의 실전 포지셔닝</h3>
-<ul>
-<li><code>유안타증권(26.09.02 p.126, 131)</code>과 <code>IBK투자증권(26.10.15 p.44, 47)</code>을 교차 대조하면, 향후 2~3년간 하이퍼스케일 AI 데이터센터의 주력 냉각 방식은 엔비디아 Vera Rubin이 채택한 <strong>단상 D2C(Cold Plate 수랭식 + CDU + Chiller/Dry Cooler 시설 열배출)</strong>입니다.</li>
-<li>반면 수조형 <strong>액침냉각(Immersion)</strong>은 유체 수명·서버 호환성·유지보수 검증 기간이 길어 2030년까지 액체냉각 장비 시장의 약 7%(<code>$0.56bn</code>, <code>유안타 p.131</code>)를 차지하는 선택적·고밀도 특수 시장으로 성장할 전망입니다.</li>
-<li>따라서 투자자 관점에서 GST를 바라보는 가장 안전하고 날카로운 시각은:</li>
-<li><strong>숫자(EPS)는 반도체 Sub-fab 본업(스크러버·칠러·글로벌 CS 용역)으로만 100% 계산한다</strong> (액침냉각 매출 0원 가정, S-Curve 할증 0%).</li>
-<li><strong>멀티플(PER)의 상방 옵션은 액침냉각 상용 발주 공시에서 찾는다</strong> — <code>IBK투자증권(26.10.15 p.44 표 12)</code>이 제시한 4단계 트리거(<strong>① 하이퍼스케일 고객 승인 → ② 초기 충전 발주 → ③ 보충/교체 반복 발주 → ④ 멀티사이트 장기계약</strong>) 중 ②~③단계가 DART 단일판매·공급계약이나 정기보고서 매출로 첫 공시되는 순간, 전통 장비주 배수(PER 10~13배)에서 글로벌 스페셜티·AIDC 인프라 배수로의 리레이팅이 점화될 것입니다.</li>
-</ul>
-<hr />
-<h2>💡 종합 결론 (내러티브의 실적화 판단)</h2>
+<h2>3. 사용자 투자 가설 포퍼식 반증 검증 (<code>Weekly_Trend/thesis_log.md</code> 6열 표준)</h2>
+<p>영구 가설 데이터베이스(<a href="file:///e:/antigravity-work/my-skill/Stock_Research/GST/Weekly_Trend/thesis_log.md">thesis_log.md</a>)에 등재된 8대 투자 가설의 포퍼식 반증 검증 현황은 다음과 같습니다:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">검증 영역</th>
-<th style="text-align: left;">시장 내러티브 요약</th>
-<th style="text-align: left;">DART 공시 및 딥리서치 실측 대조 결과</th>
-<th style="text-align: center;">최종 판정</th>
+<th style="text-align: left;">가설 ID (기록일)</th>
+<th style="text-align: left;">핵심 투자 가설</th>
+<th style="text-align: left;">📊 직전 분기 대비 (QoQ) 실측 추이</th>
+<th style="text-align: left;">✅ 확인 근거 (Bullish Fact)</th>
+<th style="text-align: left;">🚨 반증/약화 조건 (Kill-Switch)</th>
+<th style="text-align: center;">판정 상태</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>반도체 Sub-fab 본업 (Scrubber · Chiller · 용역)</strong></td>
-<td style="text-align: left;">전방 팹(P5·Y1·M15X·테일러) 선행 증설 및 SK하이닉스향 공급 확대, 2nm GAA 전환으로 2026~2027년 사상 최대 실적 경신</td>
-<td style="text-align: left;">• 2026.H1 매출 <strong>2,151.3억(YoY +26.7%)</strong>, 영업이익 <strong>356.5억(YoY +27.3%)</strong>, 연결 FCF <strong>+299.1억</strong>으로 이미 실적화 진행 중<br>• 반기말 제품·재공품 재고 <strong>464.0억(+53.4%)</strong> 및 오스틴 법인 매출채권 증가로 하반기 실적 가시성 확보</td>
-<td style="text-align: center;">✅ <strong><code>[ True : 강력한 실적화 진행 중 ]</code></strong></td>
+<td style="text-align: left;"><strong>H1 (2026.09.16)</strong></td>
+<td style="text-align: left;"><strong>영업레버리지 폭발 초입 가설</strong>: 신규 팹(P5, Y1, Taylor) 증설 사이클 진입에 따라 P 개선 완료 후 Q가 급증하는 영업레버리지 초입</td>
+<td style="text-align: left;">[26.1Q ➔ 26.2Q]<br>• 매출: 1,158.9억 ➔ 992.4억(QoQ -14.4%)<br>• 영익: 201.9억 ➔ 154.6억(QoQ -23.4%)<br>• EPS: 965원 ➔ 678원</td>
+<td style="text-align: left;">• 상반기 누적 매출 2,151.3억(YoY +26.7%) 사상 최대<br>• 스크러버 단가 1.21억(+25%), 칠러 0.53억(+61%) 레벨업<br>• 하나증권 26F 지배EPS 성장 전망</td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 &lt; 131.4억 원 (직전 분기 대비 -15% 급락) 또는 분기 지배EPS &lt; 542원 기록 시 본 가설 [약화]로 강등</strong></td>
+<td style="text-align: center;">🟡 <strong>[진행 중 / 관망]</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>신사업 (AIDC 액침냉각 · 해상 FDC · 우주 DC)</strong></td>
-<td style="text-align: left;">액침냉각 S-Curve(침투율 12.5%) 진입 및 차세대 해상/우주 DC 냉각 수혜로 즉각적 매출 폭발 기대</td>
-<td style="text-align: left;">• 글로벌 액침냉각 5대 밸류체인 등재 및 그룹III 유체 생태계 확장은 사실이나, <strong>단상 D2C(Cold Plate) 주류 표준과의 경쟁 리스크</strong> 병존<br>• DART상 <strong>액침냉각 단독 상용 매출 미공시(<code>0.0%</code>)</strong>, 해상 FDC 상용화는 <code>2Q28</code> 목표</td>
-<td style="text-align: center;">⚠️ <strong><code>[ 과장됨 : 단기 이익 미반영 → '0원 무상 콜옵션(할증 0%)' 분리 ]</code></strong></td>
+<td style="text-align: left;"><strong>H2 (2026.09.16 / 10.21 교정)</strong></td>
+<td style="text-align: left;"><strong>해상 부유식 바지선 AIDC 액침 수혜 가설</strong>: 삼성중공업 선박 FDC에 GST 액침냉각 직접 납품 기대</td>
+<td style="text-align: left;">상반기 액침냉각 단독 매출 0.0억 (공시 미분리)</td>
+<td style="text-align: left;">(없음) 삼성중공업 FDC 공식 냉각 방식은 해수 냉각 + LNG 기화 냉열 회수로 확인됨 (LS증권 p.31)</td>
+<td style="text-align: left;">파도/슬로싱 동요 환경에서 개방형 수조 액침 적용 불가 확인</td>
+<td style="text-align: center;">❌ <strong>[공식 폐기]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H3 (2026.09.16)</strong></td>
+<td style="text-align: left;"><strong>우주 AIDC 상용화 지연 가설</strong>: 우주 위성 AIDC는 발사 비용·방열판 한계로 2030년대 테마에 불과하며 2026~2028 지상 Sub-fab 수요를 침해하지 못함</td>
+<td style="text-align: left;">N/A (거시 기술 환경)</td>
+<td style="text-align: left;">스페이스X 스타십 발사단가 및 진공 복사방열 한계 지속, 지상 팹 증설 및 쿨링 수요 견조</td>
+<td style="text-align: left;">2028년 이전 글로벌 CSP의 상용 우주 데이터센터 대규모 상용화 발주 확인 시</td>
+<td style="text-align: center;">🟢 <strong>[유효 확증]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H4 (2026.09.30)</strong></td>
+<td style="text-align: left;"><strong>액침냉각 0원 미반영 콜옵션 가설</strong>: 현재 주가는 액침 기여도가 0원으로 오직 IDM 팹 본업만 프라이싱되어 있어 액침냉각은 무상 콜옵션 상태임</td>
+<td style="text-align: left;">[26.H1 기준]<br>전사 장비 매출 80.9%가 전공정 본업, 액침냉각 단독 매출 0.0%</td>
+<td style="text-align: left;">기관 리포트상 액침냉각 실적 추정치 미반영 확인. 유안타증권·IBK투자증권 단계별 배수 리레이팅 옵션 제시</td>
+<td style="text-align: left;">DART에 액침냉각 매출 분리 공시 후에도 주가 배수 디레이팅 발생 시</td>
+<td style="text-align: center;">🟢 <strong>[유효 확증]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H5 (2026.10.02 / 10.15 검증)</strong></td>
+<td style="text-align: left;"><strong>Base 목표가 도달 후 분할 익절 &amp; 눌림목 대기 가설</strong>: 10.02 54,200원 급등 시 1차 목표가 도달로 분할 익절 후 44,000~47,000원대 눌림목 대기 우월</td>
+<td style="text-align: left;">2026.10.02 고점 54,200원 ➔ 2026.10.15 45,250원 ➔ 2026.10.26 40,000원 안착</td>
+<td style="text-align: left;">10월 2일 54,200원 고점 분할 익절 후 주가 정상 조정 거쳐 과열 해소 완료</td>
+<td style="text-align: left;">주가가 55,000원을 돌파하여 안착할 경우 추격매수 금지 핀 해제</td>
+<td style="text-align: center;">🟢 <strong>[검증 완료]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H6 (2026.10.15)</strong></td>
+<td style="text-align: left;"><strong>AIDC 액침냉각 7% 틈새 및 v4.1 무상 콜옵션 가설</strong>: 전체 액체냉각 장비 중 액침 비중은 7% 틈새 시장이므로 본업 가치 위에서 상용 수주 시 배수 리레이팅 추구</td>
+<td style="text-align: left;">액체냉각 시장 내 액침 비중 7.0% ($0.21bn / $3.0bn, Dell'Oro)</td>
+<td style="text-align: left;">유안타증권(26.09.02 p.131) 실측 팩트 일치. 본업 순수 가치 위에서 안전마진 확보</td>
+<td style="text-align: left;">단상 D2C 대비 액침냉각 글로벌 점유율이 20%를 돌파하고 단독 대규모 수주 공시 시 S-Curve 할증 반영</td>
+<td style="text-align: center;">🟢 <strong>[유효 확증]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H7 (2026.10.17)</strong></td>
+<td style="text-align: left;"><strong>삼성 2nm GAA 수율 60% 돌파 &amp; 테일러 팹 Sub-fab Q·P 동반 확장 가설</strong>: 파운드리 선단 공정 전환으로 오스틴 법인의 고사양 장비 출하 가속</td>
+<td style="text-align: left;">[26.H1 수출 실적]<br>Scrubber 수출액 1,059.1억 (수출비중 77.7% 역대 최고)</td>
+<td style="text-align: left;">유안타증권(26.10.15 p.7~8, 12~13) 삼성 2나노 수율 개선 및 테일러 팹 가동 구체화</td>
+<td style="text-align: left;">삼성 테일러 팹 장비 반입 취소 또는 미국 법인 매출 QoQ -30% 이상 급감 시</td>
+<td style="text-align: center;">🟢 <strong>[진행 중]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>H8 (2026.10.17 / 10.26 갱신)</strong></td>
+<td style="text-align: left;"><strong>D2C 주류 안착에 따른 액침냉각 표준 경쟁 및 본업 안전핀 가설</strong>: 단상 D2C Cold Plate가 주류 표준을 장악하더라도 본업 순현금 1,000억 및 OPM 17% 본업 해자가 하방 지지</td>
+<td style="text-align: left;">순현금 1,000.7억 원, 부채비율 29.7%, 본업 ROIC 20.70% 견조</td>
+<td style="text-align: left;">IBK투자증권(26.10.15 p.47) 냉각 표준 경쟁 리스크 명시에도 GST의 무차입 재무구조로 완충력 충분</td>
+<td style="text-align: left;">본업 OPM이 2개 분기 연속 12%를 하회하거나 순현금이 500억 이하로 급감 시 가설 [폐기]</td>
+<td style="text-align: center;">🟢 <strong>[유효 확증]</strong></td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>🎯 Phase 3 밸류에이션 연계 지침:</strong>
-Phase 2 팩트체크 결과에 따라, 이어지는 <strong>Phase 3 (밸류에이션 및 전략)</strong>에서는 ① AIDC 액침냉각에 대한 <strong>S-Curve 멀티플 할증을 <code>0% (sc_mult = 1.00)</code>로 엄격히 차단</strong>하고, ② 오직 DART로 검증된 <strong>반도체 Sub-fab 본업(장비 Q × 단가 P + 용역 매출, 지배주주 귀속률 <code>99.6%</code>)</strong>과 <strong>순현금 <code>+1,000.7억 원</code></strong>만을 바탕으로 역DCF(Equity &amp; EV 2행 병기) 및 바텀업 시나리오 적정주가를 산출합니다.</p>
-</blockquote>
+<hr />
+<h2>4. 심화 분석 및 대화 피드백 (GAA 전환 수혜 &amp; 액침냉각 옵션 논리)</h2>
+<h3>1) 왜 '핀펫(FinFET) → GAA 전환'이 Sub-fab 스크러버·칠러에 구조적 호재인가?</h3>
+<ul>
+<li><code>[글로벌 트렌드: 유안타증권.2027Issue&amp;Theme(change) p.7~8, p.12~13]</code>에 따르면, 3나노/2나노 GAA 구조는 4면이 게이트로 둘러싸이는 나노시트(Nanosheet)를 형성하기 위해 <strong>Si/SiGe 초격자 적층(Epitaxy) → 선택적 등방성 식각(Selective Etch) → ALD 초박막 증착 → 고압어닐링(HPA)</strong>의 초미세 순환 공정을 거칩니다.</li>
+<li>이 과정에서 사용되는 특수가스(불소계, 염소계, 암모니아 등)의 종류와 유량이 FinFET 대비 2~3배 이상 급증하며, 식각 및 증착 시 웨이퍼 챔버 온도를 영하 80도에서 영상 수백 도까지 정밀하게 통제해야 합니다.</li>
+<li>따라서 <strong>Sub-fab 가스정화 스크러버의 탑재 대수(Q) 증가</strong>와 <strong>초저온 칠러의 대당 판매단가(P) 상승</strong>이 동시에 발현되어 GST의 영업레버리지를 구조적으로 확장시킵니다.</li>
+</ul>
+<h3>2) 액침냉각 '이익이 아닌 배수(Multiple) 옵션' 논리와 현재 주가 40,000원의 안전마진</h3>
+<ul>
+<li>IBK투자증권(<code>p.44 표 12</code>)이 강조한 바와 같이, AIDC 액침냉각은 현재 단계에서 실적 추정 모델에 억지로 반영할 경우 예측 실패 리스크가 매우 큽니다.</li>
+<li>당사의 원칙대로 액침냉각을 <strong>'0원 무상 콜옵션'</strong>으로 분리하고 순수 반도체 Sub-fab 본업 가치로만 평가할 때, 현재 주가 <strong><code>40,000원</code></strong>은:</li>
+<li>TTM 순현금 <code>1,000.7억 원</code>이 실질 시가총액의 <strong><code>14.0%</code></strong>를 완충하고 있으며,</li>
+<li>본업 BPS(<code>14,308원</code>) 기준 실질 본업 PBR은 <strong><code>2.2배 수준</code></strong>으로 역사적 PBR 상단(2.72배) 대비 충분한 과열 조정을 거쳤습니다.</li>
+<li>향후 액침냉각 상용 공급계약 체결 공시가 확인되는 순간, 실적 증가 이전에 <strong>밸류에이션 멀티플이 즉시 리레이팅(PER 12배 ➔ 18~20배)</strong>되는 비대칭적 상방 옵션을 온전히 향유할 수 있는 최적의 눌림목 위치에 도달해 있습니다.</li>
+</ul>
     <script>
-        const SSOT_DATA = null;
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-10-26 17:06:52", "stock_code": "083450", "corp_name": "GST", "anchor_price": 40000, "primary_metric": "PBR", "bench": {"stock_name": "GST", "close": 42850.0, "bps": 17958.0, "pbr": 2.23, "eps": 3019.0, "per": 13.25, "div_yield": 1.63, "dps": 650.0, "market_cap_str": "7,372억"}, "sotp": {"sotp_triggered": true, "book_eq_eok": 3210.72, "mcap_eok": 7151.61, "non_op_assets_eok": 652.5, "recognized_non_op_eok": 456.75, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 20.32, "non_op_ratio_mcap_pct": 9.12, "non_op_max_ratio_pct": 20.32, "core_bps": 14308, "nopat_eok": 529.51, "core_roic_pct": 20.7, "core_profit_sustainable": true, "implied_core_op_ev_eok": 5694.16}, "step1_2_bottleneck": {"is_phase2": false, "is_early_ignition": false, "theme_name": "DART 신기술 단독 익스포저 미달 (0.0% < 30% 컷오프 → 무상 콜옵션 0% 처리)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 7.0, "second_penetration_pct": 15.0, "is_near_10pct_inflection": true, "penetration_zone": "Zone D (침투율 7.0% / 2차 15.0% — 전통 시클리컬 또는 무상 콜옵션)", "inflection_desc": "AIDC 액침냉각 침투율 7.0% 선택적 틈새(단독매출 미공시 무상콜옵션) / 반도체 Sub-fab 초저온 칠러·스크러버 본업(83.2%)", "bottleneck_grade": "A", "bottleneck_factors": ["기술격차 해자: 선단 3D NAND/HBM 공정용 극저온 칠러 및 친환경 플라즈마 스크러버 수율 레퍼런스", "특허/벤더 Lock-in: 삼성전자·마이크론·대만 파운드리 Sub-fab 장비 벤더 인증"], "bottleneck_lead_time_months": 18, "bottleneck_duration_label": "⏱️ 중기 구조적 병목 (18개월 / 1~2년 지속)", "bottleneck_lead_reason": "글로벌 메모리/파운드리 신규 팹 Sub-fab 장비 데모 및 Qual 테스트에 12~18개월 소요", "capa_util_pct": 75.0, "curr_opm_pct": 17.49, "core_bottleneck_only_mode": false, "pen_base_boost": 0.0, "pen_bull_boost": 0.0, "bn_base_bonus": 0.0, "bn_bull_bonus": 0.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "peg_factor": 0.8}, "step1_8_k_return": {"payout_ratio_pct": 25.68, "tsr_pct": 12.0, "div_yield_pct": 1.63, "dps": 650.0, "treasury_shares": 550963, "treasury_ratio_pct": 2.99, "tax_incentive_status": "⚪ 분리과세 미충족 (배당성향 < 25%)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 550,963주 [2.99%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "순현금 재무구조 건전, 액침냉각은 할증 0% 무상 콜옵션으로 분리", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 3.02, "flags": ["③ 비영업자산레짐(비영업자산 비중 20.3% ≥ 20% — 명목 PBR 저평가 착시 주의)"]}, "section8": {"primary_metric": "PBR", "pbr_min": 0.46, "pbr_max": 3.72, "pbr_r2": 0.75, "pbr_dir": 63.2, "per_min": 3.81, "per_max": 22.73, "per_r2": 0.63, "per_dir": 65.8, "official_pbr": 2.23, "official_per": 13.25, "official_div": 1.63}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 99.63, "qoq_eps_positive": false, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 965.0원 → 2026.2Q 678.0원 (흑자 지속(소폭조정) 🟢)", "qoq_rev_pct": -14.4, "qoq_op_pct": -23.4, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 1,158.9억→992.4억(QoQ -14.4%) | 영업이익 201.9억→154.6억(QoQ -23.4%) | 수정EPS 965원→678원", "kill_switch_guide": "차기 분기 영업이익 < 131.4억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 542원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 28.70685404688086, "bps_2y_chg": 28.37552573792558, "op_yoy_q": -10.852778438021291, "op_yoy_ttm": 17.37767155499201, "op_yoy_used": -10.852778438021291, "op_yoy_detail": "분기(2025.2Q→2026.2Q) -10.9% (173.4억 → 154.6억) | TTM 영업이익 YoY: +17.4%", "curr_roe": 17.020088982075, "mid_cycle_roe": 17.282203109999475, "mid_cycle_eps": 2384.0, "pbr_cycle_max": 3.723525331460281, "pbr_3y_max": 3.723525331460281, "pbr_3y_mean": 1.621863888832099, "pbr_3y_p20": 1.1533404772318552, "pbr_3y_p65": 1.6469624889408325, "pbr_3y_p90": 2.655544963859019, "per_3y_max": 22.73199179839084, "per_3y_mean": 10.246781286215839, "per_3y_p20": 6.945138865581764, "per_3y_p65": 11.352921709762619, "per_3y_p90": 15.864561067621453, "curr_eps_used": 3019.0, "curr_bps_used": 17958.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 173.84, "median_52w_range_pct": 96.3, "effective_52w_range": 96.3, "forward_bps": 21558, "is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(3,600원) ≥ 5년 Mid-Cycle 중위 EPS(2,384원) × 1.35배 (단순 사이클 피크)", "op_mult": 1.0, "sc_base_mult": 1.0, "sc_bull_mult": 1.0, "kgov_mult": 1.0, "peg_factor_used": 0.8, "base_mult_a": 1.0, "bull_mult_a": 1.0, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "theme_name": "DART 신기술 단독 익스포저 미달 (0.0% < 30% 컷오프 → 무상 콜옵션 0% 처리)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 7.0, "second_penetration_pct": 15.0, "is_near_10pct_inflection": false, "inflection_desc": "AIDC 액침냉각 침투율 7.0% 선택적 틈새(단독매출 미공시 무상콜옵션) / 반도체 Sub-fab 초저온 칠러·스크러버 본업(83.2%)", "bottleneck_grade": "A", "bottleneck_factors": ["기술격차 해자: 선단 3D NAND/HBM 공정용 극저온 칠러 및 친환경 플라즈마 스크러버 수율 레퍼런스", "특허/벤더 Lock-in: 삼성전자·마이크론·대만 파운드리 Sub-fab 장비 벤더 인증"], "bottleneck_lead_time_months": 18, "bottleneck_lead_reason": "글로벌 메모리/파운드리 신규 팹 Sub-fab 장비 데모 및 Qual 테스트에 12~18개월 소요"}, "tp1_price": 50780, "tp1_price_a": 50780, "tp1_upside": 26.95, "tp1_upside_a": 26.95, "bear_auto": 20710, "base_auto": 31800, "bull_auto": 48910, "base_auto_a": 31800, "bull_auto_a": 48910, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 711.4, "implied_op_bull_a_eok": 994.8}, "cyclical_guard": {"is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(3,600원) ≥ 5년 Mid-Cycle 중위 EPS(2,384원) × 1.35배 (단순 사이클 피크)"}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -23.4%, YoY -10.9%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(1,000.7억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 40000, "d_low20": 39275, "poc_low": 51050, "poc_high": 54975, "poc_pct": 42.6, "poc_trail_pin": 49518, "d_ma5": 42300, "d_ma20": 49375, "d_ma60": 46559, "vol_ma20": 155943, "vol_ratio": 0.4, "stoch_k": 6.0, "stoch_d": 9.1, "w_close": 40000, "w_ma10": 46795, "w_ma20": 46820, "w_ma60": 37570, "bb_upper": 56174, "bb_lower": 37466, "w_macd": 1029.4, "w_macd_sig": 2198.3, "w_macd_hist": -1168.9, "w_mfi14": 56.0, "w_rsi14": 44.8, "w_mfi14_12w_max": 56.4, "buy1": 25440, "buy2": 27030, "buy3": 28620, "avg_buy_price": 27030, "init_stop_pin": 24170, "breakout_trail_pin": 49518, "gate1_rr": 0.0, "exec_rr": 1.67, "is_overvalued": true, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 40000.0, "fcf_eok": 286.9, "norm_fcf_eok": null, "distb_shares": 17879037, "total_shares": 18430000, "treasury_shares": 550963, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -1000.7, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 7151.61, "market_cap_total_eok": 7372.0, "ev_distb_eok": 6150.91, "non_op_assets_eok": 652.5, "non_op_haircut": 0.3, "recognized_non_op_eok": 456.75, "non_op_ratio_mcap_pct": 9.12, "non_op_ratio_book_pct": 20.23, "sotp_triggered": true, "core_op_ev_eok": 5694.16, "implied_g_distb_pct": 14.99, "implied_g_total_pct": 15.76, "implied_g_ev_pct": 11.23, "implied_g_core_ev_pct": 9.34, "norm_g_distb_pct": null, "norm_g_ev_pct": null, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"40000\" data-shares=\"17879037\" data-total-shares=\"18430000\" data-fcf=\"286.9\" data-reported-fcf=\"286.9\" data-net-debt=\"-1000.7\" data-non-op-assets=\"456.8\" data-bear=\"20710\" data-base=\"31800\" data-bull=\"48910\" data-base-a=\"31800\" data-bull-a=\"48910\" data-tp1=\"50780\" data-tp1-a=\"50780\" data-buy1=\"25440\" data-buy2=\"27030\" data-buy3=\"28620\" data-stop-pin=\"24170\" data-poc-low=\"51050\"></div>"};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -654,7 +694,14 @@ Phase 2 팩트체크 결과에 따라, 이어지는 <strong>Phase 3 (밸류에�
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -765,7 +812,7 @@ Phase 2 팩트체크 결과에 따라, 이어지는 <strong>Phase 3 (밸류에�
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +

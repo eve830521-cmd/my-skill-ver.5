@@ -1,9 +1,9 @@
 {
   "version": "4.3",
-  "generated_at": "2026-10-24 10:48:16",
+  "generated_at": "2026-10-24 21:38:01",
   "stock_code": "183300",
   "corp_name": "코미코",
-  "anchor_price": 26350,
+  "anchor_price": 23850,
   "primary_metric": "PBR",
   "bench": {
     "stock_name": "코미코",
@@ -19,18 +19,18 @@
   "sotp": {
     "sotp_triggered": false,
     "book_eq_eok": 2867.06,
-    "mcap_eok": 13286.49,
+    "mcap_eok": 12025.92,
     "non_op_assets_eok": 165.0,
     "recognized_non_op_eok": 115.5,
     "non_op_haircut": 0.3,
     "non_op_ratio_book_pct": 5.76,
-    "non_op_ratio_mcap_pct": 1.24,
+    "non_op_ratio_mcap_pct": 1.37,
     "non_op_max_ratio_pct": 5.76,
     "core_bps": 5359,
     "nopat_eok": 757.15,
     "core_roic_pct": 28.02,
     "core_profit_sustainable": true,
-    "implied_core_op_ev_eok": 17470.99
+    "implied_core_op_ev_eok": 16210.42
   },
   "step1_2_bottleneck": {
     "is_phase2": true,
@@ -98,8 +98,8 @@
     "per_max": 68.96,
     "per_r2": 0.25,
     "per_dir": 45.9,
-    "official_pbr": 4.63,
-    "official_per": 42.3,
+    "official_pbr": 4.19,
+    "official_per": 38.28,
     "official_div": 1.2
   },
   "section2": {
@@ -172,8 +172,8 @@
     },
     "tp1_price": 31010,
     "tp1_price_a": 31010,
-    "tp1_upside": 17.69,
-    "tp1_upside_a": 17.69,
+    "tp1_upside": 30.02,
+    "tp1_upside_a": 30.02,
     "bear_auto": 9240,
     "base_auto": 22430,
     "bull_auto": 29650,
@@ -231,7 +231,7 @@
   },
   "reverse_dcf": {
     "status": "deficit",
-    "price": 26350.0,
+    "price": 23850.0,
     "fcf_eok": -1755.0,
     "norm_fcf_eok": 750.0,
     "distb_shares": 50423130,
@@ -242,23 +242,23 @@
     "years": 5,
     "net_debt_eok": 4300.0,
     "pref_mcap_eok": 0.0,
-    "market_cap_distb_eok": 13286.49,
-    "market_cap_total_eok": 13534.22,
-    "ev_distb_eok": 17586.49,
+    "market_cap_distb_eok": 12025.92,
+    "market_cap_total_eok": 12250.14,
+    "ev_distb_eok": 16325.92,
     "non_op_assets_eok": 165.0,
     "non_op_haircut": 0.3,
     "recognized_non_op_eok": 115.5,
-    "non_op_ratio_mcap_pct": 1.24,
-    "non_op_ratio_book_pct": 5.5,
+    "non_op_ratio_mcap_pct": 1.37,
+    "non_op_ratio_book_pct": 5.76,
     "sotp_triggered": false,
-    "core_op_ev_eok": 17470.99,
+    "core_op_ev_eok": 16210.42,
     "implied_g_distb_pct": null,
     "implied_g_total_pct": null,
     "implied_g_ev_pct": null,
     "implied_g_core_ev_pct": null,
-    "norm_g_distb_pct": 6.6,
-    "norm_g_ev_pct": 13.45,
+    "norm_g_distb_pct": 4.24,
+    "norm_g_ev_pct": 11.6,
     "norm_g_core_ev_pct": null
   },
-  "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"26350\" data-shares=\"50423130\" data-total-shares=\"51363275\" data-fcf=\"750.0\" data-reported-fcf=\"-1755.0\" data-net-debt=\"4300.0\" data-non-op-assets=\"115.5\" data-bear=\"9240\" data-base=\"22430\" data-bull=\"29650\" data-base-a=\"25570\" data-bull-a=\"35280\" data-tp1=\"31010\" data-tp1-a=\"31010\" data-buy1=\"17940\" data-buy2=\"19070\" data-buy3=\"20190\" data-stop-pin=\"17040\" data-poc-low=\"30720\"></div>"
+  "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"23850\" data-shares=\"50423130\" data-total-shares=\"51363275\" data-fcf=\"750.0\" data-reported-fcf=\"-1755.0\" data-net-debt=\"4300.0\" data-non-op-assets=\"115.5\" data-bear=\"9240\" data-base=\"22430\" data-bull=\"29650\" data-base-a=\"25570\" data-bull-a=\"35280\" data-tp1=\"31010\" data-tp1-a=\"31010\" data-buy1=\"17940\" data-buy2=\"19070\" data-buy3=\"20190\" data-stop-pin=\"17040\" data-poc-low=\"30720\"></div>"
 }

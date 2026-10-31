@@ -406,222 +406,223 @@ p > em {
     </script>
 </head>
 <body>
-    <h1>🎯 리노공업 Phase 3: 밸류에이션 및 전략</h1>
+    <h1>🎯 리노공업 (058470) — Phase 3: 역DCF · 시나리오 밸류에이션 · 레드팀 Capa 검증 &amp; 마스터 매매 SOP (v4.3.1)</h1>
 <blockquote>
-<p><strong>[S-Curve 국면 인증 뱃지]</strong>: <code>[🟢 S-Curve Phase 2: 골든 스위트스팟 (침투율 28.5% | 적극 매수 &amp; 추세추종)]</code><br />
-<strong>[하이브리드 밸류체인 지위]</strong>: <code>[👑 DART 검증 순수 주도 대장주 (테마 단독 익스포저 91.73%)]</code></p>
+<p><strong>작성 기준일</strong>: 2026년 10월 31일 (<code>backtest_valuation.py</code> v4.3 &amp; <code>calc_reverse_dcf.py</code> v4.2 SSOT 실측 기준)<br />
+<strong>단일 기준 주가 (Single Price Anchor)</strong>: <strong><code>55,400원</code></strong> (2026-10-30 종가, Phase 1~3 100% 고정)<br />
+<strong>실질 유통주식수</strong>: <strong><code>75,895,600주</code></strong> (총발행 <code>76,211,850주</code> - 자기주식 <code>316,250주 [0.41%]</code>, 우선주 <code>0주</code>)<br />
+<strong>시가총액 및 기업가치(EV)</strong>: 유통시총 <strong><code>42,046.2억 원</code></strong> | 가용 순현금 <strong><code>4,551.0억 원</code></strong> (<code>--net-debt -4551.0</code>) | 실질 기업가치(EV) <strong><code>37,495.2억 원</code></strong><br />
+<strong>1순위 밸류에이션 지표 (Phase 1 Section 8 강제 상속)</strong>: <strong><code>PER</code> (주가수익비율, 결정계수 $R^2 = 0.79$, 방향 일치율 <code>63.2%</code>)</strong></p>
 </blockquote>
 <hr />
-<h2>1. 시장 프라이싱 역산 (역DCF 정밀 판독 — Equity · EV · SOTP 본업EV 병기)</h2>
-<h3>Step 0.5: FCF 품질 검증 및 정상화 FCF(Normalized FCF) 점검</h3>
-<p>[공시 팩트] DART 감사보고서 및 현금흐름표를 바탕으로 리노공업의 현금 창출력 품질을 4대 지표로 정밀 검증했습니다 <code>[공시 팩트: 2025 사업보고서 p.55; 2026 반기보고서 p.56]</code>.</p>
+<h3>📌 [코드 자동 생성 1] SOTP 장부 분해 &amp; 4대 레짐 체크 요약표</h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">품질 체크</th>
-<th style="text-align: left;">점검 기준</th>
-<th style="text-align: left;">기업 현황</th>
-<th style="text-align: center;">판정</th>
+<th style="text-align: left;">검증 항목</th>
+<th style="text-align: left;">코드 실측 수치</th>
+<th style="text-align: left;">판정 결과 (Code Verdict)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>OCF/순이익 갭</strong></td>
-<td style="text-align: left;">OCF÷지배순이익 비율이 1.5배 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">2025년 영업CF 1,586.3억 원 ÷ 순이익 1,489.1억 원 = <strong>1.07배</strong> (매우 건전한 현금화율)</td>
-<td style="text-align: center;">정상 ✅</td>
+<td style="text-align: left;"><strong>단일 기준 주가 (Anchor Price)</strong></td>
+<td style="text-align: left;"><strong><code>55,400원</code></strong></td>
+<td style="text-align: left;">전 Phase 1~3 100% 동일 고정</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>운전자본(WC) 변동</strong></td>
-<td style="text-align: left;">WC 순변동이 OCF의 30% 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">2025년 운전자본 변동 +92.5억 원 (OCF의 <strong>5.8%</strong>로 매출채권/재고자산 회전율 탁월)</td>
-<td style="text-align: center;">정상 ✅</td>
+<td style="text-align: left;"><strong>지배주주 순이익 귀속률</strong></td>
+<td style="text-align: left;"><strong><code>100.0%</code></strong></td>
+<td style="text-align: left;">비지배지분 차감 완료</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>CapEx 사이클 착시</strong></td>
-<td style="text-align: left;">상반기 FCF 단순 ×2 연환산 시 왜곡 또는 신공장 투자 착시 점검</td>
-<td style="text-align: left;">2025년 CapEx 391.2억 → 2026.1H CapEx 413.7억 집행 (부산 에코델타 신공장 건설 본격화에 따른 성장성 CapEx 일시 급증 착시)</td>
-<td style="text-align: center;">⚡ 건전 증설기 확인</td>
+<td style="text-align: left;"><strong>Step 1.5 비영업자산 비중 (SOTP 20% 룰)</strong></td>
+<td style="text-align: left;">장부 대비 <strong><code>5.4%</code></strong> / 시총 대비 <strong><code>1.0%</code></strong></td>
+<td style="text-align: left;">🟢 <strong>본업 자산 중심 (&lt;20%)</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>비지배지분 귀속 괴리</strong></td>
-<td style="text-align: left;">연결 FCF 중 비지배지분 유출이 15% 초과 시 지배주주 귀속 FCF 병기</td>
-<td style="text-align: left;">동사는 무자회사 구조로 비지배지분이 전혀 없음 (지배주주 순이익 및 FCF 귀속률 <strong>100.0%</strong>)</td>
-<td style="text-align: center;">정상 ✅</td>
+<td style="text-align: left;"><strong>Step 1.5 본업 이익 유지력 (Core ROIC)</strong></td>
+<td style="text-align: left;">TTM 영업이익 <strong><code>2,094.3억</code></strong> (NOPAT <strong><code>1,633.5억</code></strong>)</td>
+<td style="text-align: left;">✅ <strong>본업 이익 유지 견고</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 2.0 4대 레짐 변화 체크</strong></td>
+<td style="text-align: left;">④ 사업구성레짐(OPM 과거중위 39.4% → 현재 49.3%, +9.9%p [고마진 신사업 믹스 개선])</td>
+<td style="text-align: left;">🔄 <strong>레짐 변화 반영 필수</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 3.0 사이클 고점 함정 가드레일</strong></td>
+<td style="text-align: left;">피크 이익 과열 미해당</td>
+<td style="text-align: left;">🟢 <strong>정상 멀티플 적용</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>직전 분기 대비 (QoQ) 실적 추이</strong></td>
+<td style="text-align: left;">[2026.1Q → 2026.2Q] 매출액 997.7억→1,431.9억(QoQ +43.5%)</td>
+<td style="text-align: left;">영업이익 473.0억→735.1억(QoQ +55.4%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>가설 반증 임계치 (Kill-Switch)</strong></td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 &lt; 624.9억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS &lt; 695원 기록 시 핵심 가설 즉시 [약화] 강등</strong></td>
+<td style="text-align: left;">미달 시 가설 즉시 [약화] 강등</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong>건전 증설기 Owner FCF 보정 확인</strong>:</li>
-<li>동사는 연간 1,500억 원 이상의 압도적 영업현금흐름(OCF)을 창출하는 가운데, 2026년 상반기 413.7억 원의 CapEx 집행은 4Q26 부산 에코델타 신공장(Capa 2배 증설) 준공을 위한 일시적 확장 투자입니다.</li>
-<li>신규 시설투자 완료 후 정상 유지보수 CapEx(연 약 300억~400억 원)로 회귀할 경우 실질 정상화 Owner FCF는 <strong>연간 1,300억~1,500억 원</strong> 수준으로 재확장됩니다.</li>
-</ul>
-<h3>Step 1: 역DCF 연산 — Equity · EV · SOTP 본업EV 3대 기준 병기</h3>
-<p>[공시 팩트] 단일 기준 주가(최신 일봉 종가 <strong>63,800원</strong>), 총 발행주식수(<code>76,211,850주</code>), 자기주식수(<code>316,250주</code>), 실질 유통주식수(<code>75,895,600주</code>), <strong>가용 순현금(<code>-4,551.0억 원</code>)</strong>, 결산 기준 FCF 수치를 적용하여 연산했습니다 <code>[calc_reverse_dcf.py 실측]</code>.</p>
+<h3>📌 [코드 자동 생성 1-B] Step 1.2 S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 리드타임 &amp; Step 1.8 K-주주환원 진단표 (v4.3)</h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">입력 변수</th>
-<th style="text-align: left;">수치</th>
-<th style="text-align: left;">출처 (DART 문서명 + 페이지/항목)</th>
+<th style="text-align: left;">진단 축 (3-Axis + K-Return)</th>
+<th style="text-align: left;">실측 지표 및 근거</th>
+<th style="text-align: left;">코드 판정 및 Phase 3 목표주가 가중치</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>단일 기준 주가</strong></td>
-<td style="text-align: left;"><strong>63,800원</strong></td>
-<td style="text-align: left;">2026.10.22 최신 일봉 종가 (<code>Phase 1~3 공통 단일 앵커</code>)</td>
+<td style="text-align: left;"><strong>① 전방 시장 침투율 (10% 변곡점 여부)</strong></td>
+<td style="text-align: left;">1차 침투율 <strong><code>28.5%</code></strong> (2차 S-Curve 침투율 <code>12.0%</code>) (<code>더블 S-Curve Zone A (1차 28.5% 캐시카우 + 2차 12.0% 🔥10% 언저리 변곡점)</code>)</td>
+<td style="text-align: left;">🔥 <strong>10% 골든 변곡점 발화 구간</strong> (3축 통합 Base <code>×1.16</code> / Bull <code>×1.21</code>)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>총 발행주식수</strong></td>
-<td style="text-align: left;"><strong>76,211,850주</strong></td>
-<td style="text-align: left;">DART 2026 반기보고서 p.10 「주식의 총수 등」 (우선주 없음)</td>
+<td style="text-align: left;"><strong>②-A 물리적 Capa 병목 (가동률/증설)</strong></td>
+<td style="text-align: left;">공장 가동률 <strong><code>85.0%</code></strong> — 기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)</td>
+<td style="text-align: left;">🔒 <strong>풀가동 공급 병목 확인</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>자기주식수</strong></td>
-<td style="text-align: left;"><strong>316,250주</strong></td>
-<td style="text-align: left;">DART 2026 반기보고서 p.10 「자기주식 취득 및 처분 현황」 (2027.09 전량 소각 확정)</td>
+<td style="text-align: left;"><strong>②-B 기술격차 해자 (OPM/수율/단가결정력)</strong></td>
+<td style="text-align: left;">현 OPM <strong><code>49.3%</code></strong> — 특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&amp;D 초기 설계부터 락인</td>
+<td style="text-align: left;">고마진 가격전가력(Pricing Power) 점검</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>실질 유통주식수</strong></td>
-<td style="text-align: left;"><strong>75,895,600주</strong></td>
-<td style="text-align: left;">총 발행주식수(76,211,850주) − 자기주식수(316,250주)</td>
+<td style="text-align: left;"><strong>②-C 원천특허 · 글로벌 벤더 퀄(Qual) 락인</strong></td>
+<td style="text-align: left;">생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속</td>
+<td style="text-align: left;">후발주자 진입장벽(Switching Cost) 점검</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>순차입금 / (가용 순현금)</strong></td>
-<td style="text-align: left;"><strong>−4,551.0억 원</strong></td>
-<td style="text-align: left;">100% 무차입 경영 (총차입금 0원 − 현금성/단기금융자산 4,551억 원) <code>[2026 반기 p.56]</code></td>
+<td style="text-align: left;"><strong>③ 병목 해소 예상 소요기간 (Lead Time)</strong></td>
+<td style="text-align: left;"><strong><code>S등급</code></strong> (해소 리드타임 <strong><code>30개월</code></strong>)</td>
+<td style="text-align: left;">에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&amp;D 인증에 최소 24~36개월 소요 (PEG 계수 <code>0.90</code>)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>비영업자산 안전가치</strong></td>
-<td style="text-align: left;"><strong>0.0억 원</strong></td>
-<td style="text-align: left;">관계기업 지분 0원, 투자부동산 0원, 장기금융자산 0원 <code>[Step 1.5]</code></td>
+<td style="text-align: left;"><strong>④ K-마켓 주주환원 · 지배구조 (Step 1.8)</strong></td>
+<td style="text-align: left;">배당수익률 <strong><code>1.44%</code></strong> (성향 <code>36.2%</code>) / 특수관계인 <code>0.0억</code></td>
+<td style="text-align: left;">✅ 배당소득 분리과세 요건2 충족 (배당성향 36.2% ≥ 25% &amp; DPS 우상향) / 🟢 정상 (현재 자기주식 316,250주 [0.41%] 보유 — 소각 전환 여부 모니터링) (<code>kgov_mult = ×1.0000</code>)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>실질 기업가치 (EV)</strong></td>
-<td style="text-align: left;"><strong>43,870.4억 원</strong></td>
-<td style="text-align: left;">실질 유통 시가총액(48,421.4억) − 가용 순현금(4,551.0억)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>본업 기업가치 (Core EV)</strong></td>
-<td style="text-align: left;"><strong>43,870.4억 원</strong></td>
-<td style="text-align: left;">실질 EV(43,870.4억) − 비영업자산 안전가치(0.0억) = <strong>실질 EV와 일치</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>기준 FCF</strong></td>
-<td style="text-align: left;"><strong>1,195.0억 원</strong></td>
-<td style="text-align: left;">2025년 결산 FCF (영업CF 1,586.3억 − CapEx 391.2억) <code>[2025 사업보고서 p.55]</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>WACC / 영구성장률</strong></td>
-<td style="text-align: left;"><strong>9.0% / 2.0%</strong></td>
-<td style="text-align: left;">반도체 부품 섹터 표준값 및 보수적 영구성장률 고정</td>
+<td style="text-align: left;"><strong>⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)</strong></td>
+<td style="text-align: left;">대안 A 내재 영업이익: Base <strong><code>2,663.3억</code></strong> / Bull <strong><code>2,877.4억</code></strong></td>
+<td style="text-align: left;">🟢 물리적 Capa 한계 내 달성 가능</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong>역DCF 실측 결과 (<code>calc_reverse_dcf.py</code> 실측치):</strong></li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">역DCF 평가 기준</th>
-<th style="text-align: center;">요구 연평균 FCF 성장률 (향후 5년)</th>
-<th style="text-align: left;">시장 내재 가치 평가 및 해석</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>① 유통시총 (Equity) 기준</strong></td>
-<td style="text-align: center;"><strong>연간 +27.78%</strong></td>
-<td style="text-align: left;">순현금을 가감하지 않은 순수 유통 시총 기준 (총주식 기준: +27.89%)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>② 실질 기업가치 (EV) 기준</strong></td>
-<td style="text-align: center;"><strong>연간 +25.09%</strong></td>
-<td style="text-align: left;"><strong>가용 순현금(-4,551억 원) 차감 실질 EV 기준 (배당성향 40% 고배당 기업 주 닻)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>③ SOTP 본업EV 기준</strong></td>
-<td style="text-align: center;"><strong>연간 +25.09%</strong></td>
-<td style="text-align: left;">비영업자산 0%로 실질 EV 기준과 100% 일치 (본업 가치 왜곡 0%)</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>시장 기대치 괴리율 진단:</strong></li>
-<li>리노공업의 최근 5년 역사적 영업이익 CAGR은 약 16% 수준입니다.</li>
-<li>과거 주가 85,100원 당시 요구성장률은 <strong>35.89%</strong>로 역사적 성장 궤적을 2배 이상 초과하는 '극단적 과열(Priced for Perfection)' 상태였으나, 현재가 <strong>63,800원(-25.0% 조정)</strong>에서는 실질 EV 기준 요구성장률이 <strong>25.09%</strong>로 대폭 완화되었습니다.</li>
-<li>4Q26 부산 에코델타 Capa 2배 증설 및 AI ASIC '내 칩 마련'에 따른 비메모리 R&amp;D 소켓 수요 폭증을 감안할 때, 현재 프라이싱은 현실적으로 달성 가능한 '합리적 성장 요구 밴드(20~25%)'에 안착했습니다.</li>
-</ul>
 <hr />
-<h2>2. 3대 가치함정(Value Trap) 진단 필터 &amp; 4대 레짐 변화 종합 판독</h2>
-<p>DART 팩트 및 최신 Global Trend를 통해 가치함정 리스크를 전수 점검하고, <code>backtest_valuation.py</code>를 통해 <strong>유형 A (일시적 사이클 저점) vs 유형 B (구조적 버블 붕괴)</strong>를 정밀 판정했습니다.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">가치함정 진단 지표</th>
-<th style="text-align: left;">점검 기준 (Check Point)</th>
-<th style="text-align: left;">🚨 정량 경보 임계값</th>
-<th style="text-align: left;">기업 현황 팩트</th>
-<th style="text-align: center;">위험 판정</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>① 해자 훼손 (Moat Decay)</strong></td>
-<td style="text-align: left;">OPM 지속 하락, 특허 패소, 점유율 침투 여부</td>
-<td style="text-align: left;">• OPM 연속 2분기 YoY 3%p 이상 하락 <br> • 핵심 제품 시장점유율 5%p 이상 감소</td>
-<td style="text-align: left;">2024년 OPM 44.65% → 2025년 47.51% → <strong>2026.1H 49.73%</strong>(2Q 별도 51.3%)로 역대 최고치 경신. 0.3mm 미만 미세피치 글로벌 독점 유지</td>
-<td style="text-align: center;"><strong>정상 ✅</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>② 사이클 피크아웃 (Peak-out)</strong></td>
-<td style="text-align: left;">반도체 후공정 선행지표 정점 통과 여부</td>
-<td style="text-align: left;">• 수주잔고 감소 및 제품 ASP 하락 반전 <br> • 팹리스 R&amp;D 예산 축소 여부</td>
-<td style="text-align: left;">AI 병목이 후공정 및 테스트 인터페이스로 전이. AI ASIC 개발 폭증으로 R&amp;D 소켓 수요 확대. 3Q 파업 종료 후 4Q 에코델타 Capa 2배 증설 램프업 가시화</td>
-<td style="text-align: center;"><strong>정상 ✅</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>③ 자본배치 왜곡 (Capital Distortion)</strong></td>
-<td style="text-align: left;">현금 축적 대비 주주환원 전무, 계열사 부당 지원 여부</td>
-<td style="text-align: left;">• ROIC 2개년 연속 WACC(8~10%) 미만 <br> • 순현금 급증 + 배당성향 20% 미만 <br> • 계열사 채무보증 리스크</td>
-<td style="text-align: left;">ROE 24.18%(ROIC 21.03%), 100% 무차입 경영. 순이익의 <strong>40~41% 고배당</strong> 유지 및 <strong>자사주 31.6만 주 2027년 전량 이익소각 확정</strong>. 계열사 채무보증 0건</td>
-<td style="text-align: center;"><strong>정상 ✅</strong></td>
-</tr>
-</tbody>
-</table>
-<h3>[사이클 저점(유형 A) vs 구조적 버블 붕괴(유형 B) 이원화 판정 (<code>backtest_valuation.py</code> 실측 연동)]</h3>
-<ul>
-<li><strong>판정 결과</strong>: <strong><code>🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]</code></strong></li>
-<li><strong>판정 근거</strong>: </li>
-<li>최근 2년 누적 BPS 증감률 <strong>+38.19%</strong> (기준치 $\ge +15\%$ 충족)</li>
-<li>현재 지배주주 기준 ROE <strong>24.18%</strong> (건전 기준 $\ge 8.5\%$ 압도)</li>
-<li>최근 2년 누적 EPS 증감률 <strong>+75.50%</strong> (침체 붕괴 기준 $\le -30\%$ 방어 완료)</li>
-<li><strong>Step 2.0 4대 레짐 변화 종합</strong>:</li>
-<li>사업구성 레짐에서 과거 중위 OPM(39.4%) 대비 현재 OPM(49.3%)이 <strong>+9.9%p 레벨 시프트</strong>되었으며, 4Q26 부산 에코델타 신공장(1,000억 원 투자) 준공으로 설비 레짐 역시 Capa 2배 확장 국면으로 진입 중입니다.</li>
-<li>가치함정 멀티플 페널티(Haircut) 전면 면제 및 과거 10년 풀사이클 하방 지지선(과거 3년 하위 20% PBR 5.06배 기반 Bear 51,810원) 보호막이 정상 가동됩니다.</li>
-</ul>
-<hr />
-<h2>3. 정량 바텀업 시나리오 스트레스 테스트 &amp; [Step 3.0] 사이클 피크 가드레일</h2>
+<h2>0.5. [Step 0.5] 역DCF 투입 전 잉여현금흐름(FCF) 품질 검증 (Reported vs Normalized FCF)</h2>
 <blockquote>
-<p><strong>산식 상속</strong>: Phase 1 <code>## 7</code> 맞춤형 소모품 부품 P×Q 산출 체인 상속 (무차입 금융이자 0원, 지배주주 귀속률 100.0%)<br />
-<strong>밸류에이션 지표</strong>: Phase 1 <code>## 8</code> 코드 자동 선정 1순위 주 지표 <strong>PBR 모형</strong> ($R^2 = 0.78$, 방향일치율 61.5%) 강제 상속 및 실적 평가용 PER 모형 병행<br />
-<strong>종목 체질 판정</strong>: <strong><code>🚀 [성장·사이클 추세주 (52주 등락폭 87.7% ≥ 36%)]</code></strong><br />
-<strong>대안 A 가중 계수 (<code>backtest_valuation.py</code> 실측)</strong>:<br />
-<code>① 실적 모멘텀(op_mult = ×1.08)</code> × <code>② S-Curve Phase 2 할증 = Base ×1.10 / Bull ×1.14</code> ➡️ <strong>최종 대안 A 가중치: <code>Base ×1.1880 (+18.8%) / Bull ×1.2355 (+23.6%) / Bear ×1.0000 (하방 보호 고정)</code></strong></p>
+<p><strong>[원칙 5 준수]</strong>: 설비 증설기(부산 에코델타시티 신공장 투자)로 인해 일시적으로 눌린 TTM 보고 FCF(<code>980.0억 원</code>)와, 2025년 연간 결산 기준 정규화 FCF(<code>1,195.0억 원</code>)를 분리하여 역DCF의 착시를 차단합니다.</p>
 </blockquote>
-<h3>[Step 3.0] 사이클주 고점 함정 차단 vs 진성 구조적 리레이팅 판정</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">현금흐름 구성 항목 (단위: 억 원)</th>
+<th style="text-align: center;">2024년 (결산)</th>
+<th style="text-align: center;">2025년 (결산 정규화 기준)</th>
+<th style="text-align: center;">2026.1H (반기누적)</th>
+<th style="text-align: center;">최근 4분기 합산 (TTM 보고 기준)</th>
+<th style="text-align: left;">비고 및 회계적 해석</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>영업활동현금흐름 (OCF)</strong></td>
+<td style="text-align: center;">1,284.5억</td>
+<td style="text-align: center;"><strong>1,794.7억</strong></td>
+<td style="text-align: center;">685.3억</td>
+<td style="text-align: center;"><strong>1,812.0억</strong></td>
+<td style="text-align: left;">26.1H 법인세 납부(<code>301.1억</code>) 및 매출채권 증가 반영</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>(-) 유형·무형자산 취득 (CapEx)</strong></td>
+<td style="text-align: center;">-312.0억</td>
+<td style="text-align: center;"><strong>-599.5억</strong></td>
+<td style="text-align: center;">-413.7억</td>
+<td style="text-align: center;"><strong>-832.0억</strong></td>
+<td style="text-align: left;"><strong>부산 에코델타 신공장(총 2,000억) 집중 투자 구간</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>(=) 잉여현금흐름 (FCF)</strong></td>
+<td style="text-align: center;"><strong>972.5억</strong></td>
+<td style="text-align: center;"><strong><code>1,195.1억</code></strong> (<code>--norm-fcf 1195.0</code>)</td>
+<td style="text-align: center;">271.7억</td>
+<td style="text-align: center;"><strong><code>980.0억</code></strong> (<code>--fcf 980.0</code>)</td>
+<td style="text-align: left;">2027년 신공장 완공 후 유지보수 CapEx 회귀 시 FCF <code>1,800억+</code></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li><strong>판독 결과</strong>: <strong><code>🟢 진성 구조적 리레이팅 기업 예외 승인 (피크 캡 면제)</code></strong></li>
-<li><strong>판정 근거</strong>:</li>
-<li>DART 공시 기준 S-Curve 신기술 테마 단독 익스포저가 <strong>91.73%</strong>로 30% 기준을 압도적으로 상회함.</li>
-<li>OPM이 과거 중위(39.4%) 대비 <strong>+9.9%p 레벨 시프트</strong>(현재 49.3%)를 달성함.</li>
-<li>직전 분기 영업이익이 꺾이지 않고 <strong>QoQ +55.4% 급증</strong>하여 단순 경기 사이클 고점 피크아웃(<code>QoQ ≤ -15%</code>) 조건에 전혀 해당하지 않음.</li>
-<li>이에 따라 과거 호황기 PBR 상단 분위수(<code>p65</code> 6.80배, <code>p90</code> 10.66배)가 시나리오 밸류에이션 닻으로 정상 적용되었습니다.</li>
+<li><strong>품질 진단 결론</strong>: 리노공업의 TTM 보고 FCF(<code>980.0억 원</code>)가 TTM 영업이익(<code>2,094.3억 원</code>) 대비 낮은 유일한 이유는 <strong>부산 에코델타시티 2배 증설 신공장 건설 CapEx(<code>TTM 832억 원</code>)</strong>가 집중 집행되고 있기 때문입니다. 따라서 역DCF 산출 시 TTM 보고 FCF(<code>980.0억 원</code>)와 2025년 결산 정규화 FCF(<code>1,195.0억 원</code>)를 나란히 병기합니다.</li>
 </ul>
-<h3>📌 [SSOT] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PBR)</h3>
-<p>(<code>Stock_Research/리노공업/2_Translated_DB/auto_tables.md</code> 코드 산출 표 100% 바인딩)</p>
+<hr />
+<h2>1. [Step 1] 역DCF(Reverse DCF) 내재 기대성장률 정밀 해부 (<code>calc_reverse_dcf.py</code> v4.2 실측)</h2>
+<blockquote>
+<p><strong>[원칙 5 &amp; 원칙 8 준수]</strong>: 단일 기준 주가 <strong><code>55,400원</code></strong>, 할인율(<code>WACC</code>) <strong><code>9.0%</code></strong>, 영구성장률(<code>Terminal g</code>) <strong><code>2.0%</code></strong>, 5년 성장 기간 기준으로 <strong>유통시총(Equity)</strong>과 <strong>순현금(<code>4,551.0억 원</code>)을 차감한 실질 기업가치(EV = <code>37,495.2억 원</code>)</strong> 두 가지 잣대의 요구 성장률을 비교합니다. (비영업자산 비중은 장부 대비 <code>5.41% &lt; 20%</code>이므로 일반 영업자산 중심으로 판정됨).</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">역DCF 산출 기준 매트릭스</th>
+<th style="text-align: center;">투입 FCF (억 원)</th>
+<th style="text-align: center;">기준 가치 (억 원)</th>
+<th style="text-align: center;">향후 5년 내재 요구 성장률 (CAGR)</th>
+<th style="text-align: left;">과거 5년 영업이익 CAGR (<code>~16.0%</code>) 및 26.1H 성장률(<code>+36.7%</code>) 대비 판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>① 보고 FCF × 유통시총 (Equity) 기준</strong></td>
+<td style="text-align: center;"><code>980.0억 원</code></td>
+<td style="text-align: center;"><code>42,046.2억 원</code></td>
+<td style="text-align: center;"><strong>연간 <code>+29.36%</code></strong> <em>(총주식 기준 <code>+29.47%</code>)</em></td>
+<td style="text-align: left;">신공장 CapEx 피크로 눌린 FCF 기준에서도 지난 3월 고점(<code>127,000원</code>, 요구성장률 <code>~50%+</code>) 대비 과열이 대폭 해소됨</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>② 보고 FCF × 실질 기업가치 (EV) 기준</strong></td>
+<td style="text-align: center;"><code>980.0억 원</code></td>
+<td style="text-align: center;"><code>37,495.2억 원</code></td>
+<td style="text-align: center;"><strong>연간 <code>+26.21%</code></strong></td>
+<td style="text-align: left;">배당성향 <code>36.2%</code>(30%+ 충족) 및 자사주 전량 소각 기업이므로 순현금 <code>4,551억 원</code> 차감 EV 기준이 타당</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>③ 정규화 FCF × 유통시총 (Equity) 기준</strong></td>
+<td style="text-align: center;"><strong><code>1,195.0억 원</code></strong></td>
+<td style="text-align: center;"><code>42,046.2억 원</code></td>
+<td style="text-align: center;"><strong>연간 <code>+23.95%</code></strong></td>
+<td style="text-align: left;">2025년 결산 FCF 기준 요구성장률 <strong><code>+23.95%</code></strong>는 2025년 영업이익 성장률(<code>+42.5%</code>) 및 2026.1H 성장률(<code>+36.7%</code>)보다 현저히 낮음</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④ 정규화 FCF × 실질 기업가치 (EV) 기준 (핵심)</strong></td>
+<td style="text-align: center;"><strong><code>1,195.0억 원</code></strong></td>
+<td style="text-align: center;"><strong><code>37,495.2억 원</code></strong></td>
+<td style="text-align: center;"><strong>연간 <code>+20.91%</code></strong></td>
+<td style="text-align: left;"><strong>🟢 [저평가 / 달성 용이]</strong>: 실질 EV 기준 시장이 요구하는 향후 5년 FCF 성장률은 <strong>연간 <code>+20.91%</code></strong>에 불과하여, 에코델타 2배 증설 및 AI 인터커넥트·스마트글래스 R&amp;D 확장을 감안할 때 안전마진이 충분함</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. [Step 2.0] 가치함정(Value Trap) vs 일시적 사이클 저점 판별 (<code>backtest_valuation.py</code> 실측)</h2>
+<ul>
+<li><strong>코드 자동 판정 결과</strong>: <strong><code>🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]</code></strong></li>
+<li><strong>4대 정량 근거</strong>:</li>
+<li><strong>직전 분기(QoQ) 실적 폭발 및 흑자 유지</strong>: <code>2026.1Q ➔ 2026.2Q</code> 매출액 <code>997.7억 ➔ 1,431.9억 원(QoQ +43.5%)</code>, 영업이익 <code>473.0억 ➔ 735.1억 원(QoQ +55.4%, YoY +37.6%)</code>, 액면분할 소급 지배주주 수정EPS <code>532.0원 ➔ 869.0원(QoQ +63.3%)</code>으로 사상 최대 분기 실적을 경신했습니다.</li>
+<li><strong>2년 누적 펀더멘털 궤적</strong>: 최근 2년간 지배주주 EPS <strong><code>+75.50%</code></strong>, 유통 BPS <strong><code>+38.19%</code></strong> 급증하여 펀더멘털 훼손 징후가 <strong>0%</strong>입니다.</li>
+<li><strong>ROE 및 마진 레짐 시프트</strong>: 현재 TTM ROE <strong><code>24.18%</code></strong>(5년 Mid-Cycle 중위 ROE <code>21.55%</code> 상회), TTM OPM <strong><code>49.33%</code></strong>(과거 중위 <code>39.4%</code> 대비 <strong><code>+9.9%p</code> 레벨 시프트</strong>)로 진성 구조적 리레이팅 요건을 완벽히 충족합니다.</li>
+<li><strong>멀티플 밴드 하단 위치</strong>: 단일 기준 주가 <strong><code>55,400원</code></strong>은 공식 <strong>PER <code>22.47배</code></strong>(최근 3년 하위 20% <code>30.19배</code> 대폭 하회, 3년 평균 <code>37.59배</code>), 공식 <strong>PBR <code>5.41배</code></strong>(최근 3년 하위 20% <code>5.27배</code> 근접, 3년 평균 <code>6.77배</code>)로 역사적 밸류에이션 바닥권에 위치해 있습니다.</li>
+</ul>
+<hr />
+<h2>3. [Step 3.0] 시나리오별 목표주가 (<code>🛡️대안 B</code> / <code>🚀대안 A</code>) · Bottom-Up 손익 추론 &amp; 레드팀 Capa 천장 검증</h2>
+<h3>3.1 Phase 3 6열 시나리오 밸류에이션 표 (주 지표: <code>PER</code>)</h3>
+<blockquote>
+<p><strong>[원칙 3 &amp; 원칙 13 준수]</strong>: Phase 1 Section 8에서 선정된 1순위 지표 <strong><code>PER</code></strong>을 강제 상속하며, <code>auto_tables.md</code>의 <strong><code>[코드 자동 생성 2]</code></strong> 수치(<code>119,860원 / 156,630원</code>, <code>82,120원 / 102,880원</code>, <code>53,940원</code>)를 단 1원도 수정하지 않고 바인딩합니다.</p>
+</blockquote>
+<h3>📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PER)</h3>
 <table>
 <thead>
 <tr>
@@ -637,178 +638,304 @@ p > em {
 <tr>
 <td style="text-align: left;"><strong>Bull (호황 상단)</strong></td>
 <td style="text-align: center;"><strong>25%</strong></td>
-<td style="text-align: left;">• 에코델타 2배 증설 램프업 및 빅테크 AI ASIC 프로젝트 수주 집중 <br> • 신공장 감가상각비 80억 반영 후에도 OPM 48.0% 유지</td>
-<td style="text-align: left;">PBR 상위 90% (대안A ×1.21) <code>[내재 PER 39.5배 / 47.8배]</code></td>
-<td style="text-align: left;">🛡️ <strong>119,860원</strong> / 🚀 <strong>144,980원</strong></td>
-<td style="text-align: left;">🛡️ <strong>+87.9%</strong> / 🚀 <strong>+127.2%</strong></td>
+<td style="text-align: left;">에코델타 신공장(Capa 2배) 조기 풀가동 + Rubin 1.6T NIC(랙당 2배)·102.4T Switch·CPO 및 스마트글래스 SoC R&amp;D 소켓 폭발</td>
+<td style="text-align: left;">PER 상위 90% (대안A ×1.3068)</td>
+<td style="text-align: left;">🛡️ <strong>119,860원</strong> / 🚀 <strong>156,630원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+116.4%</strong> / 🚀 <strong>+182.7%</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Base (기본 적정)</strong></td>
 <td style="text-align: center;"><strong>50%</strong></td>
-<td style="text-align: left;">• 4Q26 파업 종료 후 납기 정상화 및 2027F 에코델타 안정적 가동 <br> • 감가상각비 75억 반영 OPM 47.7% 달성 <code>[추정: LS증권 26.09.29]</code></td>
-<td style="text-align: left;">PBR 상위 65% (대안A ×1.19) <code>[내재 PER 26.8배 / 31.8배]</code></td>
-<td style="text-align: left;">🛡️ <strong>81,250원</strong> / 🚀 <strong>96,520원</strong></td>
-<td style="text-align: left;">🛡️ <strong>+27.4%</strong> / 🚀 <strong>+51.3%</strong></td>
+<td style="text-align: left;">에코델타 순차 램프업 + 빅테크 맞춤형 AI ASIC·차세대 AP 미세피치 소켓 ASP 상승 지속 (OPM 48~49% 유지)</td>
+<td style="text-align: left;">PER 상위 65% (대안A ×1.2528)</td>
+<td style="text-align: left;">🛡️ <strong>82,120원</strong> / 🚀 <strong>102,880원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+48.2%</strong> / 🚀 <strong>+85.7%</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>TP1 (단기 실전)</strong></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: left;">• 3Q 파업 우려 해소 및 52주 실거래 상위 75% 분위수 회귀</td>
-<td style="text-align: left;">52주 75% 분위수</td>
-<td style="text-align: left;">🛡️ <strong>104,600원</strong> / 🚀 <strong>112,970원</strong></td>
-<td style="text-align: left;">🛡️ <strong>+63.9%</strong> / 🚀 <strong>+77.1%</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Bear (침체 지지)</strong></td>
+<td style="text-align: left;"><strong>Bear (하방 지지)</strong></td>
 <td style="text-align: center;"><strong>25%</strong></td>
-<td style="text-align: left;">• 글로벌 스마트폰 세트 교체 주기 장기화 및 신공장 초기 고정비 부담 <br> • OPM 43.0% 둔화 및 과거 3년 하위 20% PBR 지지선 적용</td>
-<td style="text-align: left;">하방 지지선 (할증 0% 고정) <code>[PBR 5.06배 하방 닻]</code></td>
-<td style="text-align: left;">🛡️ <strong>51,810원</strong> / 🚀 <strong>51,810원</strong></td>
-<td style="text-align: left;">🛡️ <strong>-18.8%</strong> / 🚀 <strong>-18.8%</strong></td>
+<td style="text-align: left;">글로벌 IT 세트 침체 및 신공장 초기 고정비 부담으로 마진 둔화 시 3년 PBR 하위 20%(5.27배) 자산가치 하방 지지</td>
+<td style="text-align: left;">하방 지지선 (할증 0% 고정)</td>
+<td style="text-align: left;">🛡️ <strong>53,940원</strong> / 🚀 <strong>53,940원</strong></td>
+<td style="text-align: left;">🛡️ <strong>-2.6%</strong> / 🚀 <strong>-2.6%</strong></td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>손익비(Risk/Reward) 정량 산출 및 듀얼 게이트 판정:</strong></li>
+<li><strong>확률가중 기대 적정주가 (Expected Value)</strong>:</li>
+<li><strong>🛡️ 대안 B (보수적 본업 멀티플 기준)</strong>: $(119,860 \times 0.25) + (82,120 \times 0.50) + (53,940 \times 0.25) =$ <strong><code>84,510원</code></strong> (현재가 <code>55,400원</code> 대비 <strong><code>+52.5%</code></strong> 상승 여력)</li>
+<li><strong>🚀 대안 A (Step 1.2 10% 변곡점 · 3축 병목 S등급 · 리드타임 30개월 반영)</strong>: $(156,630 \times 0.25) + (102,880 \times 0.50) + (53,940 \times 0.25) =$ <strong><code>104,083원</code></strong> (현재가 <code>55,400원</code> 대비 <strong><code>+87.9%</code></strong> 상승 여력)</li>
+<li><strong>1차 실전 목표주가 (<code>TP1</code>)</strong>: 🛡️ 대안 B <strong><code>104,600원 (+88.8%)</code></strong> / 🚀 대안 A <strong><code>112,970원 (+103.9%)</code></strong></li>
 </ul>
+<h3>3.2 시나리오별 Bottom-Up 손익계산서(IS) 추론 및 4대 회계 무결성 검증 (2026E ~ 2027E)</h3>
+<blockquote>
+<p><strong>[원칙 5 시나리오 4대 회계 무결성 준수]</strong>: ① 에코델타시티 신공장 신규 감가상각비(<code>연간 -75억~-80억 원</code>) 및 초기 고정비 차감 반영, ② 순현금 <code>4,551억 원</code> 보유에 따른 순이자수익(<code>+130억~+150억 원</code>) 부호 일치 및 CB 0건 확인, ③ 일회성 이익 제거 및 외환손익(영업 판가 환율 vs 영업외 외화환산) 분리, ④ 채무보증·중복상장 0건(할인 0%).</p>
+</blockquote>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">구분</th>
-<th style="text-align: center;">등락률 (🛡️대안 B | 🚀대안 A)</th>
-<th style="text-align: center;">확률 가중치 (영구 고정)</th>
-<th style="text-align: center;">가중 기대값 (🛡️대안 B | 🚀대안 A)</th>
-<th style="text-align: left;">비고</th>
+<th style="text-align: left;">손익 항목 (단위: 억 원, 원)</th>
+<th style="text-align: center;">2025년 (결산 실측)</th>
+<th style="text-align: center;">2026E (연간 추정)</th>
+<th style="text-align: center;">2027E Bear (침체 25%)</th>
+<th style="text-align: center;">2027E Base (기본 50%)</th>
+<th style="text-align: center;">2027E Bull (호황 25%)</th>
+<th style="text-align: left;">회계 무결성 반영 내역</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Bull (호황)</strong></td>
-<td style="text-align: center;">+87.9% (B) / +127.2% (A)</td>
-<td style="text-align: center;">25%</td>
-<td style="text-align: center;">+22.0% (B) / +31.8% (A)</td>
-<td style="text-align: left;">2단계 트레일링 익절 타겟</td>
+<td style="text-align: left;"><strong>매출액 (Revenue)</strong></td>
+<td style="text-align: center;">3,724.8억</td>
+<td style="text-align: center;"><strong>4,380.0억</strong> (<code>+17.6%</code>)</td>
+<td style="text-align: center;">4,150.0억</td>
+<td style="text-align: center;"><strong>5,350.0억</strong> (<code>+22.1%</code>)</td>
+<td style="text-align: center;"><strong>5,850.0억</strong> (<code>+33.6%</code>)</td>
+<td style="text-align: left;">Socket(P×Q) + Pin + 의료기기 합산</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Base (기본)</strong></td>
-<td style="text-align: center;">+27.4% (B) / +51.3% (A)</td>
-<td style="text-align: center;">50%</td>
-<td style="text-align: center;">+13.7% (B) / +25.7% (A)</td>
-<td style="text-align: left;">진입 판단 기준점 (정규분포 중심 닻)</td>
+<td style="text-align: left;"><strong>(-) 매출원가 및 판관비</strong></td>
+<td style="text-align: center;">-1,954.8억</td>
+<td style="text-align: center;">-2,233.8억</td>
+<td style="text-align: center;">-2,303.3억</td>
+<td style="text-align: center;">-2,686.7억</td>
+<td style="text-align: center;">-2,972.6억</td>
+<td style="text-align: left;"><strong>에코델타 신공장 신규 감가상각비(<code>-78억/년</code>) 차감 반영 완료</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Bear (침체)</strong></td>
-<td style="text-align: center;">−18.8% (공통)</td>
-<td style="text-align: center;">25%</td>
-<td style="text-align: center;">−4.7% (공통)</td>
-<td style="text-align: left;">과거 10년 펀더멘털 바닥 지지선</td>
+<td style="text-align: left;"><strong>(=) 영업이익 (OP)</strong></td>
+<td style="text-align: center;"><strong>1,770.0억</strong></td>
+<td style="text-align: center;"><strong>2,146.2억</strong> (<code>+21.3%</code>)</td>
+<td style="text-align: center;"><strong>1,846.7억</strong></td>
+<td style="text-align: center;"><strong><code>2,663.3억</code></strong></td>
+<td style="text-align: center;"><strong><code>2,877.4억</code></strong></td>
+<td style="text-align: left;"><code>Step 1.2</code> 대안 A 내재 영업이익과 100% 정합</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>확률가중 기대수익률</strong></td>
-<td style="text-align: center;">—</td>
-<td style="text-align: center;"><strong>100%</strong></td>
-<td style="text-align: center;"><strong>+31.0% (대안 B) / +52.8% (대안 A)</strong></td>
-<td style="text-align: left;">(25-50-25 대칭 정규분포 닻 고정 기준)</td>
+<td style="text-align: left;"><strong>영업이익률 (OPM)</strong></td>
+<td style="text-align: center;">47.52%</td>
+<td style="text-align: center;"><strong>49.00%</strong></td>
+<td style="text-align: center;">44.50%</td>
+<td style="text-align: center;"><strong>49.78%</strong></td>
+<td style="text-align: center;"><strong>49.19%</strong></td>
+<td style="text-align: left;">고마진 소켓 비중(<code>70%+</code>)이 신규 감가상각비 상쇄</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>(+) 순금융수익 (이자수익 등)</strong></td>
+<td style="text-align: center;">+152.4억</td>
+<td style="text-align: center;"><strong>+142.0억</strong></td>
+<td style="text-align: center;">+125.0억</td>
+<td style="text-align: center;"><strong>+145.0억</strong></td>
+<td style="text-align: center;"><strong>+155.0억</strong></td>
+<td style="text-align: left;"><strong>무차입 순현금 <code>4,551억</code> 이자수익(<code>+</code>) 부호 일치</strong> (일회성 외환환산 제외)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>(-) 법인세비용 (유효세율 ~22%)</strong></td>
+<td style="text-align: center;">-406.1억</td>
+<td style="text-align: center;">-503.4억</td>
+<td style="text-align: center;">-433.8억</td>
+<td style="text-align: center;">-617.8억</td>
+<td style="text-align: center;">-667.1억</td>
+<td style="text-align: left;">한국 법인세 실효세율 22.0% 적용</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>(=) 지배주주 순이익 (귀속률 100%)</strong></td>
+<td style="text-align: center;"><strong>1,516.3억</strong></td>
+<td style="text-align: center;"><strong>1,784.8억</strong></td>
+<td style="text-align: center;"><strong>1,537.9억</strong></td>
+<td style="text-align: center;"><strong>2,190.5억</strong></td>
+<td style="text-align: center;"><strong>2,365.3억</strong></td>
+<td style="text-align: left;">자회사 0개 (지배주주 귀속률 <code>100.0%</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>유통 EPS (<code>75,895,600주</code>, 원)</strong></td>
+<td style="text-align: center;"><strong>1,998원</strong></td>
+<td style="text-align: center;"><strong>2,352원</strong> (TTM <code>2,465원</code>)</td>
+<td style="text-align: center;"><strong>2,026원</strong></td>
+<td style="text-align: center;"><strong><code>2,886원</code></strong></td>
+<td style="text-align: center;"><strong><code>3,117원</code></strong></td>
+<td style="text-align: left;">CB/BW/우선주 희석 0건, 자사주 소각 시 추가 상승</td>
 </tr>
 </tbody>
 </table>
+<h3>3.3 🔬 [원칙 15] 레드팀(Red-Team) 역산 Capa 천장 검증 (Implied Capa Ceiling Audit)</h3>
+<blockquote>
+<p><strong><code>[질문]</code></strong>: <em>"Phase 3 <code>🚀 대안 A</code> 목표주가(<code>Base 102,880원</code> / <code>Bull 156,630원</code>)가 내포하는 내재 영업이익(<code>Base 2,663.3억 원</code> / <code>Bull 2,877.4억 원</code>)은 리노공업의 물리적 설비 Capa 한계 내에서 실제로 달성 가능한 숫자인가, 아니면 불가능한 희망회로인가?"</em></p>
+</blockquote>
 <ul>
-<li><strong>실전 듀얼 R:R 게이트 산출 결과:</strong></li>
-<li><strong>Gate 1 [펀더멘털 안전마진 게이트 (Valuation R:R)]</strong>:<ul>
-<li><strong>산식</strong>: <code>Base 상승폭(+27.4%) ÷ Bear 하방폭(18.8%)</code> = <strong>1.46 : 1 (대안 B) / 2.73 : 1 (대안 A)</strong></li>
+<li><strong>[레드팀 정량 검증 결과 — <code>🟢 물리적 Capa 한계 내 달성 가능 (여유율 충분)</code>]</strong>:</li>
+<li><strong>기존 미음산단 본사 Capa 기준 최대치</strong>: 2026년 2분기 단독 매출액이 이미 <strong><code>1,431.9억 원</code></strong>(영업이익 <strong><code>735.1억 원</code></strong>, 연환산 시 <strong>매출 <code>5,727.6억 원</code> / 영업이익 <code>2,940.4억 원</code></strong>)을 기록했습니다. 즉, 기존 공장 설비만으로도 피크 분기 기준 연환산 영업이익 2,940억 원 창출 능력이 실측으로 증명되었습니다.</li>
+<li><strong>2026년 4분기(11월) 부산 에코델타시티 신공장 완공 후 물리적 Capa 천장</strong>:<ul>
+<li>에코델타 신공장은 연면적이 기존 대비 <strong>2배</strong>로 확장되며 정밀 가공·조립 자동화 라인이 추가됩니다 <code>[LS증권 26.09.29 p.58]</code>.</li>
+<li>완공 후 전사 물리적 최대 생산능력(Full Capa Ceiling)은 연간 매출액 기준 <strong><code>8,500억 ~ 1조 원</code></strong>(OPM 48% 적용 시 <strong>연간 최대 영업이익 <code>4,080억 ~ 4,800억 원</code></strong>)으로 점프합니다.</li>
 </ul>
 </li>
-<li><strong>Gate 2 [마스터 SOP 실전 트레이딩 게이트 (Execution R:R)]</strong>:<ul>
-<li><strong>산식</strong>: <code>Base 상승폭(+27.4%) ÷ 완성 평단가(60,587원) 대비 1단계 안전핀(49,220원) 거리(18.8%)</code> = <strong>1.46 : 1 (대안 B) / 2.73 : 1 (대안 A)</strong></li>
-<li><strong>판정</strong>: 대안 A 기준 <code>Gate 2 = 2.73 : 1 (≥ 2.0)</code> 돌파 조건 만족 ✅</li>
-</ul>
-</li>
-<li><strong>4분면 투자의견 매트릭스</strong>: <strong><code>[👑 조건부 추세 트레이딩 분할 매수 (Trading Buy / Track 2 Momentum — 안전핀 엄수)]</code></strong></li>
+<li><strong>결론</strong>: <code>🚀 대안 A</code>의 내재 영업이익인 <strong>Base <code>2,663.3억 원</code></strong> 및 <strong>Bull <code>2,877.4억 원</code></strong>은 에코델타 신공장 완공 후 물리적 Capa 천장(<code>4,080억~4,800억 원</code>)의 <strong><code>55% ~ 70%</code> 가동률</strong>만으로도 달성 가능한 매우 현실적인 수치입니다.</li>
 </ul>
 <hr />
-<h2>3.5 ⚖️ 비관론자 반론(Pre-mortem) 및 리스크 도미노 연쇄 시나리오</h2>
-<ul>
-<li><strong>반론 ① [온디바이스 킬러 앱 부재에 따른 스마트폰 교체 주기 장기화]</strong>:</li>
-<li>생성형 AI 서비스(Muse 등)가 클라우드 기반으로 구동되어 스마트폰 하드웨어 교체 수요가 지연될 경우, 양산용 핀(매출 23%) 수주가 정체될 수 있습니다.</li>
-<li><strong>🚨 Kill-Switch (가설 약화 정량 트리거)</strong>: <strong>차기 분기 영업이익 <code>&lt; 624.9억 원</code>(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS <code>&lt; 695원</code> 기록 시 핵심 가설 즉시 <code>[약화]</code> 강등.</strong></li>
-<li><strong>반론 ② [4Q26 부산 에코델타 증설 초기 고정비 부담 및 노사 이슈 재발]</strong>:</li>
-<li>Capa 2배 증설에 따른 신규 감가상각비(연 80억)와 3Q26 부분파업과 같은 노사 갈등이 재발할 경우 일시적 OPM 하락 압력이 발생할 수 있습니다.</li>
-<li><strong>🚨 Kill-Switch</strong>: 분기 영업이익률(OPM)이 <code>&lt; 40.0%</code>로 2분기 연속 하락하거나 신공장 준공 일정이 2027년 1분기 이후로 지연 시 Target 멀티플 20% 강제 하향.</li>
-<li><strong>반론 ③ [TSMC-대만 윈웨이(Winway)의 양산 소켓 기득권 카르텔]</strong>:</li>
-<li>빅테크 자체 AI ASIC의 TSMC 파운드리 양산 시 대만 윈웨이의 시장 지배력이 유지되어 리노공업의 양산 소켓 침투가 예상보다 지연될 수 있습니다.</li>
-<li><strong>🚨 Kill-Switch</strong>: 글로벌 빅테크향 해외 직수출 비중이 <code>&lt; 75%</code> 미만으로 축소되거나 미국 빅테크 공급선 이원화 공시 확인 시 대안 A 할증 폐기 및 대안 B로 강제 고정.</li>
-</ul>
+<h2>3.5. [Step 3.5] 프리모템(Pre-mortem) 3단계 리스크 도미노 &amp; 포퍼식 가설 반증(Kill-Switch)</h2>
+<blockquote>
+<p><strong>[원칙 11 &amp; 원칙 12 준수]</strong>: 만약 우리의 투자 가설이 틀려 주가가 하락한다면 어떤 경로로 도미노가 무너지는지 사전 부검(Pre-mortem)하고, 즉시 비중을 축소할 <strong>정량적 반증 트리거(Kill-Switch)</strong>를 못 박습니다.</p>
+</blockquote>
+<ol>
+<li><strong>[1차 촉발 (Trigger)]</strong>: 글로벌 매크로 침체로 북미 빅테크들이 AI ASIC 및 스마트글래스 신규 칩 테이프아웃 프로젝트를 동결하거나, TSMC 후공정에서 대만 윈웨이(WinWay)가 R&amp;D 소켓 영역까지 침투하여 리노공업의 해외 직수출 비중이 <strong><code>75.0%</code> 미만</strong>(현 <code>83.74%</code>)으로 하락하는 경우.</li>
+<li><strong>[2차 영업 전이 (Operational Domino)]</strong>: 고마진 <code>IC TEST SOCKET</code> 출하(Q) 둔화와 에코델타 신공장 초기 감가상각비(<code>연 ~78억 원</code>)가 겹치며 고정비 디레버리지가 발생, <strong>차기 분기 영업이익이 <code>&lt; 624.9억 원</code> (직전 분기 735.1억 대비 <code>-15%</code> 하회)</strong> 또는 <strong>분기 지배주주 EPS <code>&lt; 695원</code></strong>으로 급감하고 분기 OPM이 <strong><code>40.0%</code> 미만</strong>으로 꺾이는 경우.</li>
+<li><strong>[3차 밸류 타격 및 대응 (Kill-Switch 발동)]</strong>:</li>
+<li>위 <strong>2단계 정량 임계치(<code>영업이익 &lt; 624.9억 원</code> 또는 <code>EPS &lt; 695원</code>)가 단 1개 분기라도 발생할 경우</strong>, 본 보고서의 핵심 가설(가설 5·6·7)을 즉시 <strong><code>[약화]</code></strong>로 강등하고 <code>🚀 대안 A</code> 할증(<code>×1.16~1.21</code>)을 전면 철회합니다.</li>
+<li>동시에 주가가 <strong>1단계 초입 고정 손절 안전핀(<code>49,480원</code>)</strong>을 종가 기준으로 하향 이탈할 경우 이유를 불문하고 기계적 비중 축소(손절)를 집행합니다.</li>
+</ol>
 <hr />
-<h2>4. 최종 투자 전략 및 마스터 SOP 액션 플랜</h2>
-<h3>[역DCF ↔ 시나리오 결론 동기화 및 밸류에이션 우위 검증]</h3>
-<ul>
-<li>역DCF 요구성장률(실질 EV 기준 <strong>연간 25.09%</strong>)은 4Q26 에코델타 Capa 2배 증설 및 AI ASIC R&amp;D 소켓 폭증에 따른 2027F 이익 성장 가시성(LS증권 추정 영업이익 YoY +16.0% 및 믹스 개선)과 완벽히 동기화됩니다.</li>
-<li>현재 주가(<strong>63,800원</strong>)는 보수적 적정가인 <strong>대안 B Base(81,250원)</strong>보다 <strong>-21.5% 낮게 형성</strong>되어 있어 추격 매수 금지 페널티가 발생하지 않으며, 바닥권에서 3분할로 모아가는 최적의 진입 구간입니다.</li>
-</ul>
-<h3>📋 실전 매매 액션 플랜 및 마스터 SOP 트리거 (<code>backtest_valuation.py</code> 실측치 반영)</h3>
-<ul>
-<li><strong>투자의견:</strong> <strong>적극 매수 (Strong Buy — 사이클 저점 3분할 매수 셋업)</strong></li>
-<li>
-<p><strong>목표가 밴드 (🛡️대안 B / 🚀대안 A 병기):</strong><br />
-<strong>🛡️ 대안 B(보수적 주 닻): 81,250원(Base) ~ 119,860원(Bull) | TP1: 104,600원</strong><br />
-<strong>🚀 대안 A(S-Curve·ASIC 할증): 96,520원(Base) ~ 144,980원(Bull) | TP1: 112,970원</strong></p>
-</li>
-<li>
-<p><strong>매수 트리거 (Buy Trigger — 마스터 SOP 3분할 매수 전술 | <code>Hard Stop 1 &lt; Buy 1 &lt; Buy 2 &lt; Buy 3 &lt; Base</code> 위계 100% 엄수):</strong></p>
-</li>
-<li><strong>1차 매수 (30% · 가치/눌림목 선취매):</strong> <strong><code>51,810원</code></strong>  <ul>
-<li>Bear 하방 지지선(PBR 5.06배 51,810원)에 도달하거나 일봉 Slow Stochastic(12,5,5) 침체권(%K=11.5%, %D=18.4%) 골든크로스 발생 시 30% 선진입.</li>
-</ul>
-</li>
-<li><strong>2차 매수 (40% · 1차 추세선 돌파):</strong> <strong><code>63,800원</code></strong>  <ul>
-<li>현재 단일 기준 주가(63,800원) 수준에서 일봉 5일선(68,100원) 및 60일선(69,517원) 돌파 시도 시 40% 본대 투입.</li>
-</ul>
-</li>
-<li><strong>3차 매수 (30% · 상단 매물대/추세 안착):</strong> <strong><code>65,080원</code></strong>  <ul>
-<li>일봉 매물대 하단(63,800~69,000원 구간)을 20일 평균 거래량의 1.25배 이상 거래량으로 돌파하고 안착할 때 잔여 30% 투입 완성.</li>
-</ul>
-</li>
-<li>
-<p>▶ <strong>3분할 완성 평균단가:</strong> <strong><code>60,587원</code></strong><br />
-<em>(대안 B Base 81,250원 대비 기대수익률 </em><em>+34.1%</em><em>, 대안 A Base 96,520원 대비 </em><em>+59.3%</em><em> 확보 검증 완료 ✅)</em></p>
-</li>
-<li>
-<p><strong>매도/손절 트리거 (Sell &amp; Stop-Loss Trigger — 이중 안전핀 &amp; 허리 홀딩 &amp; 2단계 익절):</strong></p>
-</li>
-<li><strong>[포지션 방어 이원화 (이중 안전핀 vs 상승 허리 주봉 20주선 홀딩)]:</strong><ul>
-<li>🚨 <strong>1단계 초입 고정 안전핀 (Hard Stop 1 — 진입 직후 ~ 수익률 +15% 미만):</strong> <strong><code>49,220원</code></strong><br />
-<em>(1차 매수가 51,810원 대비 -5.0%, 완성 평단가 60,587원 대비 -18.8%로 1차 매수가 및 평단가 아래 완벽 배치. 일봉 종가 이탈 시 기계적 손절)</em></li>
-<li>🛡️ <strong>2단계 매물대 돌파 후 트레일링 보호핀 (Trailing Stop 2):</strong> <strong><code>71,974원</code></strong><br />
-<em>(주가가 20일 매물대 POC 상단 79,400원 돌파 안착 성공 시 손절선을 71,974원으로 격상하여 본절 및 수익 보호)</em></li>
-<li><strong>상승 허리 (평단가 대비 수익률 ≥ +15% &amp; 주봉 20주선 위):</strong> 단기 일봉 음봉 노이즈는 100% 무시하고, 주봉 종가가 <strong>주봉 20주 이동평균선(74,630원)</strong>을 하향 이탈하기 전까지 끝까지 추세 홀딩.</li>
-</ul>
-</li>
-<li><strong>[1단계 반타작 익절 (보유 물량의 50% 차익 실현)]:</strong><ul>
-<li>1차 목표가인 <strong>Base(🛡️대안 B 81,250원 / 🚀대안 A 96,520원)</strong> 또는 실전 목표가인 <strong>TP1(🛡️대안 B 104,600원 / 🚀대안 A 112,970원)</strong> 도달 시:</li>
-<li><strong>주봉 MFI(14) &lt; 50</strong> (수급 고갈)이면 <strong>보유 물량의 50% 즉시 기계적 익절</strong>.</li>
-<li><strong>주봉 MFI(14) ≥ 50</strong> (현재 53.5, 양호)이면 익절을 보류하고 Bull 목표가까지 추세 완주.</li>
-</ul>
-</li>
-<li>
-<p><strong>[2단계 잔여 물량(50%) 전량 청산 — 3대 고점경보 시그널 (하나라도 발생 시 즉시 매도)]:</strong></p>
-<ul>
-<li>🚨 <strong>고점경보 1호 (수급 과열 이탈):</strong> 주봉 MFI(14)가 80 이상 과열권 진입 후 <strong>80 아래로 하향 이탈</strong> 시.</li>
-<li>🚨 <strong>고점경보 2호 (신고가 가격-수급 다이버전스 괴리):</strong> 주가는 52주 신고가(또는 Bull 목표가 119,860원/144,980원)에 도달하고 <strong>주봉 RSI(14) ≥ 70</strong>인데, <strong>주봉 MFI(14) &lt; 70</strong>에 머물며 수급 다이버전스 발생 시.</li>
-<li>🚨 <strong>고점경보 3호 (추세 붕괴 트레일링 스탑):</strong> 최고점 대비 <strong>-8% 이상 하락함과 동시에 주봉 20주선(74,630원) 종가 이탈</strong> 시 잔여 물량 전량 차익 실현.</li>
-</ul>
-</li>
-<li>
-<p><strong>핵심 모니터링 체크리스트:</strong></p>
-</li>
-<li>2026년 11월 부산 에코델타시티 신공장 이전 일정 및 자동화 설비 셋업 진행 현황.</li>
-<li>3Q26 실적 발표 시 노사 파업 영향 최종 수치 및 4Q26 초단납기 PO 이연 매출 반영 여부.</li>
-<li>글로벌 빅테크들의 자체 AI ASIC(TPU, MTIA, Trainium 등) 신규 칩 양산 프로젝트 수주 DART 공시 추적.</li>
-</ul>
+<h2>4. [Section 4] 마스터 매매 SOP: 정예 보조지표 판독 &amp; 무결성 3분할 매수 · 이중 안전핀 설계</h2>
+<h3>4.1 일봉·주봉 정예 보조지표 및 매물대(Volume Profile POC) 정밀 판독 (<code>2026-10-30</code> 종가 <code>55,400원</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">타임프레임</th>
+<th style="text-align: left;">핵심 보조지표 항목</th>
+<th style="text-align: left;">코드 실측 수치 (<code>backtest_valuation.py</code> v4.3)</th>
+<th style="text-align: left;">기술적 위치 및 수급 에너지 판독</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>일봉 (Daily)</strong></td>
+<td style="text-align: left;"><strong>20일 매물대 (5칸 Volume Profile POC)</strong></td>
+<td style="text-align: left;">• <strong>최대 매물대(POC): <code>82,900원 ~ 89,800원</code> (<code>31.4%</code>)</strong><br>• 1구간(<code>55,300~62,200원</code>): <code>15.5%</code><br>• 2구간(<code>62,200~69,100원</code>): <code>17.7%</code><br>• 3구간(<code>69,100~76,000원</code>): <code>7.0%</code> (매물 공백)<br>• 4구간(<code>76,000~82,900원</code>): <code>28.3%</code></td>
+<td style="text-align: left;">현재가(<code>55,400원</code>)는 20일 최저점(<code>55,300원</code>) 바로 위 1구간 하단에 위치. <code>69,100~76,000원</code> 구간은 매물 비중이 <code>7.0%</code>에 불과한 <strong>진공 구간</strong>으로, 반등 시 <code>76,000원</code>까지 빠른 탄력 기대</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>일봉 (Daily)</strong></td>
+<td style="text-align: left;"><strong>이동평균선 &amp; 거래량 배수 (<code>vol_ratio</code>)</strong></td>
+<td style="text-align: left;">• <code>5일선 60,500원</code> / <code>20일선 71,565원</code> / <code>60일선 69,295원</code><br>• 20일 평균 거래량 <code>1,020,730주</code> vs 당일 <code>815,568주</code> (<strong><code>0.80배</code></strong>)</td>
+<td style="text-align: left;">단기 이격 과다 후 거래량이 20일 평균의 <code>0.80배</code>로 감소하며 투매 진정 국면 진입</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>일봉 (Daily)</strong></td>
+<td style="text-align: left;"><strong>Slow Stochastic (12, 5, 5)</strong></td>
+<td style="text-align: left;"><strong><code>%K = 11.7%</code> / <code>%D = 9.2%</code></strong></td>
+<td style="text-align: left;"><strong>🔥 극단적 과매도권(<code>20%</code> 이하)에서 <code>%K &gt; %D</code> 골든크로스 발생 완료!</strong> 단기 기술적 반등 임박 신호</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>주봉 (Weekly)</strong></td>
+<td style="text-align: left;"><strong>주봉 이평선 &amp; 볼린저밴드 (20, 2)</strong></td>
+<td style="text-align: left;">• <code>10주선 70,450원</code> / <code>20주선 72,050원</code> / <code>60주선 79,544원</code><br>• 볼린저 상단 <code>90,912원</code> / 중심 <code>72,050원</code> / <strong>하단 <code>53,188원</code></strong></td>
+<td style="text-align: left;">현재가(<code>55,400원</code>)가 <strong>주봉 볼린저밴드 하단(<code>53,188원</code>)에 바짝 근접</strong>하여 중기 하방 경직성 확보</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>주봉 (Weekly)</strong></td>
+<td style="text-align: left;"><strong>주봉 MACD (12,26,9) &amp; MFI(14) / RSI(14)</strong></td>
+<td style="text-align: left;">• MACD <code>-5,546.5</code> / Signal <code>-4,711.8</code> / Hist <code>-834.7</code><br>• <strong>주봉 MFI(14) = <code>52.9</code></strong> / <strong>주봉 RSI(14) = <code>36.5</code></strong><br>• 고점경보 1호·2호: <strong>모두 <code>정상</code> (과열 없음)</strong></td>
+<td style="text-align: left;">주봉 RSI가 <code>36.5</code>까지 내려와 가격 과열은 완전히 해소된 반면, 거래대금 가중 자금흐름지표인 <strong>주봉 MFI(14)는 <code>52.9</code>를 유지</strong>하여 저가 스마트머니 유입 확인</td>
+</tr>
+</tbody>
+</table>
+<h3>4.2 [원칙 6] 무결성 3분할 매수가 및 2단계 안전핀(Safety Pin) 실행 계획 (<code>Track 1</code>)</h3>
+<blockquote>
+<p><strong>[원칙 6 위계질서 검증]</strong>:<br />
+<code>Base 적정주가(82,120원) &gt; 현재가(55,400원)</code>이므로 밸류에이션 우위 게이트를 통과하며, <strong><code>1단계 안전핀(49,480원) &lt; 1차 매수가(52,080원) &lt; 완성 평단가(54,737원) &lt; 2차 매수가(55,400원) &lt; 3차 매수가(56,510원) &lt; Base 목표가(82,120원)</code></strong>의 절대 부등식이 100% 성립합니다.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">매매 단계</th>
+<th style="text-align: center;">비중</th>
+<th style="text-align: center;">실행 가격 (원)</th>
+<th style="text-align: left;">산출 근거 및 실전 집행 트리거 (Execution Trigger)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>🟢 1차 매수 (가치/눌림목 선취매)</strong></td>
+<td style="text-align: center;"><strong>30%</strong></td>
+<td style="text-align: center;"><strong><code>52,080원</code></strong></td>
+<td style="text-align: left;">주봉 볼린저밴드 하단(<code>53,188원</code>) 및 3년 PBR 하위 20% 지지선(<code>53,940원</code>) 언더슈팅 구간에 지정가 대기 매수 (안전마진 극대화)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🔵 2차 매수 (현재가 / 1차 추세 회복)</strong></td>
+<td style="text-align: center;"><strong>40%</strong></td>
+<td style="text-align: center;"><strong><code>55,400원</code></strong></td>
+<td style="text-align: left;"><strong>현재 일봉 종가(<code>55,400원</code>)</strong> 및 일봉 스토캐스틱(<code>%K 11.7% / %D 9.2%</code>) 과매도 골든크로스 발생 확인 구간에서 본대 물량 투입</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🟣 3차 매수 (단기 추세 안착 확인)</strong></td>
+<td style="text-align: center;"><strong>30%</strong></td>
+<td style="text-align: center;"><strong><code>56,510원</code></strong></td>
+<td style="text-align: left;">바닥 다지기 이후 거래량(<code>vol_ratio ≥ 1.0배</code>)을 동반하며 <code>56,510원</code> 저항 돌파 안착 확인 시 마지막 30% 투입</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>▶ 3분할 완성 평균단가</strong></td>
+<td style="text-align: center;"><strong>100%</strong></td>
+<td style="text-align: center;"><strong><code>54,737원</code></strong></td>
+<td style="text-align: left;"><strong>Base 목표가(<code>🛡️82,120원</code>) 대비 <code>+50.0%</code> / <code>🚀102,880원</code> 대비 <code>+88.0%</code> / <code>TP1 104,600원</code> 대비 <code>+91.1%</code> 기대수익</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🚨 1단계: 초입 고정 손절 안전핀 (Hard Stop 1)</strong></td>
+<td style="text-align: center;"><strong>전량</strong></td>
+<td style="text-align: center;"><strong><code>49,480원</code></strong></td>
+<td style="text-align: left;">• 1차 매수가(<code>52,080원</code>) 대비 <strong><code>-5.0%</code></strong>, 3분할 완성 평단가(<code>54,737원</code>) 대비 <strong><code>-9.6%</code></strong> 하단 고정 손절선<br>• <strong>Gate 1 R:R = <code>18.30 : 1</code></strong> / <strong>Gate 2 실전 R:R = <code>5.21 : 1</code></strong> (기준 <code>≥ 2.0:1</code> 압도적 통과)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🔒 2단계: 매물대 돌파 후 본절 보호핀 (Trailing Stop 2)</strong></td>
+<td style="text-align: center;"><strong>익절보호</strong></td>
+<td style="text-align: center;"><strong><code>80,413원</code></strong></td>
+<td style="text-align: left;">주가가 상승하여 일봉 20일 최대 매물대(POC) 상단인 <strong><code>89,800원</code>을 돌파·안착한 이후에만</strong> 손절선을 <code>49,480원</code>에서 <strong><code>80,413원</code></strong>으로 상향 이동하여 수익을 확정 보호</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3>📌 [코드 자동 생성 3] HTML 계산기 직결 태그 (플레이스홀더 0건)</h3>
-<div id="dcf-calculator-root" data-price="63800" data-shares="75895600" data-total-shares="76211850" data-fcf="1195.0" data-net-debt="-4551.0" data-non-op-assets="0.0" data-bear="51810" data-base="81250" data-bull="119860" data-base-a="96520" data-bull-a="144980" data-tp1="104600" data-tp1-a="112970" data-buy1="51810" data-buy2="63800" data-buy3="65080" data-stop-pin="49220" data-poc-low="74200"></div>
+<div id="dcf-calculator-root" data-price="55400" data-shares="75895600" data-total-shares="76211850" data-fcf="980.0" data-reported-fcf="980.0" data-net-debt="-4551.0" data-non-op-assets="294.0" data-bear="53940" data-base="82120" data-bull="119860" data-base-a="102880" data-bull-a="156630" data-tp1="104600" data-tp1-a="112970" data-buy1="52080" data-buy2="55400" data-buy3="56510" data-stop-pin="49480" data-poc-low="82900"></div>
+
+<hr />
+<h2>✅ [Phase 3 핀셋 Boost 자가 검증 체크리스트 (7대 수리·위계·레드팀·SSOT 무결성)]</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">검증 게이트</th>
+<th style="text-align: left;">실측 수치 및 검증 결과</th>
+<th style="text-align: center;">판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1. 단일 기준 주가 (Single Price Anchor)</strong></td>
+<td style="text-align: left;">Phase 1 · Phase 2 · Phase 3 전 구간 현재가 <strong><code>55,400원</code></strong> 100% 일치</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2. 유통주식수 · 귀속률 · 희석 반영</strong></td>
+<td style="text-align: left;">유통주식수 <code>75,895,600주</code>(자사주 <code>316,250주</code> 차감), 귀속률 <code>100.0%</code>, 1:5 액면분할 과거 전체 소급 완료</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3. 역DCF 4대 매트릭스 (Equity · EV × 보고 · 정규화 FCF)</strong></td>
+<td style="text-align: left;">보고 FCF(<code>980억</code>): Equity <code>+29.36%</code> / EV <code>+26.21%</code> | 정규화 FCF(<code>1,195억</code>): Equity <code>+23.95%</code> / EV <strong><code>+20.91%</code></strong> 병기 완료</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4. 시나리오 4대 회계 무결성</strong></td>
+<td style="text-align: left;">에코델타 신규 감가상각비(<code>-78억/년</code>) 차감, 순현금 이자수익(<code>+145억</code>) 부호 일치, 일회성 외환 분리, 희석/중복상장 0건 반영</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5. <code>Step 1.2</code> 가중치 &amp; 레드팀 Capa 천장 검증</strong></td>
+<td style="text-align: left;">10% 변곡점(<code>12.0%</code>) + 병목 <code>S등급</code>(<code>30개월</code>) 가중치(<code>Base ×1.16 / Bull ×1.21</code>) 반영 및 내재 영업이익(<code>2,663.3억 / 2,877.4억</code>)의 물리적 Capa 한계 내 달성 가능 검증</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>6. 마스터 SOP 가격 위계질서 &amp; 손익비</strong></td>
+<td style="text-align: left;"><code>안전핀(49,480원) &lt; 1차(52,080원) &lt; 평단(54,737원) &lt; 2차(55,400원) &lt; 3차(56,510원) &lt; Base(82,120원)</code> 및 실전 R:R <strong><code>5.21 : 1</code></strong></td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>7. SSOT (<code>auto_tables.md</code> &amp; <code>&lt;div id="dcf-calculator-root"&gt;</code>)</strong></td>
+<td style="text-align: left;"><code>[코드 자동 생성 1]</code>, <code>[코드 자동 생성 1-B]</code>, <code>[코드 자동 생성 2]</code>, <code>[코드 자동 생성 3]</code> 숫자 변조 0건 100% 바인딩</td>
+<td style="text-align: center;">✅ <strong>PASS</strong></td>
+</tr>
+</tbody>
+</table>
     <script>
-        const SSOT_DATA = {"version": "4.2", "generated_at": "2026-10-22 17:08:07", "stock_code": "058470", "corp_name": "리노공업", "anchor_price": 63800, "primary_metric": "PBR", "bench": {"stock_name": "리노공업", "close": 67400.0, "bps": 10235.0, "pbr": 6.23, "eps": 2465.0, "per": 25.88, "div_yield": 1.25, "dps": 800.0, "market_cap_str": "4조 8,623억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 7767.91, "mcap_eok": 48421.39, "non_op_assets_eok": 0.0, "recognized_non_op_eok": 0.0, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 0.0, "non_op_ratio_mcap_pct": 0.0, "non_op_max_ratio_pct": 0.0, "core_bps": 10235, "nopat_eok": 1633.55, "core_roic_pct": 21.03, "core_profit_sustainable": true, "implied_core_op_ev_eok": 43870.39}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 9.91, "flags": ["④ 사업구성레짐(OPM 과거중위 39.4% → 현재 49.3%, +9.9%p [고마진 신사업 믹스 개선])"]}, "section8": {"primary_metric": "PBR", "pbr_min": 2.71, "pbr_max": 13.98, "pbr_r2": 0.78, "pbr_dir": 61.5, "per_min": 17.26, "per_max": 70.25, "per_r2": 0.78, "per_dir": 61.5, "official_pbr": 6.23, "official_per": 25.88, "official_div": 1.25}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": true, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 532.0원 → 2026.2Q 869.0원 (QoQ 반등/흑자유지 ✅)", "qoq_rev_pct": 43.5, "qoq_op_pct": 55.4, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 997.7억→1,431.9억(QoQ +43.5%) | 영업이익 473.0억→735.1억(QoQ +55.4%) | 수정EPS 532원→869원", "kill_switch_guide": "차기 분기 영업이익 < 624.9억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 695원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 75.49665276109695, "bps_2y_chg": 38.19362931936209, "op_yoy_q": 37.551924604666674, "op_yoy_ttm": 34.187950879747625, "op_yoy_used": 37.551924604666674, "op_yoy_detail": "분기(2025.2Q→2026.2Q) +37.6% (534.4억 → 735.1억) | TTM 영업이익 YoY: +34.2%", "curr_roe": 24.18039773222162, "mid_cycle_roe": 21.55166795815347, "mid_cycle_eps": 1499.8677035347832, "pbr_cycle_max": 13.97693130023202, "pbr_3y_max": 13.97693130023202, "pbr_3y_mean": 6.7131337241929225, "pbr_3y_p20": 5.062506362099849, "pbr_3y_p65": 6.797856779867073, "pbr_3y_p90": 10.664288527499867, "per_3y_max": 70.2487532819756, "per_3y_mean": 37.4617798143839, "per_3y_p20": 30.099650219372286, "per_3y_p65": 37.6933791288443, "per_3y_p90": 52.96597783106452, "curr_eps_used": 2465.0, "curr_bps_used": 10235.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 133.46, "median_52w_range_pct": 87.73, "effective_52w_range": 87.73, "forward_bps": 10235.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.08, "sc_base_mult": 1.1, "sc_bull_mult": 1.12, "base_mult_a": 1.188, "bull_mult_a": 1.2096, "scurve_info": {"is_phase2": true, "is_early_ignition": false, "theme_name": "온디바이스 AI & NPU 고집적 R&D 리노핀/소켓 (Phase 2 스위트스팟)", "exposure_pct": 91.73, "source_pdf": "26.08.28_신한_생성형AI와 온디바이스AI.pdf & 26.09.16.IM증권.소나기 피할 반도체.pdf"}, "tp1_price": 104600, "tp1_price_a": 112970, "tp1_upside": 63.95, "tp1_upside_a": 77.07, "bear_auto": 51810, "base_auto": 81250, "bull_auto": 119860, "base_auto_a": 96520, "bull_auto_a": 144980}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ +55.4%, YoY +37.6%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(4,551.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 63800, "d_low20": 63800, "poc_low": 74200, "poc_high": 79400, "poc_pct": 41.2, "poc_trail_pin": 71974, "d_ma5": 68100, "d_ma20": 75325, "d_ma60": 69517, "vol_ma20": 1100750, "vol_ratio": 0.53, "stoch_k": 11.5, "stoch_d": 18.4, "w_close": 63800, "w_ma10": 71730, "w_ma20": 74630, "w_ma60": 79432, "bb_upper": 96563, "bb_lower": 52697, "w_macd": -4229.2, "w_macd_sig": -4463.2, "w_macd_hist": 234.0, "w_mfi14": 53.5, "w_rsi14": 40.4, "w_mfi14_12w_max": 60.4, "buy1": 51810, "buy2": 63800, "buy3": 65080, "avg_buy_price": 60587, "init_stop_pin": 49220, "breakout_trail_pin": 71974, "gate1_rr": 1.46, "exec_rr": 1.82, "is_overvalued": false, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 63800.0, "fcf_eok": 1195.0, "norm_fcf_eok": null, "distb_shares": 75895600, "total_shares": 76211850, "treasury_shares": 316250, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -4551.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 48421.39, "market_cap_total_eok": 48623.16, "ev_distb_eok": 43870.39, "non_op_assets_eok": 0.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 0.0, "non_op_ratio_mcap_pct": 0.0, "non_op_ratio_book_pct": 0.0, "sotp_triggered": false, "core_op_ev_eok": 43870.39, "implied_g_distb_pct": 27.78, "implied_g_total_pct": 27.89, "implied_g_ev_pct": 25.09, "implied_g_core_ev_pct": null, "norm_g_distb_pct": null, "norm_g_ev_pct": null, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"63800\" data-shares=\"75895600\" data-total-shares=\"76211850\" data-fcf=\"1195.0\" data-net-debt=\"-4551.0\" data-non-op-assets=\"0.0\" data-bear=\"51810\" data-base=\"81250\" data-bull=\"119860\" data-base-a=\"96520\" data-bull-a=\"144980\" data-tp1=\"104600\" data-tp1-a=\"112970\" data-buy1=\"51810\" data-buy2=\"63800\" data-buy3=\"65080\" data-stop-pin=\"49220\" data-poc-low=\"74200\"></div>"};
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-10-31 09:34:17", "stock_code": "058470", "corp_name": "리노공업", "anchor_price": 55400, "primary_metric": "PER", "bench": {"stock_name": "리노공업", "close": 61700.0, "bps": 10235.0, "pbr": 5.41, "eps": 2465.0, "per": 22.47, "div_yield": 1.44, "dps": 800.0, "market_cap_str": "4조 2,221억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 7767.91, "mcap_eok": 42046.16, "non_op_assets_eok": 420.0, "recognized_non_op_eok": 294.0, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 5.41, "non_op_ratio_mcap_pct": 1.0, "non_op_max_ratio_pct": 5.41, "core_bps": 9682, "nopat_eok": 1633.55, "core_roic_pct": 22.23, "core_profit_sustainable": true, "implied_core_op_ev_eok": 37201.16}, "step1_2_bottleneck": {"is_phase2": true, "is_early_ignition": false, "theme_name": "사용자/리포트 S-Curve Phase 2 지정 (--s-curve-phase2)", "exposure_pct": 91.73, "source_pdf": "Global_Trend 80p+ 심층 리포트 검증", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "penetration_zone": "더블 S-Curve Zone A (1차 28.5% 캐시카우 + 2차 12.0% 🔥10% 언저리 변곡점)", "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_duration_label": "⏳ 장기 구조적 병목 (30개월 / 2년+ 지속)", "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요", "capa_util_pct": 85.0, "curr_opm_pct": 49.33, "core_bottleneck_only_mode": false, "pen_base_boost": 0.11, "pen_bull_boost": 0.14, "bn_base_bonus": 0.05, "bn_bull_bonus": 0.07, "total_sc_bn_base_mult": 1.16, "total_sc_bn_bull_mult": 1.21, "peg_factor": 0.9}, "step1_8_k_return": {"payout_ratio_pct": 36.2, "tsr_pct": 36.2, "div_yield_pct": 1.44, "dps": 800.0, "treasury_shares": 316250, "treasury_ratio_pct": 0.41, "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 36.2% ≥ 25% & DPS 우상향)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 316,250주 [0.41%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "무차입 순현금·오너 지분 안정·터널링 0건·에코델타 증설 후 배당 확대 여력 풍부", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 9.91, "flags": ["④ 사업구성레짐(OPM 과거중위 39.4% → 현재 49.3%, +9.9%p [고마진 신사업 믹스 개선])"]}, "section8": {"primary_metric": "PER", "pbr_min": 2.71, "pbr_max": 13.98, "pbr_r2": 0.77, "pbr_dir": 63.2, "per_min": 17.26, "per_max": 70.25, "per_r2": 0.79, "per_dir": 63.2, "official_pbr": 5.41, "official_per": 22.47, "official_div": 1.44}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": true, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 532.0원 → 2026.2Q 869.0원 (QoQ 반등/흑자유지 ✅)", "qoq_rev_pct": 43.5, "qoq_op_pct": 55.4, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 997.7억→1,431.9억(QoQ +43.5%) | 영업이익 473.0억→735.1억(QoQ +55.4%) | 수정EPS 532원→869원", "kill_switch_guide": "차기 분기 영업이익 < 624.9억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 695원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 75.49665276109695, "bps_2y_chg": 38.19362931936209, "op_yoy_q": 37.551924604666674, "op_yoy_ttm": 34.187950879747625, "op_yoy_used": 37.551924604666674, "op_yoy_detail": "분기(2025.2Q→2026.2Q) +37.6% (534.4억 → 735.1억) | TTM 영업이익 YoY: +34.2%", "curr_roe": 24.18039773222162, "mid_cycle_roe": 21.55166795815347, "mid_cycle_eps": 1499.8677035347832, "pbr_cycle_max": 13.97693130023202, "pbr_3y_max": 13.97693130023202, "pbr_3y_mean": 6.76894040813641, "pbr_3y_p20": 5.2703629071844995, "pbr_3y_p65": 6.865894413329174, "pbr_3y_p90": 10.664288527499867, "per_3y_max": 70.2487532819756, "per_3y_mean": 37.58659466766759, "per_3y_p20": 30.191430134326684, "per_3y_p65": 38.12441304477517, "per_3y_p90": 52.96597783106452, "curr_eps_used": 2465.0, "curr_bps_used": 10235.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 133.46, "median_52w_range_pct": 87.73, "effective_52w_range": 87.73, "forward_bps": 10235.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.08, "sc_base_mult": 1.16, "sc_bull_mult": 1.21, "kgov_mult": 1.0, "peg_factor_used": 0.9, "base_mult_a": 1.2528, "bull_mult_a": 1.3068, "scurve_info": {"is_phase2": true, "is_early_ignition": false, "theme_name": "사용자/리포트 S-Curve Phase 2 지정 (--s-curve-phase2)", "exposure_pct": 91.73, "source_pdf": "Global_Trend 80p+ 심층 리포트 검증", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요"}, "tp1_price": 104600, "tp1_price_a": 112970, "tp1_upside": 88.81, "tp1_upside_a": 103.92, "bear_auto": 53940, "base_auto": 82120, "bull_auto": 119860, "base_auto_a": 102880, "bull_auto_a": 156630, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 2663.3, "implied_op_bull_a_eok": 2877.4}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ +55.4%, YoY +37.6%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(4,551.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 55400, "d_low20": 55300, "poc_low": 82900, "poc_high": 89800, "poc_pct": 31.4, "poc_trail_pin": 80413, "d_ma5": 60500, "d_ma20": 71565, "d_ma60": 69295, "vol_ma20": 1020730, "vol_ratio": 0.8, "stoch_k": 11.7, "stoch_d": 9.2, "w_close": 55400, "w_ma10": 70450, "w_ma20": 72050, "w_ma60": 79544, "bb_upper": 90912, "bb_lower": 53188, "w_macd": -5546.5, "w_macd_sig": -4711.8, "w_macd_hist": -834.7, "w_mfi14": 52.9, "w_rsi14": 36.5, "w_mfi14_12w_max": 60.4, "buy1": 52080, "buy2": 55400, "buy3": 56510, "avg_buy_price": 54737, "init_stop_pin": 49480, "breakout_trail_pin": 80413, "gate1_rr": 18.3, "exec_rr": 5.21, "is_overvalued": false, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 55400.0, "fcf_eok": 980.0, "norm_fcf_eok": 1195.0, "distb_shares": 75895600, "total_shares": 76211850, "treasury_shares": 316250, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -4551.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 42046.16, "market_cap_total_eok": 42221.36, "ev_distb_eok": 37495.16, "non_op_assets_eok": 420.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 294.0, "non_op_ratio_mcap_pct": 1.0, "non_op_ratio_book_pct": 5.41, "sotp_triggered": false, "core_op_ev_eok": 37201.16, "implied_g_distb_pct": 29.36, "implied_g_total_pct": 29.47, "implied_g_ev_pct": 26.21, "implied_g_core_ev_pct": null, "norm_g_distb_pct": 23.95, "norm_g_ev_pct": 20.91, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"55400\" data-shares=\"75895600\" data-total-shares=\"76211850\" data-fcf=\"980.0\" data-reported-fcf=\"980.0\" data-net-debt=\"-4551.0\" data-non-op-assets=\"294.0\" data-bear=\"53940\" data-base=\"82120\" data-bull=\"119860\" data-base-a=\"102880\" data-bull-a=\"156630\" data-tp1=\"104600\" data-tp1-a=\"112970\" data-buy1=\"52080\" data-buy2=\"55400\" data-buy3=\"56510\" data-stop-pin=\"49480\" data-poc-low=\"82900\"></div>", "data_quality": {"status": "ok", "warnings": []}};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -861,7 +988,14 @@ p > em {
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -972,7 +1106,7 @@ p > em {
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +

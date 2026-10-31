@@ -30,6 +30,7 @@ from ssot_common import STOCK_RESEARCH_ROOT  # noqa: E402
 EPS = 1e-6
 CAP_BASE_A = 1.38
 CAP_BULL_A = 1.45
+FLOOR_MULT_A = 0.80
 
 PHASE1_REQUIRED = ["Step 1.2", "Step 1.5", "Step 1.8", "Step 2.0", "Step 3.5"]
 PHASE3_REQUIRED = ["레드팀", "안전핀"]
@@ -129,11 +130,17 @@ def check_ssot(d, res):
         if not (buys[0] <= buys[1] <= buys[2]):
             res.warn(f"buy ladder not ascending: {buys}")
 
-    # --- Multiplier caps (v4.3 dual hard cap) ---
-    if _num(s3.get("base_mult_a")) is not None and s3["base_mult_a"] > CAP_BASE_A + EPS:
-        res.err(f"base_mult_a={s3['base_mult_a']} exceeds cap {CAP_BASE_A}")
-    if _num(s3.get("bull_mult_a")) is not None and s3["bull_mult_a"] > CAP_BULL_A + EPS:
-        res.err(f"bull_mult_a={s3['bull_mult_a']} exceeds cap {CAP_BULL_A}")
+    # --- Multiplier caps & de-rating floor (v4.3 / v5.1 dual hard cap & floor) ---
+    if _num(s3.get("base_mult_a")) is not None:
+        if s3["base_mult_a"] > CAP_BASE_A + EPS:
+            res.err(f"base_mult_a={s3['base_mult_a']} exceeds cap {CAP_BASE_A}")
+        if s3["base_mult_a"] < FLOOR_MULT_A - EPS:
+            res.err(f"base_mult_a={s3['base_mult_a']} below floor {FLOOR_MULT_A}")
+    if _num(s3.get("bull_mult_a")) is not None:
+        if s3["bull_mult_a"] > CAP_BULL_A + EPS:
+            res.err(f"bull_mult_a={s3['bull_mult_a']} exceeds cap {CAP_BULL_A}")
+        if s3["bull_mult_a"] < FLOOR_MULT_A - EPS:
+            res.err(f"bull_mult_a={s3['bull_mult_a']} below floor {FLOOR_MULT_A}")
 
     # --- Scenario ordering ---
     for lo, hi in (("bear_auto", "base_auto"), ("base_auto", "bull_auto"), ("base_auto_a", "bull_auto_a")):
