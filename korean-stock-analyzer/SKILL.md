@@ -127,5 +127,6 @@ Gemini AI Pro 환경에서 **1순위(보고서 퀄리티 극대화)**와 **2순�
 
 ---
 
-## ✅ 최종 출력 직전 핀셋 자가 검증 게이트 (`ksa_orchestrator.py build --patch-ssot`)
+## ✅ 최종 출력 직전 핀셋 자가 검증 게이트 (`ksa_orchestrator.py build --patch-ssot`) & Ver.5 전담 푸시 규율
 모든 보고서 작성 및 델타 업데이트의 마무리는 반드시 `python e:\antigravity-work\my-skill\korean-stock-analyzer\ksa_orchestrator.py build --corp-name [기업명] --patch-ssot` 실행 결과 **`[PASS]`** 확인으로 종료합니다(모바일 통합요약본은 별도 요청 시에만 `'holding'` 종목 한정으로 `generate_mobile_summary.py` 실행).
+향후 v6으로 전면 리프레이밍하기 전까지 모든 GitHub 커밋 & 푸시 작업은 반드시 **`my-skill-ver.5` 저장소(`origin`)**로 수행하며, 기존 v4.3.2 최종본(`my-skill-Ver.4`)과 엄격히 분리하여 영구 보존합니다.

@@ -68,3 +68,4 @@
 ## 3. 반자동 Learn 및 GitHub 히스토리 동기화 규칙
 1. **반자동 Learn 게이트**: 에이전트가 임의로 `SKILL.md`를 무단 수정하는 것을 금지하며, 전 기업 공통 규칙 추가가 필요할 때만 답변 하단에 `[📌 SKILL.md 규칙 추가 제안]`을 제시하고 사용자 승인 후 반영합니다.
 2. **GitHub 커밋 & 푸시 시 `히스토리.md` 동기화**: 커밋 & 푸시 요청 시 ① `e:\antigravity-work\히스토리.md` 업데이트 ➔ ② `python e:\antigravity-work\sync_history.py` 실행 ➔ ③ `히스토리.md` 포함 `git add / commit / push`를 의무 수행합니다.
+3. **v6 전면 리프레이밍 전까지 Ver.5 저장소(`my-skill-ver.5`) 전담 푸시 규칙**: 향후 v6으로 전면 리프레이밍하기 전까지 `my-skill`의 모든 커밋 & 푸시 작업은 반드시 GitHub `my-skill-ver.5` 저장소(`origin`)를 대상으로 수행하며, 기존 v4.3.2 최종본(`my-skill-Ver.4`)과 엄격히 분리하여 영구 보존합니다.
