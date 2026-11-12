@@ -26,8 +26,10 @@
      ```powershell
      python e:\antigravity-work\my-skill\korean-stock-analyzer\ksa_orchestrator.py build --corp-name [기업명] --patch-ssot
      ```
-5. **[모델 세대교체 커스텀 지원 (`model_config.json`)]**:
-   - **1순위 최상위 추론 모델(`Tier-1`: 현 `Gemini 4.0 Argon (Medium)`)**과 **2순위 고속 구조화 모델(`Tier-2`: 현 `Gemini 3.8 Flash High`)** 설정은 `korean-stock-analyzer/model_config.json`에서 관리하며, 후속 모델(예: `Argon Flash`, `Gemini 5.0`) 출시 시 `python ksa_orchestrator.py set-models --tier1 "..." --tier2 "..."`로 즉시 커스텀합니다.
+5. **[모델 세대교체 커스텀 지원 (`model_config.json`) & 프롬프트 캐싱 95% 할인 프리픽스 고정 (`static_cache_prefix.md`)]**:
+   - **1순위 최상위 추론 모델(`Tier-1`: 현 `Gemini 4.0 Argon (Medium / High)`)**과 **2순위 고속 구조화 모델(`Tier-2`: 현 `Gemini 3.8 Flash High`)** 설정은 `korean-stock-analyzer/model_config.json`에서 관리하며, 후속 모델 출시 시 `python ksa_orchestrator.py set-models --tier1 "..." --tier2 "..."`로 즉시 커스텀합니다.
+   - **[프롬프트 캐싱(Prefix Caching, $2.00 ➔ $0.10/1M 95% 할인) 절대 규율]**: `ai_prep_digest.md`의 최상단에는 전 종목 100% 동일한 정적 블록(`korean-stock-analyzer/static_cache_prefix.md` — 시스템 프롬프트 + DART XBRL/IFRS 표준 스키마 + 주봉 스윙 수식 + 엔지니어링 스펙 해독 규율, 4,096+ 토큰)을 고정 배치하고, 기업명·생성시각·실측 테이블 등 모든 가변 데이터는 반드시 정적 프리픽스 하단(Suffix)에 배치합니다.
+   - **[Argon 4.0 최적 작업 1·2 연동]**: ① Phase 3 Section 4 작성 시 `[코드 자동 생성 2-C]`의 **주봉 5·20·60·120주선 이격도 + 주봉 MFI/MACD + 104주 거래량 프로파일(매물대 POC) + DART 영업이익 모멘텀 결합 스윙 점수(`w_swing_score`, `w_swing_grade`)**를 마스터 SOP 타점 근거로 인용하며, ② LNG/조선/반도체/전력기기 등 고난도 영문 엔지니어링 절차서(연료가스 치환 Displacement, 퍼징 Purging, Cold Drain Drum, 극저온 칠러/스크러버 등) 및 해외 학술 논문 해독 시 **Argon 4.0 (High)**의 4단계 물리·재무 인과 사슬(`공정 메커니즘 ➔ 병목/Qual 장벽 ➔ 발주 시차 ➔ DART OPM 레버리지`)을 적용합니다.
 
 ---
 

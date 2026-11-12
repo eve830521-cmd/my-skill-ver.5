@@ -189,8 +189,15 @@ def append_extended_ssot_tables(ssot_json_path):
 | **🚀 2차 목표가 (Bull 상단)** | **최종 익절 2** | **🛡️ `{s3.get('bull_auto', 0):,}원` / 🚀 `{bull_a:,}원`** | `🛡️ {(s3.get('bull_auto', 0)/anchor - 1)*100 if anchor else 0:+.1f}% / 🚀 {(bull_a/anchor - 1)*100 if anchor else 0:+.1f}%` | `🛡️ {(s3.get('bull_auto', 0)/avg_p - 1)*100 if avg_p else 0:+.1f}% / 🚀 {(bull_a/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 주봉 MFI(14) 80 하향이탈 또는 RSI 과열 괴리 시 분할 차익실현 |
 """
 
+    swing_table = f"""
+### 📌 [코드 자동 생성 2-C] Argon 4.0 주봉 5·20·60·120주선 이격도 · 매물대(POC) · MFI/MACD · DART 실적 결합 중기 스윙 타점표
+| 주봉 5·20·60·120주선 & 이격도(%) | 주봉 104주 최다 매물대(Volume Profile POC) | 주간 수급 (MFI 14W / RSI 14W) | 주봉 MACD (12, 26, 9) | 🏆 중기 스윙 결합 점수 & 타점 판정 |
+| :--- | :--- | :--- | :--- | :--- |
+| • **5주선**: `{s4.get('w_ma5', 0):,}원` (`{s4.get('w_disp5_pct', 0.0):+.1f}%`)<br>• **20주선**: `{s4.get('w_ma20', 0):,}원` (`{s4.get('w_disp20_pct', 0.0):+.1f}%`)<br>• **60주선**: `{s4.get('w_ma60', 0):,}원` (`{s4.get('w_disp60_pct', 0.0):+.1f}%`)<br>• **120주선**: `{s4.get('w_ma120', 0):,}원` (`{s4.get('w_disp120_pct', 0.0):+.1f}%`) | • **POC 구간**: `{s4.get('w_poc_low', 0):,}~{s4.get('w_poc_high', 0):,}원`<br>• **POC 중심가**: `{s4.get('w_poc_price', 0):,}원` (비중 `{s4.get('w_poc_pct', 0.0):.1f}%`)<br>• **현재가 이격**: `{s4.get('w_vp_dist_pct', 0.0):+.1f}%`<br>• **판정**: **`{s4.get('w_vp_status', 'N/A')}`** | • **주봉 MFI(14)**: **`{s4.get('w_mfi14', 50.0):.1f}`**<br>• **12주 최고 MFI**: `{s4.get('w_mfi14_12w_max', 50.0):.1f}`<br>• **주봉 RSI(14)**: `{s4.get('w_rsi14', 50.0):.1f}` | • **MACD**: `{s4.get('w_macd', 0.0):,.1f}`<br>• **Signal**: `{s4.get('w_macd_sig', 0.0):,.1f}`<br>• **Hist**: **`{s4.get('w_macd_hist', 0.0):+,.1f}`** | • **통합 점수**: **`{s4.get('w_swing_score', 50)}점 ({s4.get('w_swing_grade', 'B')}등급)`**<br>• **최종 시그널**: **{s4.get('w_swing_signal', 'N/A')}** |
+"""
+
     if "[코드 자동 생성 1-C]" not in auto_md:
-        auto_md = auto_md + "\n" + dcf_table.strip() + "\n\n" + sop_table.strip() + "\n"
+        auto_md = auto_md + "\n" + dcf_table.strip() + "\n\n" + sop_table.strip() + "\n\n" + swing_table.strip() + "\n"
         with open(auto_md_path, "w", encoding="utf-8") as f:
             f.write(auto_md)
 
@@ -453,9 +460,20 @@ def build_ai_prep_digest(comp_dir, corp_name):
     verbatim_path = os.path.join(comp_dir, "2_Translated_DB", "verbatim_extracts.md")
     verbatim_txt = open(verbatim_path, "r", encoding="utf-8").read() if os.path.exists(verbatim_path) else "(신규 PDF 발췌 없음)"
 
-    digest_content = f"""# 🧠 [{corp_name}] AI 원샷 통합 브리핑 문서 (`ai_prep_digest.md` — v5.0)
-> **생성 시각**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-> **목적**: 에이전트가 수십 번 `read_file`을 반복 호출하지 않고, **단 1회의 파일 읽기**만으로 ① 트랙 판정, ② 코드 확정 SSOT 표 전체, ③ 기존 6열 가설/타임라인, ④ 2-Tier 무손실 PDF 원문 발췌본을 100% 파악하도록 통합한 문서입니다.
+    static_prefix_path = os.path.join(SKILL_DIR, "static_cache_prefix.md")
+    static_prefix_txt = (
+        open(static_prefix_path, "r", encoding="utf-8").read().strip()
+        if os.path.exists(static_prefix_path)
+        else "# 🔒 [STATIC PROMPT CACHE PREFIX]"
+    )
+
+    digest_content = f"""{static_prefix_txt}
+
+---
+
+# 🧠 [{corp_name}] AI 원샷 통합 브리핑 문서 (`ai_prep_digest.md` — v5.1 Prompt-Cache Optimized)
+> **생성 시각 (Dynamic Suffix Area)**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+> **프롬프트 캐싱 구조**: 본 문서의 최상단(`[STATIC PROMPT CACHE PREFIX]`, 4,096+ 토큰 스키마·수식 정의서)은 전 종목 100% 고정되어 반복 호출 시 입력 토큰 비용 95% 할인($2.00 ➔ $0.10/1M) 및 캐시 히트를 보장하며, 기업별 가변 데이터는 모두 본 구분선 아래(Suffix)에 배치됩니다.
 
 ---
 

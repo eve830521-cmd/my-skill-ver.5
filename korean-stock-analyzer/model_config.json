@@ -1,17 +1,25 @@
 {
-  "version": "5.0",
-  "updated_at": "2026-11-01",
+  "version": "5.1",
+  "updated_at": "2026-11-12",
   "priority_1_goal": "보고서 퀄리티 및 수리·논리적 무결성 100% 사수 (Report Quality First)",
-  "priority_2_goal": "도구 호출 최소화(One-Shot Prep & Build) 기반 토큰 소비 효율성 극대화 (Token Efficiency Second)",
+  "priority_2_goal": "도구 호출 최소화(One-Shot Prep & Build) 및 4,096+ 토큰 정적 프리픽스 캐싱(95% 입력 비용 할인: $2.00 -> $0.10/1M) 기반 토큰 효율성 극대화",
+  "prompt_caching_policy": {
+    "enabled": true,
+    "static_prefix_file": "korean-stock-analyzer/static_cache_prefix.md",
+    "min_tokens_threshold": 4096,
+    "discount_rate": "95% ($2.00 -> $0.10 / 1M input tokens)",
+    "rule": "시스템 프롬프트 및 DART XBRL/IFRS 스키마 정의서(static_cache_prefix.md)를 ai_prep_digest.md 최상단에 고정하고, 기업명·타임스탬프·실시간 수치 등 가변 데이터는 반드시 프리픽스 구분선 하단(Suffix)에 배치하여 반복 호출 시 캐시 적중률(Cache Hit) 100% 유지"
+  },
   "tier1_model": {
-    "role": "1순위 최상위 추론 모델 (Flagship Deep-Reasoning Model)",
-    "name": "Gemini 4.0 Argon (Medium)",
-    "short_name": "4.0 Argon (Medium)",
+    "role": "1순위 최상위 심층 추론 및 엔지니어링 해독 모델 (Flagship Deep-Reasoning Model)",
+    "name": "Gemini 4.0 Argon (Medium / High)",
+    "short_name": "4.0 Argon",
     "future_examples": ["Gemini 4.0 Argon (High)", "Gemini 4.5 Pro", "Gemini 5.0 Ultra"],
     "best_for": [
-      "신규 기업 최초 Phase 1~3 심층 분석 (Track A)",
-      "정기 분기·반기·사업보고서 발표 및 빅 이벤트 시 전면 클린 리빌드 (Track A)",
-      "Global Trend / Weekly Trend 반영 격주 핀셋 델타 점검 (Track B — 원샷 오케스트레이터 연동 시 주간 한도 1~1.5% 내외 소모)",
+      "[최적 작업 1] 주봉 5·20·60·120주선 이격도 + 주간 MFI/MACD + 104주 거래량 프로파일(매물대 POC) + DART 영업이익률(OPM) 결합 중기 스윙 타점 설계",
+      "[최적 작업 2] LNG 터미널 공정(연료가스 치환 Displacement, 퍼징 Purging, Cold Drain Drum), 반도체 극저온 식각/스크러버/칠러 등 고난도 영문 엔지니어링 스펙 시트 및 해외 학술 논문 4단계 인과관계 해독 (Argon High 권장)",
+      "신규 기업 최초 Phase 1~3 심층 분석 및 정기 보고서 발표 시 전면 클린 리빌드 (Track A)",
+      "Global Trend / Weekly Trend 반영 격주 핀셋 델타 점검 (Track B — 원샷 오케스트레이터 + 정적 프리픽스 캐싱 연동)",
       "Step 1.2 3축 구조적 병목 리드타임 추정 및 Step 1.8 K-주주환원·거버넌스 심층 해독"
     ]
   },

@@ -2648,9 +2648,49 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
     if not df_week.empty:
         curr_w_close = float(df_week["close"].iloc[-1])
         curr_w_date = df_week["date"].iloc[-1].strftime("%Y-%m-%d")
+        w_ma5 = float(df_week["close"].rolling(5, min_periods=1).mean().iloc[-1])
         w_ma10 = float(df_week["close"].rolling(10, min_periods=1).mean().iloc[-1])
         w_ma20 = float(df_week["close"].rolling(20, min_periods=1).mean().iloc[-1])
         w_ma60 = float(df_week["close"].rolling(60, min_periods=1).mean().iloc[-1])
+        w_ma120 = float(df_week["close"].rolling(120, min_periods=1).mean().iloc[-1])
+
+        w_disp5 = round((curr_w_close / w_ma5 - 1.0) * 100.0, 2) if w_ma5 > 0 else 0.0
+        w_disp20 = round((curr_w_close / w_ma20 - 1.0) * 100.0, 2) if w_ma20 > 0 else 0.0
+        w_disp60 = round((curr_w_close / w_ma60 - 1.0) * 100.0, 2) if w_ma60 > 0 else 0.0
+        w_disp120 = round((curr_w_close / w_ma120 - 1.0) * 100.0, 2) if w_ma120 > 0 else 0.0
+
+        # 주봉 104주(2년) 거래량 프로파일(매물분석도 Volume Profile POC) 산출
+        recent_w = df_week.tail(104).copy()
+        wp_min = float(recent_w["low"].min())
+        wp_max = float(recent_w["high"].max())
+        if wp_max <= wp_min:
+            wp_max = wp_min + 1.0
+        w_bins = np.linspace(wp_min, wp_max, 11)  # 10개 가격대 매물 구간
+        recent_w["tp"] = (recent_w["high"] + recent_w["low"] + recent_w["close"]) / 3.0
+        total_vw = float(recent_w["vol"].sum())
+        w_bin_vols = []
+        for i in range(10):
+            lb, hb = w_bins[i], w_bins[i + 1]
+            mask = (recent_w["tp"] >= lb) & (recent_w["tp"] <= hb if i == 9 else recent_w["tp"] < hb)
+            v_s = float(recent_w.loc[mask, "vol"].sum())
+            v_pct = (v_s / total_vw * 100.0) if total_vw > 0 else 0.0
+            w_bin_vols.append((int(round(lb)), int(round(hb)), v_s, v_pct))
+        w_poc_bin = max(w_bin_vols, key=lambda x: x[2])
+        w_poc_low, w_poc_high, _, w_poc_pct = w_poc_bin
+        w_poc_price = int(round(0.5 * (w_poc_low + w_poc_high)))
+        w_vp_dist_pct = round((curr_w_close / w_poc_price - 1.0) * 100.0, 2) if w_poc_price > 0 else 0.0
+        if 0.0 <= w_vp_dist_pct <= 12.0:
+            w_vp_status = "POC돌파지지(+15점)"
+            vp_pts = 15
+        elif w_vp_dist_pct > 12.0:
+            w_vp_status = "매물벽상단순항(+10점)"
+            vp_pts = 10 if w_vp_dist_pct <= 30.0 else 4
+        elif -6.0 <= w_vp_dist_pct < 0.0:
+            w_vp_status = "POC돌파시도(+6점)"
+            vp_pts = 6
+        else:
+            w_vp_status = "매물벽하단저항(-8점)"
+            vp_pts = -8
 
         w_std20_raw = df_week["close"].rolling(20, min_periods=1).std().iloc[-1]
         w_std20 = float(w_std20_raw) if pd.notna(w_std20_raw) else 0.0
@@ -2689,9 +2729,37 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
         divergence_warn = (curr_rsi >= 70.0) and (curr_mfi < 70.0)
         mfi_peakout_warn = (max_12w_mfi >= 80.0) and (curr_mfi < 80.0)
 
+        # [Argon 4.0 최적 작업 1] 주봉 5·20·60·120주선 이격도 + 매물대(POC) + MFI/MACD + DART 영업이익 모멘텀 결합 스윙 점수
+        ma_pts = 12 if (w_ma5 >= w_ma20 >= w_ma60) else (7 if w_ma20 >= w_ma60 else (-10 if curr_w_close < w_ma60 else 0))
+        if w_ma60 >= w_ma120:
+            ma_pts += 4
+        if -3.0 <= w_disp20 <= 12.0 and curr_w_close >= w_ma60:
+            ma_pts += 10
+        elif w_disp20 > 28.0:
+            ma_pts -= 12
+
+        mom_pts = (8 if 45.0 <= curr_mfi <= 72.0 else (-8 if curr_mfi > 80.0 else 4)) + (
+            8 if (curr_hist > 0 and curr_macd >= curr_sig) else (4 if curr_hist > 0 else -6)
+        )
+        op_yoy_v = float(sec2_res.get("op_yoy_used") or 0.0)
+        qoq_op_v = float(sec2_res.get("qoq_op_pct") or 0.0)
+        opm_pts = 15 if (op_yoy_v >= 25.0 and qoq_op_v >= 0.0) else (5 if op_yoy_v > 0 else (-15 if qoq_op_v <= -15.0 else 0))
+        w_swing_score = max(0, min(100, int(round(50 + ma_pts + vp_pts + mom_pts + opm_pts))))
+        if w_swing_score >= 80 and opm_pts >= 5 and w_vp_dist_pct >= 0:
+            w_swing_grade, w_swing_signal = "S", "🎯 S급 중기 스윙 타점 (DART 이익가속 + 주봉 POC 매물대 돌파 + 20주선 골든 이격)"
+        elif w_swing_score >= 68:
+            w_swing_grade, w_swing_signal = "A", "🟢 A급 중기 스윙 우위 (정배열·매물대 상단 안착)"
+        elif w_swing_score >= 50:
+            w_swing_grade, w_swing_signal = "B", "🔵 B급 눌림목/지지 확인 (20주선 및 POC 지지 체크)"
+        else:
+            w_swing_grade, w_swing_signal = "C", "🟠 C급 보수적 관망 (매물벽 저항 또는 실적 모멘텀 대기)"
+
         print(f"\n  [주봉 (Weekly, 기준일: {curr_w_date}, 종가: {curr_w_close:,.0f}원)]")
         print(
-            f"    - 주봉 이동평균선:   10주선 {int(round(w_ma10)):,}원 | 20주선 {int(round(w_ma20)):,}원 | 60주선 {int(round(w_ma60)):,}원"
+            f"    - 주봉 이동평균선:   5주선 {int(round(w_ma5)):,}원({w_disp5:+.1f}%) | 20주선 {int(round(w_ma20)):,}원({w_disp20:+.1f}%) | 60주선 {int(round(w_ma60)):,}원({w_disp60:+.1f}%) | 120주선 {int(round(w_ma120)):,}원({w_disp120:+.1f}%)"
+        )
+        print(
+            f"    - 주봉 104주 매물대(POC): {w_poc_low:,}~{w_poc_high:,}원 (중심 {w_poc_price:,}원, 비중 {w_poc_pct:.1f}%, 현재가 이격 {w_vp_dist_pct:+.1f}% ➔ {w_vp_status})"
         )
         print(
             f"    - 주봉 볼린저밴드(20, 2): 상단 {int(round(bb_upper)):,}원 | 중심(20주) {int(round(w_ma20)):,}원 | 하단 {int(round(bb_lower)):,}원"
@@ -2705,12 +2773,27 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
         print(
             f"    - 고점경보 판독:     1호(주봉 MFI 80 하향이탈): {'🚨경보' if mfi_peakout_warn else '정상'} | 2호(RSI≥70 & MFI<70 괴리): {'🚨경보' if divergence_warn else '정상'}"
         )
+        print(
+            f"    - 🏆 [Argon 4.0 주봉 기술+DART 실적 결합 스윙 판정]: {w_swing_score}점 ({w_swing_grade}등급) — {w_swing_signal}"
+        )
 
         res.update({
             "w_close": int(round(curr_w_close)),
+            "w_ma5": int(round(w_ma5)),
             "w_ma10": int(round(w_ma10)),
             "w_ma20": int(round(w_ma20)),
             "w_ma60": int(round(w_ma60)),
+            "w_ma120": int(round(w_ma120)),
+            "w_disp5_pct": w_disp5,
+            "w_disp20_pct": w_disp20,
+            "w_disp60_pct": w_disp60,
+            "w_disp120_pct": w_disp120,
+            "w_poc_low": w_poc_low,
+            "w_poc_high": w_poc_high,
+            "w_poc_price": w_poc_price,
+            "w_poc_pct": round(w_poc_pct, 1),
+            "w_vp_dist_pct": w_vp_dist_pct,
+            "w_vp_status": w_vp_status,
             "bb_upper": int(round(bb_upper)),
             "bb_lower": int(round(bb_lower)),
             "w_macd": round(curr_macd, 1),
@@ -2719,6 +2802,9 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
             "w_mfi14": round(curr_mfi, 1),
             "w_rsi14": round(curr_rsi, 1),
             "w_mfi14_12w_max": round(max_12w_mfi, 1),
+            "w_swing_score": w_swing_score,
+            "w_swing_grade": w_swing_grade,
+            "w_swing_signal": w_swing_signal,
         })
 
     curr_p = res.get("d_close") or res.get("w_close") or 10000
