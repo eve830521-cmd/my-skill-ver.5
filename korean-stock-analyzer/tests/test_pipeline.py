@@ -116,6 +116,80 @@ class ValidatorCatchesBreakage(unittest.TestCase):
         self.d["section2"]["kill_switch_guide"] = ""
         self.assertTrue(any("kill_switch_guide" in e for e in self._errs(self.d)))
 
+    def test_validator_catches_phase1_phase2_anchor_drift(self):
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "테스트기업")
+            os.makedirs(os.path.join(comp, "2_Translated_DB"), exist_ok=True)
+            os.makedirs(os.path.join(comp, "3_Final_Reports"), exist_ok=True)
+            os.makedirs(os.path.join(comp, "Weekly_Trend"), exist_ok=True)
+            d = json.loads(json.dumps(self.d))
+            d["anchor_price"] = 170000
+            d["reverse_dcf"]["price"] = 170000
+            d["canonical_html_tag"] = vr.re.sub(r'data-price="[^"]*"', 'data-price="170000"', d["canonical_html_tag"])
+            with open(os.path.join(comp, "2_Translated_DB", "valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(d, f, ensure_ascii=False)
+            with open(os.path.join(comp, "3_Final_Reports", "Phase1_Report.md"), "w", encoding="utf-8") as f:
+                f.write("- **단일 기준 주가(Single Price Anchor)**: **`170,400원`**\nStep 1.2 Step 1.5 Step 1.8 Step 2.0 Step 3.5\n")
+            with open(os.path.join(comp, "3_Final_Reports", "Phase2_Story.md"), "w", encoding="utf-8") as f:
+                f.write("> **[파이프라인 SSOT 단일 기준 주가]**: **`173,600원`**\n")
+            with open(os.path.join(comp, "3_Final_Reports", "Phase3_DCF.md"), "w", encoding="utf-8") as f:
+                f.write("레드팀 안전핀\n")
+            res = vr.validate_company(comp)
+            self.assertTrue(any("Phase1_Report.md" in e and "170,400" in e for e in res.errors), res.errors)
+            self.assertTrue(any("Phase2_Story.md" in e and "173,600" in e for e in res.errors), res.errors)
+
+    def test_patch_ssot_updates_h2_phase1_and_phase2_anchor(self):
+        import ksa_orchestrator as ko
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "테스트기업")
+            os.makedirs(os.path.join(comp, "2_Translated_DB"), exist_ok=True)
+            os.makedirs(os.path.join(comp, "3_Final_Reports"), exist_ok=True)
+            os.makedirs(os.path.join(comp, "Weekly_Trend"), exist_ok=True)
+            d = json.loads(json.dumps(self.d))
+            d["anchor_price"] = 170000
+            d["reverse_dcf"]["price"] = 170000
+            d["canonical_html_tag"] = vr.re.sub(r'data-price="[^"]*"', 'data-price="170000"', d["canonical_html_tag"])
+            with open(os.path.join(comp, "2_Translated_DB", "valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(d, f, ensure_ascii=False)
+            # Simulate repeated prep overwriting prev_valuation_metrics.json with identical anchor_price
+            with open(os.path.join(comp, "2_Translated_DB", "prev_valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(d, f, ensure_ascii=False)
+            with open(os.path.join(comp, "2_Translated_DB", "auto_tables.md"), "w", encoding="utf-8") as f:
+                f.write(
+                    "### 📌 [코드 자동 생성 1] SOTP 장부 분해\n"
+                    "| 항목 | 수치 |\n| :--- | :--- |\n| **단일 기준 주가 (Anchor Price)** | **`170,000원`** |\n"
+                )
+            with open(os.path.join(comp, "3_Final_Reports", "Phase1_Report.md"), "w", encoding="utf-8") as f:
+                f.write(
+                    "- **단일 기준 주가(Single Price Anchor)**: **`170,400원`**\n\n"
+                    "## 📌 [코드 자동 생성 1] SOTP 장부 분해\n"
+                    "| 항목 | 수치 |\n| :--- | :--- |\n| **단일 기준 주가 (Anchor Price)** | **`170,400원`** |\n\n"
+                    "---\nStep 1.2 Step 1.5 Step 1.8 Step 2.0 Step 3.5\n"
+                )
+            with open(os.path.join(comp, "3_Final_Reports", "Phase2_Story.md"), "w", encoding="utf-8") as f:
+                f.write(
+                    "> **[파이프라인 SSOT 단일 기준 주가]**: **`173,600원`** (`2026-11-13`)\n"
+                    "현재 주가 173,600원은 납입가(204,500원) 대비 할인 상태.\n"
+                    '<div id="dcf-calculator-root" data-price="173600" data-bear="100"></div>\n'
+                )
+            s3, s4 = d["section3"], d["section4"]
+            with open(os.path.join(comp, "3_Final_Reports", "Phase3_DCF.md"), "w", encoding="utf-8") as f:
+                f.write(
+                    f"> **단일 기준 주가 (Anchor Price)**: **`170,000원`**\n"
+                    f"레드팀 안전핀 {s4['buy1']:,} {s4['buy2']:,} {s4['buy3']:,} {s4['init_stop_pin']:,} {s3['base_auto_a']:,} {s3['tp1_price']:,}\n"
+                    '<div id="dcf-calculator-root" data-price="173600"></div>\n'
+                )
+            with open(os.path.join(comp, "Weekly_Trend", "thesis_log.md"), "w", encoding="utf-8") as f:
+                f.write("| 가설 ID | 핵심 | QoQ | 근거 | 반증 Kill-Switch | 판정 |\n| --- | --- | --- | --- | --- | --- |\n| H1 | t | q | f | k | ok |\n")
+            ko.patch_ssot_into_reports(comp)
+            res = vr.validate_company(comp)
+            self.assertEqual(res.errors, [], res.errors)
+            with open(os.path.join(comp, "3_Final_Reports", "Phase2_Story.md"), encoding="utf-8") as f:
+                p2 = f.read()
+            self.assertIn("170,000원", p2)
+            self.assertIn("204,500원", p2)  # historical issue price must stay untouched
+            self.assertNotIn("173,600원", p2)
+
 
 class EngineFunctionsPinned(unittest.TestCase):
     @classmethod

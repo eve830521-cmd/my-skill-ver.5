@@ -200,6 +200,29 @@ def _read(path):
         return f.read()
 
 
+_ANCHOR_DECL_LINE_RE = re.compile(
+    r"(?:(?:파이프라인\s*SSOT\s*)?단일\s*기준\s*주가|Single\s*Price\s*Anchor|단일\s*기준가|Anchor\s*Price)"
+    r"(?:\s*\([^)\n0-9]*\))?"
+    r"(?:[*\]`\s])*[:：(]\s*(?:[*`'\"]|\s)*(?P<num>[\d,]+)원"
+)
+_ANCHOR_TABLE_ROW_RE = re.compile(
+    r"^\s*\|\s*(?:[*`'\"]|\s)*(?:단일\s*기준\s*주가|Anchor\s*Price)[^|\n]*\|\s*(?:[*`'\"]|\s)*(?P<num>[\d,]+)원"
+)
+
+
+def _extract_declared_anchors(text):
+    """Returns list of (line_no, val) for explicit Single Price Anchor declarations."""
+    hits = []
+    for idx, ln in enumerate(text.splitlines(), 1):
+        m = _ANCHOR_DECL_LINE_RE.search(ln) or _ANCHOR_TABLE_ROW_RE.search(ln)
+        if m:
+            try:
+                hits.append((idx, int(m.group("num").replace(",", ""))))
+            except ValueError:
+                pass
+    return hits
+
+
 def check_reports(folder, d, res):
     rpt = os.path.join(folder, "3_Final_Reports")
     p1, p2, p3 = (os.path.join(rpt, n) for n in ("Phase1_Report.md", "Phase2_Story.md", "Phase3_DCF.md"))
@@ -228,6 +251,34 @@ def check_reports(folder, d, res):
             for k, v in probes.items():
                 if v and f"{int(round(v)):,}" not in t3 and str(int(round(v))) not in t3:
                     res.warn(f"Phase3 does not contain SSOT {k}={int(round(v)):,} (stale report or different format)")
+
+    # --- Cross-report SSOT anchor_price & calculator tag verification across Phase 1~3 ---
+    if d and d.get("anchor_price"):
+        ssot_anchor = _num(d.get("anchor_price"))
+        s3_d, s4_d = d.get("section3", {}), d.get("section4", {})
+        md_tag_expect = {
+            "price": ssot_anchor,
+            "bear": s3_d.get("bear_auto"), "base": s3_d.get("base_auto"), "bull": s3_d.get("bull_auto"),
+            "base-a": s3_d.get("base_auto_a"), "bull-a": s3_d.get("bull_auto_a"),
+            "buy1": s4_d.get("buy1"), "buy2": s4_d.get("buy2"), "buy3": s4_d.get("buy3"),
+            "stop-pin": s4_d.get("init_stop_pin"),
+        }
+        for name, t in texts.items():
+            for ln_no, found_p in _extract_declared_anchors(t):
+                if ssot_anchor and 0.25 * ssot_anchor <= found_p <= 4.0 * ssot_anchor:
+                    if abs(found_p - ssot_anchor) > 0.5:
+                        res.err(
+                            f"{name}:{ln_no}: declared anchor price {found_p:,}원 != SSOT anchor_price {int(round(ssot_anchor)):,}원"
+                        )
+            for m in re.finditer(r'<div\s+id="dcf-calculator-root"[^>]*>', t):
+                attrs = _tag_attrs(m.group(0))
+                for ak, av in md_tag_expect.items():
+                    if av is None or ak not in attrs:
+                        continue
+                    parsed_av = _num(attrs.get(ak))
+                    if parsed_av is None or abs(parsed_av - float(av)) > 0.5:
+                        res.err(f"{name}: markdown <div id=\"dcf-calculator-root\"> data-{ak}={attrs.get(ak)} != SSOT {av}")
+
     for name, t in texts.items():
         for pat in PLACEHOLDER_PATTERNS:
             m = re.search(pat, t)

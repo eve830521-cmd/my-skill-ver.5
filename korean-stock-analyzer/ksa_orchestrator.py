@@ -524,10 +524,79 @@ def extract_section_from_auto_md(auto_md, header_prefix):
     return m.group(1).strip() if m else None
 
 
+def _replace_auto_section(text, hdr, new_blk):
+    """Replaces either `## 📌 [hdr]` or `### 📌 [hdr]` sections cleanly while preserving heading level."""
+    pat = rf"(?P<hashes>#{{2,3}})\s*📌\s*\[{re.escape(hdr)}\].*?(?=\n#{{1,3}}\s|\n---|\Z)"
+
+    def _repl(m):
+        hashes = m.group("hashes")
+        blk_body = re.sub(r"^#{2,3}\s+", f"{hashes} ", new_blk.strip(), count=1)
+        return blk_body + "\n"
+
+    return re.sub(pat, _repl, text, count=1, flags=re.DOTALL)
+
+
+_ANCHOR_DECL_LINE_RE = re.compile(
+    r"(?:(?:파이프라인\s*SSOT\s*)?단일\s*기준\s*주가|Single\s*Price\s*Anchor|단일\s*기준가|Anchor\s*Price)"
+    r"(?:\s*\([^)\n0-9]*\))?"
+    r"(?:[*\]`\s])*[:：(]\s*(?:[*`'\"]|\s)*(?P<num>[\d,]+)원"
+)
+_ANCHOR_TABLE_ROW_RE = re.compile(
+    r"^\s*\|\s*(?:[*`'\"]|\s)*(?:단일\s*기준\s*주가|Anchor\s*Price)[^|\n]*\|\s*(?:[*`'\"]|\s)*(?P<num>[\d,]+)원"
+)
+
+
+def _sync_anchor_declarations_and_refs(text, curr_anchor, extra_stale=None):
+    """
+    Updates explicit `단일 기준 주가` / `Anchor Price` declaration lines in any Phase 1~3 report
+    to `curr_anchor` even when prev_valuation_metrics.json was overwritten, and updates stale
+    anchor-price occurrences outside historical pre-2026 timeline table rows.
+    """
+    curr_anchor = int(round(float(curr_anchor)))
+    curr_str = f"{curr_anchor:,}원"
+    stale_vals = set(int(round(float(x))) for x in (extra_stale or []) if x)
+    stale_vals.discard(curr_anchor)
+
+    lines = text.splitlines(keepends=True)
+    out_lines = []
+    for ln in lines:
+        m = _ANCHOR_DECL_LINE_RE.search(ln) or _ANCHOR_TABLE_ROW_RE.search(ln)
+        if m:
+            try:
+                found_val = int(m.group("num").replace(",", ""))
+            except ValueError:
+                found_val = None
+            if found_val and found_val != curr_anchor:
+                # Only treat plausible share-price declarations (within 0.25x..4x of curr_anchor)
+                if 0.25 * curr_anchor <= found_val <= 4.0 * curr_anchor:
+                    stale_vals.add(found_val)
+                    ln = ln[: m.start("num")] + f"{curr_anchor:,}" + ln[m.end("num") :]
+        out_lines.append(ln)
+
+    patched = "".join(out_lines)
+    if stale_vals:
+        final_lines = []
+        for ln in patched.splitlines(keepends=True):
+            stripped = ln.lstrip()
+            is_hist_row = (
+                stripped.startswith("|")
+                and bool(re.search(r"20(?:1\d|2[0-5])", stripped))
+                and "2026" not in stripped
+            )
+            if not is_hist_row:
+                for sv in sorted(stale_vals, reverse=True):
+                    old_pat = rf"(?<!\d){re.escape(f'{sv:,}')}원"
+                    ln = re.sub(old_pat, curr_str, ln)
+            final_lines.append(ln)
+        patched = "".join(final_lines)
+    return patched
+
+
 def patch_ssot_into_reports(comp_dir):
     """
     Deterministically patches SSOT tables, canonical HTML calculator tags, and updated price/SOP numbers
-    into Phase1_Report.md and Phase3_DCF.md so Track B updates require ZERO manual number editing by the LLM.
+    into Phase1_Report.md, Phase2_Story.md, and Phase3_DCF.md so Track B updates and SSOT sync
+    require ZERO manual number editing by the LLM.
     """
     ssot_path = os.path.join(comp_dir, "2_Translated_DB", "valuation_metrics.json")
     prev_path = os.path.join(comp_dir, "2_Translated_DB", "prev_valuation_metrics.json")
@@ -549,13 +618,13 @@ def patch_ssot_into_reports(comp_dir):
         except Exception:
             prev_ssot = {}
 
-    rpt_dir = os.path.join(comp_dir, "3_Final_Reports")
-    p1_path = os.path.join(rpt_dir, "Phase1_Report.md")
-    p3_path = os.path.join(rpt_dir, "Phase3_DCF.md")
+    curr_anchor = curr_ssot.get("anchor_price")
+    c_tag = curr_ssot.get("canonical_html_tag", "")
 
     # Build numeric replacement pairs (old formatted -> new formatted) if prev_ssot exists
     num_replacements = []
     sop_line_replacement = None
+    extra_stale_anchors = []
     if prev_ssot:
         old_p = prev_ssot.get("anchor_price")
         new_p = curr_ssot.get("anchor_price")
@@ -582,82 +651,75 @@ def patch_ssot_into_reports(comp_dir):
                 num_replacements.append((f"{int(ov):,}원", f"{int(nv):,}원"))
 
         if old_p and new_p and old_p != new_p:
-            num_replacements.append((f"{int(old_p):,}원", f"{int(new_p):,}원"))
+            extra_stale_anchors.append(old_p)
 
-    # Patch Phase 1
-    if os.path.exists(p1_path):
-        with open(p1_path, "r", encoding="utf-8") as f:
-            t1 = f.read()
-        orig_t1 = t1
+    rpt_dir = os.path.join(comp_dir, "3_Final_Reports")
+    all_auto_headers = (
+        "코드 자동 생성 1",
+        "코드 자동 생성 1-B",
+        "코드 자동 생성 1-C",
+        "코드 자동 생성 2",
+        "코드 자동 생성 2-B",
+        "코드 자동 생성 2-C",
+    )
 
-        for hdr in ("코드 자동 생성 1", "코드 자동 생성 1-B"):
+    for fname in ("Phase1_Report.md", "Phase2_Story.md", "Phase3_DCF.md"):
+        fpath = os.path.join(rpt_dir, fname)
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, "r", encoding="utf-8") as f:
+            txt = f.read()
+        orig_txt = txt
+
+        for hdr in all_auto_headers:
             new_blk = extract_section_from_auto_md(auto_md, hdr)
             if new_blk:
-                pat = rf"### 📌 \[{re.escape(hdr)}\].*?(?=\n### |\n---|\n## |\Z)"
-                if re.search(pat, t1, flags=re.DOTALL):
-                    t1 = re.sub(pat, new_blk + "\n", t1, count=1, flags=re.DOTALL)
+                txt = _replace_auto_section(txt, hdr, new_blk)
 
-        for old_str, new_str in num_replacements:
-            t1 = t1.replace(old_str, new_str)
-
-        if t1 != orig_t1:
-            with open(p1_path, "w", encoding="utf-8") as f:
-                f.write(t1)
-            print(f"  [Auto-Patch] Phase1_Report.md SSOT 수치 및 테이블 자동 동기화 완료.")
-
-    # Patch Phase 3
-    if os.path.exists(p3_path):
-        with open(p3_path, "r", encoding="utf-8") as f:
-            t3 = f.read()
-        orig_t3 = t3
-
-        for hdr in ("코드 자동 생성 1-C", "코드 자동 생성 2", "코드 자동 생성 2-B", "코드 자동 생성 2-C"):
-            new_blk = extract_section_from_auto_md(auto_md, hdr)
-            if new_blk:
-                pat = rf"### 📌 \[{re.escape(hdr)}\].*?(?=\n### |\n---|\n## |\Z)"
-                if re.search(pat, t3, flags=re.DOTALL):
-                    t3 = re.sub(pat, new_blk + "\n", t3, count=1, flags=re.DOTALL)
-
-        # Always replace <div id="dcf-calculator-root"...></div> with canonical_html_tag
-        c_tag = curr_ssot.get("canonical_html_tag", "")
         if c_tag:
-            t3 = re.sub(
+            txt = re.sub(
                 r'<div\s+id="dcf-calculator-root"[^>]*>\s*</div>',
                 c_tag,
-                t3,
+                txt,
                 flags=re.DOTALL,
             )
 
-        if sop_line_replacement:
-            t3 = t3.replace(sop_line_replacement[0], sop_line_replacement[1])
+        if fname == "Phase3_DCF.md" and sop_line_replacement:
+            txt = txt.replace(sop_line_replacement[0], sop_line_replacement[1])
         for old_str, new_str in num_replacements:
-            t3 = t3.replace(old_str, new_str)
+            txt = txt.replace(old_str, new_str)
 
-        # Ensure all probe numbers from validate_report.py exist in Phase 3
-        s3 = curr_ssot.get("section3", {}) or {}
-        s4 = curr_ssot.get("section4", {}) or {}
-        probes = [
-            curr_ssot.get("anchor_price"),
-            s4.get("buy1"),
-            s4.get("buy2"),
-            s4.get("buy3"),
-            s4.get("init_stop_pin"),
-            s3.get("base_auto_a"),
-            s3.get("tp1_price"),
-        ]
-        missing_probes = [
-            v for v in probes
-            if v and (f"{int(round(v)):,}" not in t3 and str(int(round(v))) not in t3)
-        ]
-        if missing_probes:
-            sop_blk = extract_section_from_auto_md(auto_md, "코드 자동 생성 2-B")
-            if sop_blk and "[코드 자동 생성 2-B]" not in t3 and c_tag in t3:
-                t3 = t3.replace(c_tag, sop_blk + "\n\n" + c_tag)
+        if curr_anchor:
+            txt = _sync_anchor_declarations_and_refs(
+                txt, curr_anchor, extra_stale=extra_stale_anchors
+            )
 
-        if t3 != orig_t3:
-            with open(p3_path, "w", encoding="utf-8") as f:
-                f.write(t3)
-            print(f"  [Auto-Patch] Phase3_DCF.md SSOT 수치·목표가·SOP·계산기 태그 자동 동기화 완료.")
+        if fname == "Phase3_DCF.md":
+            # Ensure all probe numbers from validate_report.py exist in Phase 3
+            s3 = curr_ssot.get("section3", {}) or {}
+            s4 = curr_ssot.get("section4", {}) or {}
+            probes = [
+                curr_ssot.get("anchor_price"),
+                s4.get("buy1"),
+                s4.get("buy2"),
+                s4.get("buy3"),
+                s4.get("init_stop_pin"),
+                s3.get("base_auto_a"),
+                s3.get("tp1_price"),
+            ]
+            missing_probes = [
+                v for v in probes
+                if v and (f"{int(round(v)):,}" not in txt and str(int(round(v))) not in txt)
+            ]
+            if missing_probes:
+                sop_blk = extract_section_from_auto_md(auto_md, "코드 자동 생성 2-B")
+                if sop_blk and "[코드 자동 생성 2-B]" not in txt and c_tag in txt:
+                    txt = txt.replace(c_tag, sop_blk + "\n\n" + c_tag)
+
+        if txt != orig_txt:
+            with open(fpath, "w", encoding="utf-8") as f:
+                f.write(txt)
+            print(f"  [Auto-Patch] {fname} SSOT 수치 및 테이블 자동 동기화 완료.")
 
 
 def cmd_build(args):
