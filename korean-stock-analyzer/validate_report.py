@@ -83,9 +83,10 @@ def check_ssot(d, res):
 
     # --- Single Price Anchor (principle 1) ---
     dcf = d.get("reverse_dcf") or {}
-    if dcf.get("status") == "success" and _num(dcf.get("price")) not in (None, anchor):
+    has_valid_dcf = dcf.get("status") == "success" or bool(dcf.get("norm_fcf_eok") and float(dcf.get("norm_fcf_eok") or 0) > 0)
+    if has_valid_dcf and _num(dcf.get("price")) not in (None, anchor):
         res.err(f"price anchor mismatch: anchor_price={anchor} vs reverse_dcf.price={dcf.get('price')}")
-    if not dcf or dcf.get("status") != "success":
+    if not dcf or not has_valid_dcf:
         res.warn("reverse_dcf missing or not 'success' (run calc_reverse_dcf.py)")
     for label, val in (("bench.close", _g(d, "bench", "close")), ("section4.d_close", s4.get("d_close"))):
         v = _num(val)
@@ -171,14 +172,15 @@ def check_ssot(d, res):
                      f"fine only if grade was deliberately overridden")
     pen1, pen2 = _num(b.get("penetration_pct")), _num(b.get("second_penetration_pct"))
     zone = str(b.get("penetration_zone", ""))
+    is_p2_b = b.get("is_phase2", True)
     # 2nd S-Curve only counts when the 1st curve is already mature (spec 2.3: 1st >= 18%)
     near = [p for p in (pen1,) if p is not None and 8.0 <= p <= 18.0]
     if pen2 is not None and 8.0 <= pen2 <= 18.0 and pen1 is not None and pen1 >= 18.0:
         near.append(pen2)
-    if near and "Zone A" not in zone:
+    if near and is_p2_b and "Zone A" not in zone:
         res.warn(f"penetration {pen1}/{pen2} in 8~18% but zone is '{zone[:20]}' (spec: Zone A)")
-    if not near and "Zone A" in zone:
-        res.warn(f"zone says Zone A but penetration {pen1}/{pen2} not in 8~18%")
+    if (not near or not is_p2_b) and "Zone A" in zone:
+        res.warn(f"zone says Zone A but penetration {pen1}/{pen2} not in 8~18% or is_phase2=False")
 
     # --- Falsification fields (principle 12) ---
     for k in ("qoq_summary_str", "kill_switch_guide"):

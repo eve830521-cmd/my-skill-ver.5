@@ -175,14 +175,26 @@ def append_extended_ssot_tables(ssot_json_path):
     base_a = s3.get("base_auto_a", 0)
     bull_a = s3.get("bull_auto_a", 0)
 
+    if s4.get("is_value_trap_hold"):
+        buy2_cond = f"🚫 [유형 B 가치함정] 분기 영업익·EPS QoQ 반등 공시 전 현재가 매수 보류 (청산가치 하단 대기)"
+        buy3_cond = f"🚫 [유형 B 가치함정] 실적 턴어라운드 및 20일 POC(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 회복 확인"
+    elif s4.get("is_downtrend_hold"):
+        buy2_cond = f"⚠️ [주봉 C등급 역배열 칼날받기 금지] 현재가 추격 보류 · 하단 지지(`{buy2:,}원`) 또는 20주선(`{s4.get('w_ma20', 0):,}원`) 회복 대기"
+        buy3_cond = f"⚠️ [주봉 C등급 대기] 하방 지지(`{buy3:,}원`) 안착 또는 주봉 MACD 양(+)전환(B등급↑) 확인 후 진입"
+    else:
+        buy2_cond = f"주봉/일봉 이동평균선(`20일선 {s4.get('d_ma20', 0):,}원 / 20주선 {s4.get('w_ma20', 0):,}원`) 지지 확인"
+        buy3_cond = f"20일 POC 매물대(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 안착 확인"
+
     sop_table = f"""
 ### 📌 [코드 자동 생성 2-B] Phase 3 Section 4 마스터 SOP 3분할 매수가 & 2단계 안전핀 실행표 (단일 기준 주가 `{anchor:,}원`)
+> **🚦 코드 전략 모드 판정**: {s4.get('sop_mode_desc', '표준 3분할 오름차순 매매 모드')}
+
 | 실행 단계 (SOP Action Ladder) | 비중 / 구분 | 코드 확정 가격 (원) | 현재가(`{anchor:,}원`) 대비 | 완성 평단(`{avg_p:,}원`) 대비 | 실행 조건 및 기술적/밸류에이션 근거 |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **🚨 1단계 초입 고정 안전핀 (Hard Stop 1)** | **전량 손절선** | **`{stop1:,}원`** | `{(stop1/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(stop1/avg_p - 1)*100 if avg_p else 0:+.1f}%` | `1단계 안전핀({stop1:,}원) < 1차 매수가({buy1:,}원)` 위계 100% 준수 |
 | **🟢 1차 매수 (가치/눌림목 선취매)** | **30%** | **`{buy1:,}원`** | `{(buy1/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy1/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 하방 지지선(`{s3.get('bear_auto', 0):,}원`) 및 안전마진 확보 구간 |
-| **🔵 2차 매수 (추세 확인 본대)** | **40%** | **`{buy2:,}원`** | `{(buy2/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy2/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 주봉/일봉 이동평균선(`20일선 {s4.get('d_ma20', 0):,}원 / 20주선 {s4.get('w_ma20', 0):,}원`) 지지 확인 |
-| **🟣 3차 매수 (매물대 돌파/안착)** | **30%** | **`{buy3:,}원`** | `{(buy3/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy3/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 20일 POC 매물대(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 안착 확인 |
+| **🔵 2차 매수 (추세 확인 본대)** | **40%** | **`{buy2:,}원`** | `{(buy2/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy2/avg_p - 1)*100 if avg_p else 0:+.1f}%` | {buy2_cond} |
+| **🟣 3차 매수 (매물대 돌파/안착)** | **30%** | **`{buy3:,}원`** | `{(buy3/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy3/avg_p - 1)*100 if avg_p else 0:+.1f}%` | {buy3_cond} |
 | **⭐ 3분할 완성 평균단가 (Avg Buy)** | **100%** | **`{avg_p:,}원`** | `{(avg_p/anchor - 1)*100 if anchor else 0:+.1f}%` | `0.0%` | **Gate 1 R:R `{s4.get('gate1_rr', 0):.2f}:1` / Gate 2 실전 R:R `{s4.get('exec_rr', 0):.2f}:1`** |
 | **🔒 2단계 본절 보호핀 (Trailing Stop 2)** | **익절 보호선** | **`{stop2:,}원`** | `{(stop2/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(stop2/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 매물대 상단(`{s4.get('poc_high', 0):,}원`) 돌파 안착 성공 시 손절선 상향 |
 | **🎯 1차 목표가 (TP1 / Base)** | **분할 익절 1** | **🛡️ `{tp1_b:,}원` / 🚀 `{base_a:,}원`** | `🛡️ {(tp1_b/anchor - 1)*100 if anchor else 0:+.1f}% / 🚀 {(base_a/anchor - 1)*100 if anchor else 0:+.1f}%` | `🛡️ {(tp1_b/avg_p - 1)*100 if avg_p else 0:+.1f}% / 🚀 {(base_a/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 보수적 대안 B(`{base_b:,}원`) vs v4.3 병목·주주환원 반영 대안 A(`{base_a:,}원`) |
@@ -543,25 +555,34 @@ def patch_ssot_into_reports(comp_dir):
 
     # Build numeric replacement pairs (old formatted -> new formatted) if prev_ssot exists
     num_replacements = []
+    sop_line_replacement = None
     if prev_ssot:
         old_p = prev_ssot.get("anchor_price")
         new_p = curr_ssot.get("anchor_price")
-        if old_p and new_p and old_p != new_p:
-            num_replacements.append((f"{int(old_p):,}원", f"{int(new_p):,}원"))
-
         old_s3 = prev_ssot.get("section3", {}) or {}
         new_s3 = curr_ssot.get("section3", {}) or {}
-        for k in ("bear_auto", "base_auto", "bull_auto", "base_auto_a", "bull_auto_a", "tp1_price", "tp1_price_a"):
-            ov, nv = old_s3.get(k), new_s3.get(k)
-            if ov and nv and ov != nv:
-                num_replacements.append((f"{int(ov):,}원", f"{int(nv):,}원"))
-
         old_s4 = prev_ssot.get("section4", {}) or {}
         new_s4 = curr_ssot.get("section4", {}) or {}
+
+        # Prevent collision when old_s4['buy2'] == old_p by replacing compound SOP summary strings first
+        if old_s4.get("buy1") and old_s4.get("buy2") and old_s4.get("buy3"):
+            old_ladder = f"1차 {int(old_s4['buy1']):,}원 / 2차 {int(old_s4['buy2']):,}원 / 3차 {int(old_s4['buy3']):,}원"
+            new_ladder = f"1차 {int(new_s4.get('buy1', 0)):,}원 / 2차 {int(new_s4.get('buy2', 0)):,}원 / 3차 {int(new_s4.get('buy3', 0)):,}원"
+            if old_ladder != new_ladder:
+                sop_line_replacement = (old_ladder, new_ladder)
+
         for k in ("buy1", "buy2", "buy3", "avg_buy_price", "init_stop_pin", "breakout_trail_pin"):
             ov, nv = old_s4.get(k), new_s4.get(k)
-            if ov and nv and ov != nv:
+            if ov and nv and ov != nv and ov != old_p:
                 num_replacements.append((f"{int(ov):,}원", f"{int(nv):,}원"))
+
+        for k in ("bear_auto", "base_auto", "bull_auto", "base_auto_a", "bull_auto_a", "tp1_price", "tp1_price_a"):
+            ov, nv = old_s3.get(k), new_s3.get(k)
+            if ov and nv and ov != nv and ov != old_p:
+                num_replacements.append((f"{int(ov):,}원", f"{int(nv):,}원"))
+
+        if old_p and new_p and old_p != new_p:
+            num_replacements.append((f"{int(old_p):,}원", f"{int(new_p):,}원"))
 
     # Patch Phase 1
     if os.path.exists(p1_path):
@@ -590,7 +611,7 @@ def patch_ssot_into_reports(comp_dir):
             t3 = f.read()
         orig_t3 = t3
 
-        for hdr in ("코드 자동 생성 1-C", "코드 자동 생성 2", "코드 자동 생성 2-B"):
+        for hdr in ("코드 자동 생성 1-C", "코드 자동 생성 2", "코드 자동 생성 2-B", "코드 자동 생성 2-C"):
             new_blk = extract_section_from_auto_md(auto_md, hdr)
             if new_blk:
                 pat = rf"### 📌 \[{re.escape(hdr)}\].*?(?=\n### |\n---|\n## |\Z)"
@@ -607,6 +628,8 @@ def patch_ssot_into_reports(comp_dir):
                 flags=re.DOTALL,
             )
 
+        if sop_line_replacement:
+            t3 = t3.replace(sop_line_replacement[0], sop_line_replacement[1])
         for old_str, new_str in num_replacements:
             t3 = t3.replace(old_str, new_str)
 

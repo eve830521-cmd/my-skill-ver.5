@@ -125,14 +125,27 @@ class EngineFunctionsPinned(unittest.TestCase):
 
     def test_step1_2_golden_inflection_S_grade(self):
         r = self.bv.compute_step1_2_scurve_bottleneck_matrix(
-            "999999", "TEST", {}, penetration_pct=12.0, bottleneck_grade="S", bottleneck_months=30,
-            capa_util_pct=92.0)
+            "999999", "TEST", {}, scurve_override=True, penetration_pct=12.0,
+            bottleneck_grade="S", bottleneck_months=30, capa_util_pct=92.0)
         self.assertIn("Zone A", r["penetration_zone"])
         self.assertEqual(r["bottleneck_grade"], "S")
         self.assertAlmostEqual(r["pen_base_boost"], 0.12)
         self.assertAlmostEqual(r["pen_bull_boost"], 0.16)
-        self.assertAlmostEqual(r["total_sc_bn_base_mult"], 1.20)
-        self.assertAlmostEqual(r["total_sc_bn_bull_mult"], 1.26)
+        self.assertAlmostEqual(r["total_sc_bn_base_mult"], 1.17)
+        self.assertAlmostEqual(r["total_sc_bn_bull_mult"], 1.23)
+
+    def test_step1_2_free_call_option_blocks_penetration_boost(self):
+        # When dart_exposure < 30% (Free Call Option), S-Curve penetration boost must be 0.0%
+        # even if penetration_pct=12.0 is passed; only core bottleneck moat (+8%/+10% for S/24M+/92% util) may apply.
+        r = self.bv.compute_step1_2_scurve_bottleneck_matrix(
+            "999999", "TEST", {}, dart_exposure=10.0, penetration_pct=12.0,
+            bottleneck_grade="S", bottleneck_months=30, capa_util_pct=92.0)
+        self.assertFalse(r["is_phase2"])
+        self.assertEqual(r["pen_base_boost"], 0.0)
+        self.assertEqual(r["pen_bull_boost"], 0.0)
+        self.assertTrue(r["core_bottleneck_only_mode"])
+        self.assertAlmostEqual(r["total_sc_bn_base_mult"], 1.08)
+        self.assertAlmostEqual(r["total_sc_bn_bull_mult"], 1.10)
 
     def test_step1_2_mature_no_bottleneck_gets_no_premium(self):
         r = self.bv.compute_step1_2_scurve_bottleneck_matrix(
@@ -173,6 +186,44 @@ class EngineFunctionsPinned(unittest.TestCase):
         self.assertAlmostEqual(r["treasury_ratio_pct"], 4.76)
         self.assertFalse(r["buyback_cliff_warn"])
         self.assertAlmostEqual(r["kgov_mult"], 1.0)
+
+        # Related-party tunneling (>= 500 eok -> -4%) + buyback cliff (-2%) must auto-discount kgov_mult
+        r_pen = self.bv.compute_step1_8_k_market_shareholder_return(
+            "999999", {"div_yield": 3.0, "eps": 1000.0, "dps": 500.0, "close": 10000.0}, {},
+            10000000, 10000000, payout_ratio=30.0, buyback_cliff=True, related_party_eok=600.0)
+        self.assertTrue(r_pen["buyback_cliff_warn"])
+        self.assertAlmostEqual(r_pen["kgov_mult"], 0.94)
+
+    def test_section4_c_grade_downtrend_blocks_current_price_buy(self):
+        import pandas as pd
+        import numpy as np
+        # Create a clear downtrend weekly & daily series (price dropping from 300,000 to 200,000)
+        dates_w = pd.date_range("2024-01-05", periods=110, freq="W-FRI")
+        prices_w = np.linspace(300000, 200000, 110)
+        df_w = pd.DataFrame({
+            "date": dates_w, "open": prices_w * 1.01, "high": prices_w * 1.02,
+            "low": prices_w * 0.98, "close": prices_w, "vol": np.full(110, 50000.0)
+        })
+        dates_d = pd.date_range("2026-06-01", periods=65, freq="B")
+        prices_d = np.linspace(250000, 200000, 65)
+        df_d = pd.DataFrame({
+            "date": dates_d, "open": prices_d * 1.01, "high": prices_d * 1.015,
+            "low": prices_d * 0.985, "close": prices_d, "vol": np.full(65, 10000.0)
+        })
+        sec2 = {"is_type_b": False, "op_yoy_used": -30.0, "qoq_op_pct": -20.0}
+        sec3 = {
+            "base_auto": 280000, "base_auto_a": 300000, "bull_auto_a": 350000,
+            "tp1_price": 260000, "bear_auto": 150000, "is_low_vol_box": False,
+            "is_peak_trap": False, "scurve_sell_triggered": False, "scurve_info": {"is_phase2": True},
+        }
+        s4 = self.bv.compute_section4_master_sop_indicators(df_d, df_w, sec2, sec3)
+        self.assertEqual(s4["w_swing_grade"], "C")
+        self.assertTrue(s4["is_downtrend_hold"])
+        # All 3 buy steps must be strictly below current price (200,000) to avoid catching a falling knife
+        self.assertLess(s4["buy1"], s4["buy2"])
+        self.assertLess(s4["buy2"], s4["buy3"])
+        self.assertLess(s4["buy3"], 200000)
+        self.assertLess(s4["init_stop_pin"], s4["buy1"])
 
 
 class DcfNeverClobbersSilently(unittest.TestCase):

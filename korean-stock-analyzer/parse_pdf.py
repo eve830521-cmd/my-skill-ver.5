@@ -33,6 +33,17 @@ UNRELATED_SECTOR_TITLES = [
     "백화점", "면세점", "음식료", "건설업", "주택시장", "철강업", "해운업", "항공업", "유틸리티",
 ]
 
+# [PATCH v5.1 Option A-2 #7] Critical / Counter-Evidence terms restricted to genuine industry/analyst risk analysis
+# Excludes generic accounting words ('위험', '부담', '차입') and DART financial-instrument boilerplate notes
+CRITICAL_RISK_TERMS = [
+    "리스크", "공급과잉", "쇼크", "피크아웃", "경쟁심화", "단가인하", "수율", "지연", "취소",
+    "고평가", "스트레스 테스트", "반론", "역풍", "감익", "역성장", "오버행", "컨센서스 하회", "목표주가 하향",
+]
+
+DART_BOILERPLATE_MARKERS = [
+    "재무위험관리", "유동성위험", "신용위험", "이자율위험", "민감도 분석", "범주별 금융상품", "중요한 회계추정",
+]
+
 
 def extract_pdf(pdf_path, max_pages=None, search_keyword=None):
     if not os.path.exists(pdf_path):
@@ -184,9 +195,22 @@ def batch_verbatim_extract(
                     score = len(hit_t2) * 15 + len(non_generic_t2) * 10
                     tier_label = "Tier-2 (산업 S-Curve 복합매칭)"
 
+                is_dart_filing = any(tag in fname for tag in ("사업보고서", "반기보고서", "분기보고서"))
+                is_dart_boilerplate = is_dart_filing and any(bm in raw_text for bm in DART_BOILERPLATE_MARKERS)
+                hit_risk = [r for r in CRITICAL_RISK_TERMS if r.lower() in lower_text]
+                has_risk_counter = (
+                    not is_dart_filing
+                    and not is_dart_boilerplate
+                    and ((len(hit_risk) >= 1 and bool(hit_t1)) or (len(hit_risk) >= 2))
+                )
+                if has_risk_counter:
+                    score += min(35, len(hit_risk) * 12)
+                    tier_label += f" [⚖️비판·리스크검증: {', '.join(hit_risk[:3])}]"
+
                 candidate_pages.append({
                     "score": score,
                     "tier_label": tier_label,
+                    "has_risk_counter": has_risk_counter,
                     "file_order": file_order,
                     "pdf_path": os.path.abspath(pdf_path),
                     "fname": fname,
@@ -199,13 +223,25 @@ def batch_verbatim_extract(
         except Exception as e:
             error_logs.append((fname, str(e)))
 
-    # Sort by score descending to keep top `max_pages_total` most relevant pages, then restore file/page order
+    # Sort by score descending to keep top `max_pages_total` most relevant pages,
+    # while guaranteeing at least 25% quota (min 3 pages) for critical/risk counter-evidence pages if present!
     total_raw_candidates = len(candidate_pages)
     if max_pages_total and len(candidate_pages) > max_pages_total:
-        top_selected = sorted(
+        sorted_all = sorted(
             candidate_pages,
             key=lambda x: (-x["score"], x["file_order"], x["page_no"]),
-        )[:max_pages_total]
+        )
+        risk_quota = max(3, max_pages_total // 4)
+        risk_cands = [p for p in sorted_all if p.get("has_risk_counter")][:risk_quota]
+        picked_keys = {(p["pdf_path"], p["page_no"]) for p in risk_cands}
+        top_selected = list(risk_cands)
+        for p in sorted_all:
+            if len(top_selected) >= max_pages_total:
+                break
+            key = (p["pdf_path"], p["page_no"])
+            if key not in picked_keys:
+                top_selected.append(p)
+                picked_keys.add(key)
         selected_pages = sorted(top_selected, key=lambda x: (x["file_order"], x["page_no"]))
     else:
         selected_pages = sorted(candidate_pages, key=lambda x: (x["file_order"], x["page_no"]))

@@ -406,213 +406,192 @@ p > em {
     </script>
 </head>
 <body>
-    <h1>🌐 리노공업 (058470) — Phase 2: 매크로 사이클 · S-Curve 10% 변곡점 · 포퍼식 가설 검증 (v4.3.1)</h1>
+    <h1>[Phase 2] 리노공업 (058470) 산업 트렌드 매핑 및 성장 스토리 검증 (v5.0 Master Edition)</h1>
 <blockquote>
-<p><strong>작성 기준일</strong>: 2026년 10월 31일 (2026년 10월 하반기 <code>Global_Trend</code> 17개 최신 심층 리포트 반영 완료)<br />
-<strong>단일 기준 주가 (Single Price Anchor)</strong>: <strong><code>55,400원</code></strong> (2026-10-30 종가, <code>PER 22.47배</code> / <code>PBR 5.41배</code>)<br />
-<strong>핵심 테마 판정 (<code>Step 1.2</code>)</strong>: <strong>더블 S-Curve Zone A</strong> — 1차 모바일 AP 캐시카우(<code>28.5%</code>) + <strong>2차 온디바이스 AI(스마트글래스·NPU) · 맞춤형 AI ASIC · 초고속 AI 인터커넥트(1.6T NIC·102.4T Switch·CPO) R&amp;D 소켓 침투율 <code>~12.0%</code> (🔥10% 언저리 골든 변곡점)</strong> | 3축 구조적 병목 <strong><code>S등급</code></strong> (해소 리드타임 <strong><code>30개월</code></strong>)</p>
+<p><strong>분석 기준일</strong>: 2026년 11월 14일 (2026년 3분기 분기보고서 <code>20261113000396</code> &amp; 11월 상반기 <code>Global_Trend/26.11.01~15</code> 원문 100% 반영)
+<strong>단일 기준 주가 (Single Price Anchor)</strong>: <strong><code>52,500원</code></strong> (2026-11-13 종가)
+<strong>원문 발췌 규율 (<code>No-Blind-Citation</code>)</strong>: 본 보고서의 모든 외부 리포트 인용은 <code>parse_pdf.py</code> v5.0 2-Tier 스마트 스코어링이 추출한 <code>verbatim_extracts.md</code>의 실제 확인된 페이지(<code>p.XX</code>)만 인용합니다.</p>
 </blockquote>
 <hr />
-<h2>1. 매크로 및 산업 사이클 현 위치 (2026.10 하반기 Global Trend 심층 결합)</h2>
-<h3>1.1 AI 인프라 병목의 대이동: 연산(GPU) ➔ 맞춤형 ASIC &amp; 초고속 인터커넥트(NIC·Switch·CPO)</h3>
-<p>2026년 10월 하반기 업데이트된 제도권 심층 리포트들을 종합하면, 글로벌 AI 데이터센터(AIDC) 투자 사이클은 단순 선증설이 아닌 <strong>AI 에이전트(Agentic AI) 및 추론(Inference) 트래픽 폭증에 대응하기 위한 생존 필수 인프라 투자</strong>로 안착했습니다 <code>[팩트: 26.10.28.한화투자증권.2027 산업전망.pdf p.92, 97]</code>. 특히 리노공업의 전방 비메모리 테스트 소켓 수요를 폭발시키는 <strong>3대 구조적 변화</strong>가 실측 데이터로 확인됩니다:</p>
-<ol>
-<li><strong>초고속 AI 인터커넥트(Scale-out / Scale-up) 세대교체와 칩 탑재량 2배 점프 (<code>LS증권 26.10.27</code>)</strong>:</li>
-<li><strong>GPU당 네트워크 대역폭 및 NIC 탑재량 2배 급증</strong>: NVIDIA 차세대 <strong>Rubin</strong> 아키텍처에서는 GPU당 Scale-out 네트워크 대역폭이 Blackwell의 <code>800Gbps</code>에서 <strong><code>1.6Tbps</code></strong>로 2배 상향되며, 이를 처리하기 위해 GPU당 <code>ConnectX-9</code> SuperNIC 탑재량이 기존 1개에서 <strong>2개(NVL72 랙당 72개 ➔ <code>144개</code>)</strong>로 2배 급증합니다 <code>[팩트: 26.10.27.LS증권.AI 인터커넥트 트렌드.pdf p.1, 4, 28]</code>.</li>
-<li><strong>102.4Tbps Switch ASIC 및 200G/400G SerDes 초고속화</strong>: Broadcom의 차세대 스위치 칩 <strong><code>Tomahawk 6</code></strong>(2026.03 양산 출하 개시)와 NVIDIA <strong><code>Spectrum-6</code></strong>는 단일 ASIC당 처리량이 <strong><code>102.4Tbps</code></strong>에 달하며, 레인당 <strong>200Gbps SerDes</strong>(차세대 400Gbps/레인 Taurus DSP 및 USFP 개발 병행)를 채택하고 있습니다 <code>[팩트: LS증권 26.10.27 p.1, 4-5, 10-11]</code>.</li>
-<li><strong>NVLink Fusion vs UALink 생태계 백가쟁명</strong>: 하이퍼스케일러의 독자 XPU(ASIC) 도입 확대에 발맞춰 NVIDIA-Marvell(20억 달러 투자)의 <code>NVLink Fusion</code>과 AMD·Google·MS·Meta·AWS·Marvell이 결성한 개방형 표준 <code>UALink 1.0/2.0(200Gbps/레인, 최대 1,024개 가속기 연결)</code> 경쟁이 본격화되면서 다품종 인터커넥트 ASIC 테이프아웃이 쏟아지고 있습니다 <code>[팩트: LS증권 26.10.27 p.7-8]</code>.</li>
-<li><strong>CPO(Co-Packaged Optics) 및 TSMC COUPE 상용화와 사전 테스트(KGD/KGE) 강도 급증</strong>: 200G 채널에서 기존 Pluggable 광트랜시버의 전기 신호 손실(<code>22dB</code>)과 전력 소모(<code>30W</code>) 한계를 극복하기 위해, 스위치 ASIC 옆에 광엔진을 직결하는 <strong>CPO(<code>신호손실 4dB</code>, <code>전력 9W [-70% 절감]</code>)</strong>가 TSMC의 <strong><code>COUPE</code></strong>(65nm EIC와 실리콘 포토닉스 PIC를 SoIC-X 하이브리드 본딩으로 적층) 공정 기반으로 상용 출하에 진입했습니다(NVIDIA <code>Spectrum-X Photonics</code> 스위치당 광엔진 32~36개, Broadcom <code>TH6 Davisson</code> 6.4T 광엔진 16개 탑재) <code>[팩트: LS증권 26.10.27 p.9-14, 23, 26]</code>.</li>
-<li>
-<p><strong>🔗 리노공업 직결 임팩트</strong>: CPO 및 초고속 스위치 패키지는 한 번 조립된 후 광엔진이나 EIC/ASIC의 개별 교체가 불가능하여 <strong>패키징 전·후 초고주파 신호 무결성(Signal Integrity) 사전 전수 검사</strong>가 수율의 생명선입니다. 리노공업은 이미 <strong>100GHz 대역폭의 <code>RF Coaxial Socket</code></strong>과 <strong>112Gbps/224Gbps PAM4 SerDes 대응 대면적(Large-size) 패키지 테스트 솔루션</strong>을 상용화하여 보유하고 있어 <code>[팩트: 2026.2Q IR p.11]</code>, GPU뿐만 아니라 랙당 2배로 늘어나는 NIC, 102.4T Switch ASIC, CPO EIC 테스트 수요의 직접적 수혜를 입습니다.</p>
-</li>
-<li>
-<p><strong>하이퍼스케일러 맞춤형 AI ASIC('내 칩 마련') 프로젝트 폭발 (<code>키움증권 26.10.12</code> &amp; <code>유진투자증권 26.10.26</code>)</strong>:</p>
-</li>
-<li>AI 워크로드의 중심이 학습(Training)에서 추론(Inference)으로 이동하면서, Google(<code>TPU v6/v7</code>), Meta(<code>MTIA</code>), AWS(<code>Trainium2/3</code>), Microsoft(<code>Maia</code>), OpenAI 등 빅테크들은 엔비디아 의존도를 낮추고 총소유비용(TCO)을 절감하기 위해 Broadcom·Marvell 등 디자인하우스와 손잡고 자체 AI ASIC 개발에 사활을 걸고 있습니다 <code>[팩트: 26.10.12.키움증권.설계로 이루는 내 칩 마련의 꿈.pdf p.3-5; 26.10.26.유진투자증권.한국판 Stargate 민간 AI 유틸리티의 출발점.pdf p.34]</code>.</li>
-<li>TrendForce에 따르면 2026년 글로벌 AI ASIC 서버 출하량은 전년 대비 <strong><code>+44.6%</code></strong> 급증하여 전체 AI 서버 비중의 <strong><code>27.8%</code></strong>까지 확대될 전망이며 <code>[팩트: 키움증권 26.10.12 p.4-5]</code>, 삼성전자와 브로드컴의 5년간 2,000억 달러 규모 첨단 메모리·AI 칩 파운드리 협력 등 커스텀 실리콘 생태계가 급팽창하고 있습니다 <code>[팩트: 유진투자증권 26.10.26 p.87]</code>.</li>
-<li>소켓 매출의 <strong>60%가 비메모리 R&amp;D(개발·검증용)</strong>에서 나오는 리노공업에게, 빅테크들의 '다품종 맞춤형 ASIC 테이프아웃 경쟁'은 세트 판매량과 무관하게 고단가 R&amp;D 소켓 발주량(Q)과 핀 수(P)를 동시에 끌어올리는 구조적 성장 엔진입니다.</li>
-</ol>
-<h3>1.2 차세대 온디바이스 AI 폼팩터: '스마트글래스(Smart Glasses)'의 폭발적 개화 (<code>하나증권 26.10.30</code>)</h3>
-<p>기존 시장 일각에서는 <em>"ChatGPT나 메타 뮤즈(Muse) 같은 클라우드 AI는 구형 스마트폰에서도 잘 돌아가므로 스마트폰 하드웨어 교체 수요를 자극하지 못하는 것 아니냐?"</em>라는 우려(가설 4)가 존재했습니다. 그러나 2026년 10월 30일 발간된 하나증권 미래산업팀의 64페이지 심층 리포트(<code>스마트글래스, 새로운 일상의 시작</code>)는 <strong>온디바이스 AI의 격전지가 스마트폰을 넘어 'AI 스마트글래스·웨어러블'이라는 전혀 새로운 하드웨어 폼팩터로 폭발적 확장</strong>되고 있음을 실측 수치로 증명했습니다:</p>
+<h2>1. 거시·산업 트렌드와 기업 성장 동력의 교차 검증 (Macro &amp; Sector Trend Mapping)</h2>
+<p>2026년 11월 상반기 발간된 주요 증권사 심층 산업 리포트(<code>IBK투자증권</code>, <code>메리츠증권</code>, <code>유안타증권</code>, <code>교보증권</code>)와 10월 하반기 연간전망(<code>LS증권</code>, <code>하나증권</code>) 원문을 리노공업의 2026년 3분기 보고서 실측 데이터와 교차 검증한 결과, 리노공업은 <strong>① 대체 아키텍처(Custom ASIC·SOCAMM2·LPDDR6-PIM·CPO) 확산에 따른 테스트 시간·검증 횟수 구조적 폭증, ② 스마트글래스·엣지 AI 디바이스 폼팩터 개화, ③ 전공정 대비 극심한 후공정 밸류에이션 저평가 해소</strong>의 핵심 교차점에 위치해 있습니다.</p>
+<h3>1-1. [핵심 트렌드 1] "대체 구조가 늘어날수록 테스트는 상시 수혜" — 가격 결정력(Pricing Power)의 원천</h3>
 <ul>
-<li><strong>글로벌 AI 스마트글래스 출하량 <code>YoY +127%</code> 급증</strong>:</li>
-<li>글로벌 AI 웨어러블 시장은 2025년 127억 달러에서 2031년 <strong>391억 달러(CAGR <code>+20.7%</code>)</strong>로 고성장하며, 특히 <strong>2026년 상반기 글로벌 AI 스마트글래스 출하량은 <code>420만 대 (YoY +127%)</code></strong>, 중국 스마트글래스 출하량은 <strong><code>52만 대 (YoY +306%)</code></strong> 폭증했습니다 <code>[팩트: 26.10.30.하나증권.스마트글래스 새로운 일상의 시작.pdf p.4, 25]</code>.</li>
-<li><strong>빅테크의 스마트글래스 및 전용 웨어러블 SoC R&amp;D 총력전</strong>:</li>
-<li><strong>Meta (점유율 <code>81.3%</code>)</strong>: <code>Ray-Ban Meta</code> 시리즈의 흥행에 이어 <code>Meta Ray-Ban Display</code>, 그리고 2026년 6월 자체 브랜드 스마트글래스 3종(최신 AI 모델 <code>뮤즈 스파크</code> 탑재)을 출시했습니다 <code>[팩트: 하나증권 26.10.30 p.11, 25]</code>.</li>
-<li><strong>Google &amp; 삼성전자 &amp; XREAL (<code>Android XR</code>)</strong>: 구글은 스마트글래스 전용 OS인 <strong><code>Android XR</code></strong>과 멀티모달 AI <code>Gemini</code>를 결합하여 삼성전자·젠틀몬스터·Warby Parker와 차세대 AI 글래스를 개발 중이며, XREAL과의 첫 협력 제품인 <strong><code>Project Aura</code></strong>를 2026년 가을 출시합니다 <code>[팩트: 하나증권 26.10.30 p.11-12, 46]</code>.</li>
-<li><strong>Apple &amp; Amazon &amp; 중화권</strong>: 애플은 차세대 비전 프로(<code>M5 + R1 칩</code> 탑재)에 이어 경량 <strong>AI 스마트글래스(코드명 <code>N50</code>)를 2027년 6월 WWDC에서 공개</strong>할 예정이며 <code>[팩트: 하나증권 26.10.30 p.16-17, 44]</code>, 아마존(배송용 글래스 및 소비자용 <code>Jayhawk</code> 26말~27초 출시), 샤오미·알리바바·바이두까지 신제품을 쏟아내고 있습니다 <code>[팩트: 하나증권 26.10.30 p.12, 48]</code>.</li>
-<li><strong>🔗 리노공업 직결 임팩트 (초소형·초저전력 웨어러블 SoC R&amp;D 폭발)</strong>:</li>
-<li>안경테라는 극단적인 공간·무게(50g 미만)·배터리·발열 제약 속에서 카메라 영상 인식, 오디오 처리, AI 추론, 무선 통신을 동시에 수행하려면 Qualcomm의 <strong><code>Snapdragon AR1/AR2</code></strong>(DRAM 면적 40% 축소 및 1-bit AI 모델 최적화), XREAL의 자체 공간컴퓨팅 칩 <strong><code>X1</code></strong>, 그리고 마이크로 디스플레이(LEDoS/LCoS) 구동용 초소형 구동 IC 등 <strong>초고집적·초미세 피치 맞춤형 웨어러블 SoC R&amp;D</strong>가 필수적입니다 <code>[팩트: 하나증권 26.10.30 p.19, 22]</code>.</li>
-<li>즉, 스마트폰 출하량이 완만하더라도 <strong>스마트글래스·XR·워치·로보틱스 등 다품종 엣지(Edge) AI 디바이스용 초미세 피치 R&amp;D 소켓 수요</strong>가 제2의 거대한 S-Curve 파도를 형성하고 있습니다.</li>
+<li>
+<p><strong>원문 근거 1 (<code>26.11.11. 유안타증권. 수요의 재설계 AI 수익화와 메모리 접근 구조의 변화.pdf</code>, <code>p.64, p.65</code>)</strong>:</p>
+<blockquote>
+<ul>
+<li><em>"가격 결정력은 대안이 없는 병목에서 나온다. 반대로 HBM과 CoWoS처럼 공급이 빡빡하고 비용이 높은 영역에서는 대체 구조가 빠르게 등장한다."</em> (<code>p.64</code>)</li>
+<li><em>"그러나 </em><em>어떤 대안을 택하든 반드시 거쳐야 하는 영역이 있다. 대표적으로 테스트(소켓·번인·테스터)는 새로운 구조가 등장할수록 검증 항목과 조건이 늘어나며, 대체가 확대될수록 오히려 수요가 강화되는 구조</em><em>다. 즉 대체 가능한 영역은 경쟁이 심화되는 반면, </em><em>대체가 불가능하거나 모든 대안이 공통으로 통과해야 하는 병목 영역은 수요가 누적되며 가격 결정력이 유지</em><em>된다."</em> (<code>p.64</code>)</li>
+<li><em>"[표 25: 주요 대체 구조와 테스트 영향] ① </em><em>ASIC 확대</em><em>: GPU 일부 워크로드 대체 ➔ 하이퍼스케일러별 커스텀 칩 종류 증가 ➔ </em><em>신규 칩 검증 횟수 증가, 소켓 다품종 수요 확대</em><em>. ② </em><em>SOCAMM2</em><em>: 서버 메모리 모듈화 ➔ 모듈·인터페이스 신뢰성 검증 추가 ➔ </em><em>번인·모듈 테스트 수요 증가</em><em>. ③ </em><em>LPDDR6-PIM</em><em>: 연산 기능 내장 메모리 ➔ 메모리+연산 동시 검증 필요 ➔ </em><em>칩당 테스트 시간 증가</em><em>. ④ </em><em>CoWoS 외주(OSAT)</em><em>: TSMC 패키징 병목 완화 ➔ 외주 라인별 품질 검증 강화 ➔ </em><em>최종 패키지 테스트 횟수 증가</em><em>. ⑤ </em><em>CPO(광연결)</em><em>: 구리 인터커넥트 한계 보완 ➔ 광·전기 신호 동시 검증 필요 ➔ </em><em>고주파·광정렬 테스트 난이도 상승</em><em>."</em> (<code>p.64</code>)</li>
+<li><em>"실제 실적에서도 이러한 흐름이 확인된다. 글로벌 테스트 장비·부품 업체인 </em><em>Chroma ATE와 WinWay는 3분기 매출이 전년 대비 각각 +180%, +153% 증가하며 강한 성장세</em><em>를 기록하고 있다."</em> (<code>p.64</code>)</li>
+<li><em>"2027년에는 개인 에이전트 기능 확산을 계기로 PC와 프리미엄 스마트폰을 중심으로 한 </em><em>엣지 디바이스 회복 사이클</em><em>이 이어질 가능성이 높다. ... 서버 CPU 시장 역시 에이전트 워크로드 증가에 따라 2025년 <code>2,470만 대</code>에서 2026년 <code>5,000만 대</code> 수준으로 확대될 것으로 전망된다."</em> (<code>p.65</code>)</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p><strong>원문 근거 2 (<code>26.11.10. 메리츠증권. Conviction.pdf</code>, <code>p.11, p.26, p.34</code>)</strong>:</p>
+<blockquote>
+<ul>
+<li><em>"FormFactor가 전망한 프로브카드와 테스트 시장 규모(SAM)는 </em><em>2025년 28억 달러에서 2030년 40억 달러로 확대</em><em>될 예정이다. 메모리를 넘어 </em><em>GPU와 ASIC 수요 증가가 테스트 시장 성장을 견인</em><em>하고 있다. 또한 </em><em>CPO(Co-Packaged Optics)의 도입은 컴퓨팅 영역에서 광통신까지 테스트 수요의 저변을 넓히고 있다</em><em>."</em> (<code>p.11</code>)</li>
+<li><em>"테스트 소켓 및 부품: AI 가속기 및 고성능 칩의 대면적화·핀 수 증가로 테스트 소켓 단가(ASP) 상승 지속."</em> (<code>p.26, p.34</code>)</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p><strong>리노공업 DART 3Q26 실측 연결 고리</strong>:</p>
+</li>
+<li>유안타증권(<code>p.64</code>)과 메리츠증권(<code>p.11</code>)이 지목한 <strong>ASIC 다품종 검증, 대면적 고발열 패키징, CPO 초고주파 신호 검증</strong>은 리노공업의 2026년 3분기 보고서 연구개발실적에 명시된 3대 신규 R&amp;D 과제와 <strong>100% 정확히 일치</strong>합니다:<ol>
+<li><strong><code>55㎛ Pitch 대응 LEENO PIN</code></strong> (초미세 로직/HBM4 인터포저 대응)</li>
+<li><strong><code>15,000핀 이상 Large Device Test Socket 및 수냉식 쿨러 적용 Lid</code></strong> (AI GPU/Custom ASIC 대면적·고발열 패키지 테스트 직결)</li>
+<li><strong><code>100GHz 대응 소켓 (Short Signal Length 0.8mm 핀)</code></strong> (CPO 광연결·초고속 SerDes·6G mmWave 고주파 테스트 직결)</li>
+</ol>
+</li>
 </ul>
 <hr />
-<h2>2. [Step 1.2] S-Curve 10% 변곡점 · 3축 구조적 병목 · 리드타임 심층 분석 &amp; 콜옵션 분리</h2>
-<pre><code class="language-mermaid">flowchart TD
-    subgraph SC1[&quot;1차 S-Curve: 모바일 AP &amp; 5G RF (침투율 28.5% 캐시카우)&quot;]
-        M1[&quot;글로벌 스마트폰/태블릿 AP 3nm➔2nm GAA 미세화&quot;]
-        M2[&quot;연간 영업이익 1,700~2,000억 원 창출하는 견고한 본업 기반&quot;]
-        M1 --&gt; M2
-    end
-    subgraph SC2[&quot;2차 S-Curve: AI ASIC · 1.6T 인터커넥트 · 스마트글래스 SoC (침투율 ~12.0% 🔥10% 변곡점)&quot;]
-        N1[&quot;빅테크 맞춤형 AI ASIC (TPU·MTIA·Trainium) 다품종 R&amp;D&quot;]
-        N2[&quot;Rubin ConnectX-9 NIC(랙당 2배)·102.4T Switch·CPO 사전 테스트&quot;]
-        N3[&quot;AI 스마트글래스(출하 YoY +127%) 초소형·초저전력 AR/XR SoC R&amp;D&quot;]
-        N1 &amp; N2 &amp; N3 --&gt; B1[&quot;리노공업 3축 구조적 병목 (S등급 · 해소 리드타임 30개월)&quot;]
-    end
-    subgraph BN[&quot;3축 구조적 병목 (Capa · 기술격차 · 특허/Qual) &amp; 목표주가 직결&quot;]
-        B1 --&gt; B2[&quot;• 기술 해자: 0.2mm 이하 초미세 리노핀 + 100GHz RF / 224G 대면적 소켓 (OPM 49.3~51.3%)\n• 벤더 락인: 빅테크 R&amp;D 초기 설계 지정 구매 (Directed Buy, 1~2주 초단납기)\n• Capa 확장: 2026.4Q(11월) 부산 에코델타 신공장 이전으로 생산능력 2배 점프&quot;]
-        B2 --&gt; B3[&quot;🎯 Phase 3 🚀대안 A 가중치: Base ×1.16 (+16.0%) / Bull ×1.21 (+21.0%)&quot;]
-    end
+<h3>1-2. [핵심 트렌드 2] 반도체 후공정(OSAT·테스트 부품)의 구조적 재평가와 소모품 누적 효과</h3>
+<ul>
+<li><strong>원문 근거 (<code>26.11.02. IBK투자증권. 반도체 후공정 편견을 산산조각 내버리다.pdf</code>, <code>p.22, p.38, p.39, p.42, p.44, p.45, p.55~57, p.60, p.100</code>)</strong>:<blockquote>
+<ul>
+<li><em>"전공정과 후공정의 주가 괴리율 심화: 2024년 상반기 고점까지 전공정 장비 업체들의 주가가 평균 <code>+280%</code> 상승할 때 후공정 업체들은 <code>+71%</code> 상승에 그쳤고, 이후 조정기에는 상승분을 대부분 반납하며 밸류에이션 매력이 극대화되었다."</em> (<code>p.22</code>)</li>
+<li><em>"[그림 34, 35, 36, 37] 주요 후공정 업체 Valuation Table (<code>p.38~39</code>): </em><em>리노공업 P/E는 2020년 <code>37.2배</code>, 2021년 <code>29.1배</code>, 2023년 <code>29.6배</code>, 2025년 <code>30.2배</code> 대비 2026E <code>24.9배</code>, 2027E <code>21.6배</code>로 역사적 하단</em><em>에 위치해 있다(P/B 역시 2025년 <code>6.3배</code> ➔ 2026E <code>5.4배</code>, 2027E <code>4.6배</code>)."</em> (<code>p.38, p.39</code>)</li>
+<li><em>"후공정 테스트 산업은 크게 테스트 장비(테스터, 핸들러, 번인 등)와 </em><em>테스트 부품(프로브카드, 테스트 소켓)</em><em>으로 구분된다. ... </em><em>칩의 집적도가 높아지고 공정 미세화가 진행될수록 Die당 테스트 시간이 길어지며, 이는 곧 테스트 장비와 소켓의 구조적 수요 증가로 직결</em><em>된다."</em> (<code>p.42</code>)</li>
+<li><em>"[그림 45, 46] 테스트 부품 주요 3사(리노공업, ISC, 티에프이)의 합산 매출액 및 영업이익률 추이(<code>p.44</code>): </em><em>리노공업은 3사 중 압도적인 40~50%대 영업이익률(OPM) 1위를 일관되게 유지</em><em>하고 있다."</em> (<code>p.44</code>)</li>
+<li><em>"테스트 장비 vs 부품: 신규 CapEx 사이클 초기에는 장비가 먼저 반응하지만, </em><em>가동률이 올라가고 테스트 시간이 길어질수록 소모품인 테스트 부품(소켓·프로브카드)의 실적 개선 폭과 지속성이 훨씬 길게 이어진다</em><em>."</em> (<code>p.45</code>)</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<hr />
+<h3>1-3. [핵심 트렌드 3] 스마트글래스(Smart Glass) 개화 &amp; HBM4 로직 베이스 다이 전환</h3>
+<ul>
+<li><strong>원문 근거 1 (<code>26.10.27. LS증권. 2026년 연간전망 깨어난 포스.pdf</code>, <code>p.2</code>)</strong>:<blockquote>
+<ul>
+<li><em>"2026년 스마트글래스 예상 출하량은 </em><em><code>950만 대</code>(YoY <code>+116%</code>)</em><em>이며 2030년 </em><em><code>4,650만 대</code></em><em>로 급성장이 전망된다. 빅테크들의 스마트글래스 신제품 출시 경쟁으로 </em><em>다품종 소량생산 R&amp;D용 테스트 소켓 수요가 구조적으로 증가하며, 대표 수혜주는 리노공업</em><em>이다."</em> (<code>p.2</code>)</li>
+</ul>
+</blockquote>
+</li>
+<li><strong>원문 근거 2 (<code>26.10.30. 하나증권. 2026년 전망 길목 지키기.pdf</code>, <code>p.22</code>)</strong>:<blockquote>
+<ul>
+<li><em>"HBM4(16단)부터 Base Die에 TSMC 등 파운드리 선단 로직 공정이 도입되면서, 기존 메모리 번인 테스트를 넘어 </em><em>로직 다이 수준의 고정밀·미세피치 패키지 테스트 중요성이 급부상</em><em>하고 있다."</em> (<code>p.22</code>)</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<hr />
+<h2>2. [Step 1.2 &amp; Argon 4.0 High] 엔지니어링 스펙 ➔ DART 재무 레버리지 4단계 물리·재무 인과 사슬</h2>
+<p>리노공업의 초미세 가공 엔지니어링 스펙이 어떻게 DART 손익계산서의 <strong><code>OPM 49.20%(9M26 누적)</code></strong>로 치환되는지 4단계 물리·재무 인과 사슬(<code>Step E1 ~ E4</code>)로 해부합니다.</p>
+<pre><code class="language-mermaid">flowchart LR
+    E1[&quot;&lt;b&gt;Step E1: 물리·공정 메커니즘&lt;/b&gt;&lt;br/&gt;• 2nm/3nm &amp; 55㎛ 초미세 피치&lt;br/&gt;• 15,000핀+ 대면적 &amp; 수냉식 Lid&lt;br/&gt;• 100GHz 초고주파(0.8mm 극초단 핀)&quot;] --&gt; E2[&quot;&lt;b&gt;Step E2: 병목 &amp; Qual 장벽&lt;/b&gt;&lt;br/&gt;• 머리카락 1/2 굵기 내 스프링·도금 수율&lt;br/&gt;• 글로벌 빅테크 R&amp;D 초기 설계 Lock-in&lt;br/&gt;• 해소 리드타임 S등급(30개월)&quot;]
+    E2 --&gt; E3[&quot;&lt;b&gt;Step E3: 발주 시차 &amp; ASP 점프&lt;/b&gt;&lt;br/&gt;• 칩 양산 12~18개월 전 R&amp;D 선행 발주&lt;br/&gt;• 소켓당 핀 수 급증 → 개당 단가 135.6만 원+&lt;br/&gt;• 에코델타 신공장(26.11.30 완공) 가동&quot;]
+    E3 --&gt; E4[&quot;&lt;b&gt;Step E4: DART OPM 레버리지&lt;/b&gt;&lt;br/&gt;• 9M26 소켓 비중 67.82% / 수출 83.63%&lt;br/&gt;• 3Q 매출 -42% 조정에도 OPM 47.67% 방어&lt;br/&gt;• 9M 누적 OPM 49.20% · 3Q FCF +594.4억&quot;]
 </code></pre>
-<h3>2.1 S-Curve 10% 변곡점 및 단독 공시 익스포저(<code>91.73%</code>) 검증</h3>
-<ul>
-<li><strong>[원칙 4 &amp; 원칙 15 검증]</strong>:</li>
-<li><strong>DART 단독 매출 분리 공시</strong>: 2026년 반기보고서 기준 <code>IC TEST SOCKET</code>(<code>1,663.8억 원</code>, <code>68.48%</code>) + <code>LEENO PIN</code>(<code>564.9억 원</code>, <code>23.25%</code>) = <strong><code>91.73%</code></strong>가 반도체 테스트 부품 단독 매출로 명확히 분리 공시되어 있어, 30% 가드레일을 압도적으로 통과합니다.</li>
-<li><strong>10% 언저리 골든 변곡점 (<code>12.0%</code>)</strong>: 전체 반도체 테스트 소켓 중 AI 전용칩(맞춤형 ASIC, 초고속 NIC/Switch, 온디바이스 NPU/스마트글래스 SoC)용 고다핀·초고주파 소켓 침투율은 현재 약 <strong><code>12.0%</code></strong>로 가장 기울기가 가파른 <strong>10% 언저리 골든 변곡점(<code>8.0%~18.0%</code>)</strong>을 통과하고 있습니다.</li>
-<li><strong>병목 등급(<code>S등급</code>) 및 해소 리드타임(<code>30개월</code>)</strong>: 에코델타시티 신공장 이전·안정화 및 경쟁사의 초미세 핀 특허 우회·글로벌 빅테크 R&amp;D 인증 획득까지 최소 <strong>30개월</strong>이 소요되므로, <code>Step 1.2</code> 매트릭스에 따라 <strong>Base <code>+16.0%(×1.16)</code> / Bull <code>+21.0%(×1.21)</code></strong> 할증이 부여됩니다.</li>
-</ul>
-<h3>2.2 단독 매출 30% 미만 신사업 = '0원 무상 콜옵션(할증 0%)' 엄격 분리</h3>
-<ul>
-<li><strong>초음파 의료기기 부품 (<code>2026.1H 매출 185.7억 원, 비중 7.65% &lt; 30%</code>) 및 피지컬 AI/로보틱스 센서 부품</strong>:</li>
-<li>지멘스 헬시니어스(Siemens Healthineers) 등 글로벌 의료기기 선두 기업에 공급하는 초음파 프로브 부품은 2025년 매출 <code>356.7억 원(9.58%)</code>, 2026년 반기 <code>185.7억 원(7.65%)</code>을 기록 중인 고마진 알짜 사업이며, 향후 원격의료 및 수술용 로봇·피지컬 AI 초정밀 센서로 확장 잠재력이 높습니다.</li>
-<li>그러나 <strong>[원칙 4]</strong>에 의거하여 전사 매출 비중이 30% 미만(<code>7.65%</code>)이므로 이에 대한 멀티플 할증은 <strong>0%</strong>로 차단하고, 투자자가 아무런 비용 없이 덤으로 얻는 <strong>'0원 무상 콜옵션(Free Call Option)'</strong>으로만 분류합니다.</li>
-</ul>
-<hr />
-<h2>3. [원칙 12] 투자자 핵심 가설 &amp; 포퍼식 반증 조건(Kill-Switch) 6열 검증 매트릭스</h2>
-<blockquote>
-<p><strong>[원칙 12 준수]</strong>: <code>Weekly_Trend/thesis_log.md</code>에 누적된 7대 핵심 가설을 100% 동기화하여, 직전 분기 대비(QoQ) 실측 추이와 포퍼식 정량 반증 기준("이 숫자가 나오면 가설 약화/폐기")을 대조 검증합니다.</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">가설 ID (기록일)</th>
-<th style="text-align: left;">핵심 투자 가설 및 시장 반론 점검</th>
-<th style="text-align: left;">📊 직전 분기 대비 (QoQ) 실측 추이</th>
-<th style="text-align: left;">✅ 확인 근거 (Bullish Fact &amp; 리포트 페이지)</th>
-<th style="text-align: left;">🚨 반증/약화 조건 ("이 숫자가 나오면 가설 약화/폐기")</th>
-<th style="text-align: center;">판정 상태</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><strong>가설 1</strong><br>(26.09.03)</td>
-<td style="text-align: left;"><strong>"리노공업의 핀/소켓은 레거시 메모리 양산 물량과 상관관계가 낮고, 신규 비메모리(AP/NPU/ASIC) R&amp;D 테스트에 직결된다. 따라서 메모리 팹 증설보다 Edge AI 및 커스텀 실리콘 프로젝트 폭증이 진정한 Q 회복의 트리거이다."</strong></td>
-<td style="text-align: left;">• 매출 QoQ <code>+43.5%</code><br>(<code>997.7억➔1,431.9억</code>)<br>• 영익 QoQ <code>+55.4%</code><br>(<code>473.0억➔735.1억</code>)<br>• 수정EPS <code>532원➔869원</code></td>
-<td style="text-align: left;">소켓 출하량 중 <strong>R&amp;D(개발용) 비중 약 60%</strong>, 양산용 40% 팩트 입증 <code>[대신증권 26.09.01 p.53; LS증권 26.09.29 p.58]</code>. 메모리 메가팹 증설과 BM 완벽 분리.</td>
-<td style="text-align: left;"><strong>차기 분기 IC TEST SOCKET 매출 비중 <code>&lt; 60%</code> 하락 또는 비메모리 R&amp;D 신규 프로젝트 수 역성장 공시 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[검증 완료]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 2</strong><br>(26.09.17 / 26.10.31)</td>
-<td style="text-align: left;"><strong>"주가 85,100원~127,000원 당시 역DCF 요구성장률(35.89%+)은 극단적 과열 상태였다. 최근 55,400원 조정으로 역DCF 요구성장률과 밸류에이션 부담이 완전히 해소되었는가?"</strong></td>
-<td style="text-align: left;">• 매출 QoQ <code>+43.5%</code><br>• 영익 QoQ <code>+55.4%</code><br>• 수정EPS <code>532원➔869원</code> (QoQ <code>+63.3%</code>)</td>
-<td style="text-align: left;"><code>calc_reverse_dcf.py</code> 실측 결과, 단일 기준 주가 <strong><code>55,400원</code></strong> 기준 정규화 FCF(1,195억) 5개년 요구성장률이 Equity <strong><code>+23.95%</code></strong>, 실질 EV <strong><code>+20.91%</code></strong>로 경감. 10년 백테스트 결과 PBR <code>5.41배</code>(3년 하위 20% <code>5.27배</code> 근접), PER <code>22.47배</code>(3년 하위 20% <code>30.19배</code> 하회)로 <strong><code>🟢 [유형 A: 일시적 사이클 저점]</code></strong> 안착 확인.</td>
-<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 624.9억 원</code>(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS <code>&lt; 695원</code> 기록 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[검증 완료]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 3</strong><br>(26.09.22)</td>
-<td style="text-align: left;"><strong>"① 리노공업도 모바일 세트 및 R&amp;D 예산 사이클에 종속된다(22.4Q~23년 매출 -20.7%). ② ISC(실리콘 러버)의 비메모리 진출은 대면적 서버 AI 양산 소켓에 집중되어 리노공업의 모바일/엣지 R&amp;D 포고핀 해자를 침탈하지 못하며 시장이 분화되어 있다."</strong></td>
-<td style="text-align: left;">• 2Q26 OPM <code>51.34%</code> (역대 최고)<br>• 반기 PIN 생산 <code>3,558만 개</code> (ASP 급등으로 매출 사상 최대)</td>
-<td style="text-align: left;">2022~2023년 침체기에도 OPM <code>44.75%</code> 수호. ISC는 대면적 서버 AI 양산 테스트(러버) 집중, 리노공업은 1~2주 초단납기 미세피치 R&amp;D 포고핀 독점으로 타겟 시장 분화 확인 <code>[대신증권 26.09.01 p.53]</code>.</td>
-<td style="text-align: left;"><strong>분기 영업이익률(OPM) <code>&lt; 40.0%</code>로 2분기 연속 하락하거나 러버 소켓 업체의 모바일 미세피치 R&amp;D 침투 공시 확인 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[검증 완료]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 4</strong><br>(26.09.23)</td>
-<td style="text-align: left;"><strong>"① 클라우드 AI(Muse 등)는 구형 폰에서도 구동되어 스마트폰 교체 수요를 자극하지 못함. ② 빅테크 자체 ASIC도 R&amp;D는 리노공업이 독점하나 대량 양산(HVM)은 대만 윈웨이(WinWay)/CHPT와 분점하며 TSMC 생태계 내 대만 경쟁사 기득권 리스크가 상존함."</strong></td>
-<td style="text-align: left;">• 수출 비중 <code>83.74%</code><br>• 소켓 수출 <code>60.05%</code><br>• 2Q26 매출 <code>1,431.9억</code> (사상 최대)</td>
-<td style="text-align: left;">빅테크 AI 가속기(TPU, MTIA 등) R&amp;D는 팹리스 <code>Directed Buy</code>로 리노공업 소켓 사급 투입 확인. 단, 대만 윈웨이의 2026E 매출 <code>6,675억 원</code> 초고성장 및 HVM 기득권 경쟁은 핵심 모니터링 변수 <code>[LS증권 26.09.29 p.62]</code>.</td>
-<td style="text-align: left;"><strong>글로벌 빅테크향 해외 직수출 비중 <code>&lt; 75%</code> 축소 또는 미국 빅테크 공급선 이원화 공시 확인 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[검증 완료]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 5</strong><br>(26.10.22)</td>
-<td style="text-align: left;"><strong>"글로벌 트렌드 10월(AI ASIC '내 칩 마련' 폭발 &amp; 4Q26 에코델타 Capa 2배 증설): ① 2026년 AI ASIC 서버 출하량 +44.6% 급증으로 비메모리 R&amp;D 프로젝트 폭증. ② 4Q26(11월) 부산 에코델타 신공장 이전 및 자동화 라인 구축으로 물리적 병목 해소."</strong></td>
-<td style="text-align: left;">• 매출 QoQ <code>+43.5%</code><br>• 영익 QoQ <code>+55.4%</code><br>• 수정EPS QoQ <code>+63.3%</code></td>
-<td style="text-align: left;">TrendForce 2026년 AI ASIC 서버 출하량 <code>+44.6%</code> 급증 및 전체 AI 서버 <code>27.8%</code> 차지 <code>[키움증권 26.10.12 p.4-5]</code>. 4Q26 에코델타 이전 완료 시 2027F 영업이익 <code>2,430억 원(+16.0%)</code> 가시성 확보 <code>[LS증권 26.09.29 p.58]</code>.</td>
-<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 624.9억 원</code>(직전분기 대비 -15% 하회) 또는 에코델타 신공장 준공 일정이 2027년 1분기 이후로 지연 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[진행 중]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 6</strong><br>(26.10.29 / 26.10.31)</td>
-<td style="text-align: left;"><strong>"『주가 = (수급 + 실적) × 기대감』 10년 역학 검증: 2026.03 고점(127,000원, PER 70.2배)의 기대감 버블이 55,400원(-56.4%) 조정으로 100% 해소되었다. 현재는 실적 최고치(2Q OPM 51.3%) 대비 기대감이 극단적으로 언더슈팅한 '유형 A 사이클 저점'이다."</strong></td>
-<td style="text-align: left;">• 매출 QoQ <code>+43.5%</code><br>• 영익 QoQ <code>+55.4%</code><br>• 수정EPS <code>532원➔869원</code></td>
-<td style="text-align: left;">단일 기준 주가 <strong><code>55,400원</code></strong>(PBR <code>5.41배</code>, PER <code>22.47배</code>)은 과거 3년 PBR 하위 20%(<code>5.27배</code>)에 인접하고 고점 PER(<code>70.2배</code>) 대비 68.0% 디레이팅 완료 확인 <code>[SSOT: valuation_metrics.json]</code>.</td>
-<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 624.9억 원</code> 하회 또는 에코델타 신공장 준공 후 2027.1Q 가동률 부진으로 분기 OPM <code>&lt; 40.0%</code> 하락 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[진행 중]</code></strong></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>가설 7</strong><br>(26.10.31 신규)</td>
-<td style="text-align: left;"><strong>"2026.10 하반기 Global Trend(AI 인터커넥트 &amp; 스마트글래스) 결합: ① Rubin ConnectX-9 NIC 랙당 2배(144개) 증가, 102.4T Switch ASIC, 200G/400G SerDes 및 CPO 사전 테스트 확대로 리노공업의 100GHz RF Coaxial &amp; 112G/224G 대면적 소켓 수요가 팽창한다. ② 26.1H 글로벌 AI 스마트글래스 출하 420만 대(YoY +127%) 및 빅테크(Meta·Android XR·Apple N50·Snapdragon AR1/AR2)의 초저전력 웨어러블 SoC R&amp;D 경쟁이 스마트폰 교체주기 둔화 우려(가설 4)를 돌파하는 새로운 2차 S-Curve가 된다."</strong></td>
-<td style="text-align: left;">• 매출 QoQ <code>+43.5%</code><br>• 영익 QoQ <code>+55.4%</code><br>• IC소켓 비중 <code>68.48%</code> (반기 <code>1,663.8억</code>)</td>
-<td style="text-align: left;">① Rubin 1.6T NIC 2배 탑재·Tomahawk 6 102.4T·TSMC COUPE 기반 CPO 사전 검사 중요성 부각 <code>[LS증권 26.10.27 p.1, 4-5, 9-14, 28]</code> + 리노공업 100GHz RF Coaxial &amp; 112G/224G 대면적 소켓 기보유 <code>[2026.2Q IR p.11]</code>. ② 26.1H AI 스마트글래스 420만 대(YoY +127%) 및 웨어러블 SoC R&amp;D 급증 <code>[하나증권 26.10.30 p.4, 11-12, 19, 25]</code>.</td>
-<td style="text-align: left;"><strong>차기 분기 IC TEST SOCKET 평균 단가(ASP) YoY 역성장 또는 2027.1H 에코델타 이전 후에도 대면적 네트워킹/웨어러블 R&amp;D 소켓 수주 부진으로 분기 영업이익 <code>&lt; 624.9억 원</code> 하회 시 즉시 <code>[약화]</code> 강등</strong></td>
-<td style="text-align: center;"><strong><code>[진행 중]</code></strong></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>4. 글로벌 Peer 비교 및 Phase 3 밸류에이션 브릿지 (Valuation Bridge)</h2>
-<h3>4.1 국내외 테스트 소켓 Peer 그룹 비교 (<code>LS증권 26.09.29 p.62</code> 및 DART 실측 결합)</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">비교 항목</th>
-<th style="text-align: center;"><strong>리노공업 (058470.KQ)</strong></th>
-<th style="text-align: center;"><strong>ISC (095340.KQ)</strong></th>
-<th style="text-align: center;"><strong>WinWay (6515.TW, 대만)</strong></th>
-<th style="text-align: center;"><strong>CHPT (6510.TW, 대만)</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>주력 기술 방식</strong></td>
-<td style="text-align: center;"><strong>초미세 포고핀 (Pogo Pin)</strong><br>+ 100GHz RF Coaxial</td>
-<td style="text-align: center;">실리콘 러버 (Silicone Rubber)<br>+ 일부 포고 소켓</td>
-<td style="text-align: center;">대면적 포고핀 (Coaxial Socket)<br>+ 고속 번인/SLT 소켓</td>
-<td style="text-align: center;">웨이퍼 프로브 카드<br>+ 테스트 인터포저/소켓</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>핵심 타겟 시장</strong></td>
-<td style="text-align: center;"><strong>비메모리 R&amp;D (60%) + HVM (40%)</strong><br>(모바일 AP, AI ASIC, 스마트글래스 SoC, RF/NIC)</td>
-<td style="text-align: center;">서버 AI GPU/ASIC 대면적 양산(HVM)<br>+ 메모리(DRAM/NAND) 양산</td>
-<td style="text-align: center;">NVIDIA/AMD GPU 및 북미 빅테크 ASIC<br>TSMC CoWoS 후공정 대량 양산(HVM)</td>
-<td style="text-align: center;">TSMC 파운드리 웨이퍼 테스트<br>및 AP/HPC 프로브 카드</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>영업이익률 (OPM)</strong></td>
-<td style="text-align: center;"><strong><code>49.73%</code> (2Q26 <code>51.34%</code>)</strong><br><em>(글로벌 압도적 1위)</em></td>
-<td style="text-align: center;"><code>~25% ~ 30%</code> 수준</td>
-<td style="text-align: center;"><code>~22% ~ 26%</code> 수준</td>
-<td style="text-align: center;"><code>~15% ~ 22%</code> 수준</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>재무 구조 (차입금)</strong></td>
-<td style="text-align: center;"><strong>100% 무차입 (순현금 <code>4,551억 원</code>)</strong></td>
-<td style="text-align: center;">유상증자 및 인수금융 활용 이력</td>
-<td style="text-align: center;">설비 확장 차입 병행</td>
-<td style="text-align: center;">연구개발·설비 투자 병행</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>현재 PER 멀티플</strong></td>
-<td style="text-align: center;"><strong><code>22.47배</code> (<code>55,400원</code> 기준)</strong></td>
-<td style="text-align: center;"><code>~23배 ~ 28배</code></td>
-<td style="text-align: center;"><strong><code>35배 ~ 45배+</code></strong> (대만 AI 프리미엄)</td>
-<td style="text-align: center;"><code>30배 ~ 40배+</code></td>
-</tr>
-</tbody>
-</table>
-<h3>4.2 Phase 3 시나리오 밸류에이션으로의 논리적 연결 (Bridge to Phase 3)</h3>
 <ol>
-<li><strong>글로벌 1위 수익성(OPM <code>51.34%</code>) vs 역사적 하단 멀티플(<code>PER 22.47배</code>)의 극단적 괴리</strong>:</li>
-<li>대만 WinWay가 영업이익률 20%대 중반임에도 TSMC AI 후공정 수혜로 PER 35~45배에 거래되는 반면, 영업이익률 <strong><code>51.34%</code></strong>와 순현금 <strong><code>4,551억 원</code></strong>을 보유한 리노공업은 단일 기준 주가 <strong><code>55,400원</code></strong>에서 <strong>PER <code>22.47배</code>(과거 3년 평균 <code>37.59배</code>, 하위 20% <code>30.19배</code> 하회)</strong>에 거래되고 있습니다.</li>
-<li><strong>Phase 3 목표주가 이원화(<code>🛡️ 대안 B</code> vs <code>🚀 대안 A</code>) 적용</strong>:</li>
-<li><strong>보수적 본업 중심(<code>🛡️ 대안 B</code>)</strong>: S-Curve 할증을 배제하고 과거 3년 PER 상위 65%(<code>38.12배</code>)와 실적 모멘텀(<code>×1.08</code>)만 적용해도 Base 적정주가는 <strong><code>82,120원 (+48.2%)</code></strong>에 달합니다.</li>
-<li><strong>S-Curve 10% 변곡점 &amp; 3축 병목 S등급 반영(<code>🚀 대안 A</code>)</strong>: <code>Step 1.2</code>에서 검증된 2차 S-Curve(<code>12.0%</code> 변곡점) + 30개월 S등급 병목 가중치(<code>Base ×1.16 / Bull ×1.21</code>)를 반영한 적정주가는 <strong>Base <code>102,880원 (+85.7%)</code> / Bull <code>156,630원 (+182.7%)</code></strong>으로 산출되며, Phase 3에서 이를 <strong>레드팀 역산 Capa 천장 검증</strong>으로 최종 확인합니다.</li>
+<li><strong>[Step E1 — 공정 메커니즘 (Engineering Spec)]</strong>:</li>
+<li>AI 연산칩(NPU 탑재 AP, Custom ASIC)과 초고속 인터페이스(CPO, 6G mmWave)는 ① 입출력(I/O) 단자 간격이 <strong><code>80㎛ → 55㎛</code></strong>로 좁아지고, ② 단일 패키지 내 핀 수가 <strong><code>15,000핀 이상</code></strong>으로 대면적화되며, ③ 테스트 시 발생하는 고열을 식히기 위해 <strong>수냉식 쿨러 일체형 소켓 리드(Lid)</strong>가 요구되고, ④ <code>100GHz</code> 대역 신호 손실(Insertion Loss)을 막기 위해 핀 길이를 <strong><code>0.8mm</code> 극초단(Short Signal Length)</strong>으로 단축해야 합니다(DART 3Q26 R&amp;D 실적 명시).</li>
+<li><strong>[Step E2 — 구조적 병목 및 Qual 장벽 (Bottleneck &amp; Lock-in)]</strong>:</li>
+<li>직경 <code>55㎛</code>(머리카락 굵기의 절반)의 초미세 배럴 내부에 플런저와 스프링을 삽입하고 균일한 접촉 저항과 수만 회의 탄성 수명을 구현하는 가공·열처리·도금 기술은 전 세계에서 리노공업이 독보적 수율을 보유하고 있습니다.</li>
+<li>더욱이 R&amp;D 단계에서 테스트 소켓 불량으로 수억 원짜리 웨이퍼/프로토타입 칩 검증이 실패할 경우 빅테크가 입는 기회비용이 막대하므로, 소켓 가격을 10~20% 낮춘다고 해서 후발주자로 벤더를 교체하지 않는 <strong>강력한 전환비용(Switching Cost, 리드타임 <code>30개월 S등급</code>)</strong>이 작동합니다.</li>
+<li><strong>[Step E3 — 발주 시차 및 단가(ASP) 상승 (Order Lag &amp; Pricing)]</strong>:</li>
+<li>R&amp;D용 소켓은 최종 스마트폰이나 AI 서버가 출시되기 <strong>12~18개월 전(칩 테이프아웃 직후)</strong>에 선행 발주됩니다.</li>
+<li>소켓 1개에 심어지는 리노핀 개수가 기존 수천 개에서 <code>15,000핀+</code>으로 늘어나고 수냉식 Lid가 결합되면서, <strong>9M26 실측 소켓 개당 내재 단가는 <code>135.6만 원/EA</code>(<code>2,208.6억 / 162,851 EA</code>)로 전년(<code>128.9만 원</code>) 대비 <code>+5.2%</code> 상승</strong>했습니다.</li>
+<li><strong>[Step E4 — DART 재무제표 마진 레버리지 (OPM &amp; FCF)]</strong>:</li>
+<li>그 결과 3Q26에 계절적 비수기와 7월 부분파업으로 분기 매출이 <code>826.95억 원</code>(QoQ <code>-42.2%</code>)으로 줄어들었음에도, <strong>3Q26 단독 GPM <code>51.17%</code>, OPM <code>47.67%</code></strong>를 기록했고 <strong>9M26 누적 영업이익은 <code>1,602.34억 원</code>(YoY <code>+17.26%</code>, 누적 OPM <code>49.20%</code>)</strong>, <strong>3Q26 단독 FCF는 <code>+594.44억 원</code></strong>을 달성했습니다.</li>
 </ol>
+<hr />
+<h2>3. [원칙 4] 단독 매출 30% 미만 신사업의 '0원 무상 콜옵션' 분리 검증</h2>
+<ul>
+<li><strong>대상 사업</strong>: <strong>초음파 진단기 프로브 부품 등 의료기기 부문</strong> 및 <strong>극저온/우주항공용 특수 프로브 신사업</strong>.</li>
+<li><strong>DART 2026.3Q 실측 비중</strong>:</li>
+<li>9M26 의료기기 부문 매출액은 <strong><code>287.27억 원</code></strong>(제품 <code>266.76억</code> + 상품 <code>20.51억</code>)으로 전사 매출(<code>3,256.53억 원</code>)의 <strong><code>8.82%</code></strong>를 차지합니다.</li>
+<li>특히 <strong>3Q26 단독 의료기기 매출은 <code>101.6억 원</code>(3Q 전사 매출의 <code>12.29%</code>)</strong>을 기록하며, 반도체 부문이 조정을 받는 시기에 전사 외형과 이익 하방을 훌륭하게 지지했습니다.</li>
+<li><strong>밸류에이션 처리 원칙 (<code>No Unverified S-Curve Premium</code>)</strong>:</li>
+<li>의료기기 부품이 탄탄한 성장을 보이고 있으나 전사 매출 비중이 30% 미만(<code>8.82%</code>)이므로, <strong>원칙 4에 의거해 의료기기나 신규 특수 부품 스토리를 명분으로 전사 목표 멀티플을 인위적으로 할증하는 것을 엄격히 금지(<code>할증 0%</code>)</strong>합니다.</li>
+<li>대신 본업 반도체 테스트 소켓·핀 가치만으로도 충분한 상승여력(<code>Base 🛡️ +28.3% / 🚀 +48.9%</code>)이 확보되어 있으므로, 의료기기 사업의 성장성은 주주에게 덤으로 주어지는 <strong>'0원 무상 콜옵션(Free Call Option)'</strong>으로 정의합니다.</li>
+</ul>
+<hr />
+<h2>4. [원칙 12] 포퍼식 6열 핵심 투자 가설 및 반증 조건(Kill-Switch) 매트릭스 (<code>thesis_log.md</code> 100% 동기화)</h2>
+<p>확증편향을 원천 차단하기 위해 모든 투자 가설에 대해 <strong>2026년 3분기 실측 QoQ 추이</strong>와 <strong>차기 분기(2026.4Q) 정량적 반증 임계치(Kill-Switch)</strong>를 명확히 정의합니다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: left;">투자자의 핵심 가설 (Core Hypothesis)</th>
+<th style="text-align: left;">관련 거시/산업/실적 근거 (Evidence)</th>
+<th style="text-align: left;">직전 분기 대비 실적 추이 (QoQ Actuals)</th>
+<th style="text-align: left;">🛑 포퍼식 반증 조건 (Kill-Switch 임계치)</th>
+<th style="text-align: center;">현재 상태 (Status)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>가설 1</strong></td>
+<td style="text-align: left;"><strong>온디바이스 AI(스마트폰·PC·스마트글래스·웨어러블) 개화로 R&amp;D용 고부가 소켓 수요가 구조적으로 증가한다.</strong></td>
+<td style="text-align: left;">• <strong>LS증권(26.10.27, p.2)</strong>: 2026년 스마트글래스 출하량 <code>950만 대</code>(YoY <code>+116%</code>), 2030년 <code>4,650만 대</code> 전망, 다품종 소량생산 R&amp;D 소켓 수요 구조적 확대.<br>• <strong>유안타증권(26.11.11, p.64-65)</strong>: 2027년 AI PC 및 프리미엄 스마트폰(LPDDR6·개인 에이전트 탑재) 엣지 디바이스 회복 사이클 개화.<br>• <strong>9M26 DART 실측</strong>: <code>IC TEST SOCKET</code> 누적 매출 <code>2,208.6억 원</code>(전사 비중 <strong><code>67.82%</code></strong>), 수출 비중 <strong><code>83.63%</code></strong> 달성.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>, YoY <code>-14.6%</code>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>, YoY <code>-18.3%</code>)<br>• 수정EPS: <code>869원 → 298원</code><br>• 3Q26 단독 소켓 매출 <code>544.8억</code>(2Q 조기 선적 역기저로 QoQ 조정되었으나 3Q OPM <strong><code>47.67%</code></strong>, 9M 누적 OPM <strong><code>49.20%</code></strong> 유지)</td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 335.1억 원</code>(직전분기 394.2억 대비 <code>-15%</code> 하회) 또는 분기 지배주주 EPS <code>&lt; 238원</code> 기록 시 핵심 가설 즉시 <code>[약화]</code> 강등</strong> (단, 전사 OPM <code>&lt; 40.0%</code> 2개 분기 연속 하회 또는 <code>IC TEST SOCKET</code> 매출 비중 <code>&lt; 60%</code> 추락 시 <code>[폐기]</code>)</td>
+<td style="text-align: center;"><strong>[유지]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 2</strong></td>
+<td style="text-align: left;"><strong>단순 생산물량(Q)보다 칩 미세화·고집적화에 따른 핀 수 증가 및 소켓 단가(ASP, P) 상승이 외형과 마진을 동시에 견인한다.</strong></td>
+<td style="text-align: left;">• <strong>DART 2026.3Q 생산실적 및 R&amp;D</strong>: 9M26 소켓 개당 내재 단가 <strong><code>135.6만 원/EA</code>(+5.2% 상승)</strong>. 연구개발 과제로 <strong><code>55㎛ Pitch 대응 LEENO PIN</code></strong>, <strong><code>15,000핀 이상 Large Device Test Socket 및 수냉식 쿨러 적용 Lid</code></strong>, <strong><code>100GHz 대응(0.8mm 핀) 소켓</code></strong> 진행.<br>• <strong>유안타증권(26.11.11, p.64-65) &amp; IBK투자증권(26.11.02, p.42, 44)</strong>: 대체 구조가 늘어날수록 검증 횟수와 Die당 테스트 시간이 증가하여 가격 결정력 극대화.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 3Q26 매출이 비수기·파업으로 <code>-42.2%</code> 감소했음에도 <strong>GPM <code>51.17%</code>, OPM <code>47.67%</code></strong>를 사수하여 P·Mix 중심의 단가 전가력 입증</td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 335.1억 원</code> 또는 분기 OPM <code>&lt; 42.0%</code> 하락 시 <code>[약화]</code> 강등</strong> (후발주자 저가 침투로 소켓 판가 인하 압력이 발생할 경우 즉시 재검토)</td>
+<td style="text-align: center;"><strong>[유지 / 3Q 단기 Q조정 반영]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 3</strong></td>
+<td style="text-align: left;"><strong>2026년 4분기(11월 말) 부산 에코델타시티 신공장 준공은 기존의 물리적 생산능력(Capa) 병목을 해소하고 차세대 성장의 발판이 된다.</strong></td>
+<td style="text-align: left;">• <strong>DART 2026.11.10 <code>[기재정정]신규시설투자등</code> &amp; 3Q26 주석 9</strong>: 에코델타 신공장 총투자액 <code>971.82억 원</code> 중 3Q26말 기준 <strong><code>908.47억 원</code>(<code>93.5%</code>) 집행 완료</strong>(건설중인자산 총 <code>1,699.59억 원</code>). 준공검사 행정절차로 투자종료일이 <strong><code>2026-11-30</code></strong>으로 확정되어 11월 말 완공.<br>• 연간 매출 Capa 약 <code>5,000억 원 → 9,000억~1조 원</code> 수준으로 2배 확장.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 3Q26 단독 CapEx <code>143.8억 원</code>(9M 누적 <code>562.2억 원</code>) 집행에도 <strong>3Q26 단독 FCF <code>+594.4억 원</code>(TTM 보고 FCF <code>1,092.9억 원</code>)</strong> 창출 및 <strong>순현금 <code>4,865.0억 원</code></strong> 유지</td>
+<td style="text-align: left;"><strong>신공장 가동 후 초기 2개 분기(2027.1Q~2Q) 내 수주 부진으로 가동률 <code>&lt; 65%</code> 추락 및 감가상각비(<code>연 +80~100억 원</code>) 부담에 따른 OPM <code>&lt; 40.0%</code> 하락 시 <code>[약화]</code> 강등</strong></td>
+<td style="text-align: center;"><strong>[유지]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 4</strong></td>
+<td style="text-align: left;"><strong>단기 주가 급락 및 밸류에이션 조정은 펀더멘털 훼손이 아닌 수급·매크로 노이즈이거나 일시적 비수기 영향일 뿐이다.</strong></td>
+<td style="text-align: left;">• <strong>IBK투자증권(26.11.02, p.22, 38-39)</strong>: 상반기 전공정 장비가 <code>+280%</code> 급등할 때 후공정은 <code>+71%</code> 상승에 그쳤고 조정기에 상승분을 반납하며 밸류 매력 극대화(현 공식 PER <code>21.30배</code>).<br>• <strong>3Q26 실적 실측</strong>: 3Q26 당기순이익(<code>226.3억</code>, QoQ <code>-65.7%</code>) 급감은 기말 환율 하락에 따른 영업외 외화환산손실(<code>-99.7억</code>)과 2Q 역기저, 7월 부분파업 영향이며 <strong>9M26 누적 영업이익은 <code>1,602.3억 원</code>(YoY <code>+17.3%</code>, OPM <code>49.20%</code>)으로 사상 최대</strong>.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 수정EPS: <code>869원 → 298원</code><br>• 주가는 10월 말 <code>56,100원</code>에서 3Q 실적 발표 직후 <strong><code>52,500원</code></strong>으로 조정 중이나 104주 장기 매물대 중심(<code>45,150원</code>) 상단 유지</td>
+<td style="text-align: left;"><strong>차기 분기(4Q26) 영업이익 <code>&lt; 335.1억 원</code> 기록 또는 주봉 종가 기준 1단계 초입 고정 안전핀(<code>45,600원</code>) 하향 이탈 시 단기 수급 노이즈 가설 <code>[폐기]</code> 및 손절 규율 집행</strong></td>
+<td style="text-align: center;"><strong>[유지 / 주가 52,500원 갱신]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 5</strong></td>
+<td style="text-align: left;"><strong>[역발상] 시장의 '모바일 둔화 및 메모리 편중' 우려와 달리, 빅테크 자체 칩(Custom ASIC)·CPO·비메모리 R&amp;D 프로젝트 다변화가 모바일 둔화를 상쇄한다.</strong></td>
+<td style="text-align: left;">• <strong>메리츠증권(26.11.10, p.11) &amp; 유안타증권(26.11.11, p.64-65)</strong>: 테스트 SAM이 2025년 <code>$2.8B</code> ➔ 2030년 <code>$4.0B</code>로 확대되며, GPU·Custom ASIC 수요 증가와 CPO·SOCAMM2 도입이 테스트 횟수와 시간을 구조적으로 확대. 대만 피어 <strong>WinWay(3Q26 매출 YoY <code>+153%</code>), Chroma ATE(YoY <code>+180%</code>)</strong> 폭증.<br>• <strong>9M26 수출 실적</strong>: 전사 수출 비중 <strong><code>83.63%</code>(<code>2,723.5억 원</code>)</strong>, 소켓 내 수출 비중 <strong><code>94.71%</code></strong> 기록.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 9M26 누적 기준으로는 매출 <code>3,256.5억</code>(YoY <code>+13.2%</code>), 영업이익 <code>1,602.3억</code>(YoY <code>+17.3%</code>)으로 모바일 둔화를 비메모리 수출이 상쇄했으나, 3Q26 단독 분기에는 모바일 계절성 조정이 일부 노정됨</td>
+<td style="text-align: left;"><strong>전사 수출 비중이 <code>75.0%</code> 미만으로 하락하거나, 2개 분기 연속 YoY 매출 역성장이 발생하여 비메모리 ASIC/모바일 R&amp;D 상쇄 효과가 부재함이 확인될 경우 가설 <code>[약화]</code> 강등</strong></td>
+<td style="text-align: center;"><strong>[일부 약화 / 9M 누적 기조는 유효]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 6</strong></td>
+<td style="text-align: left;"><strong>[시장 오해 교정] 2026년 3분기 파업(노조 교섭 결렬) 및 3Q 실적 쇼크 우려는 본질적 해자 훼손이 아니며, 파업 타결 이후 4Q26~1Q27 이연 물량 정상화 시 비중 확대 기회다.</strong></td>
+<td style="text-align: left;">• <strong>사실 확인(Fact Check)</strong>: 2026.07.15 노조원 약 340명 부분파업 및 2Q 조기 선적 역기저가 겹치며 <strong>3Q26 단독 영업이익은 <code>394.2억 원</code>(QoQ <code>-46.4%</code>, YoY <code>-18.3%</code>)</strong>으로 직전 분기 킬스위치(<code>624.9억</code>)를 하회함.<br>• 그러나 ① 3Q26 OPM이 <strong><code>47.67%</code></strong>로 마진율이 전혀 훼손되지 않았고, ② 3Q26 단독 OCF가 <strong><code>+738.2억 원</code>(FCF <code>+594.4억 원</code>)</strong>으로 폭발적 현금 회수가 이루어졌으며, ③ 파업은 이미 타결 완료됨.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• <strong>포퍼식 킬스위치 정직성 판정</strong>: 2Q26 설정 임계치(<code>624.9억</code>) 미달에 따라 3Q 단기 실적 모멘텀은 <strong><code>[일부 약화]</code></strong>로 판정하고 Argon 4.0 스윙 등급을 <code>A등급(71점) ➔ C등급(41점)</code>으로 하향 조정함</td>
+<td style="text-align: left;"><strong>파업 종료 후인 2026.4Q에도 영업이익이 <code>&lt; 335.1억 원</code>에 머물거나 노사 갈등 재발로 에코델타시티 신공장 이전(2026.11.30 준공) 일정이 2027년 하반기 이후로 지연될 경우 즉시 <code>[폐기]</code></strong></td>
+<td style="text-align: center;"><strong>[일부 약화 / 4Q26 정상화 검증 대기]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 7</strong></td>
+<td style="text-align: left;"><strong>[26.11.01 역추적 도출] 리노공업의 멀티플 리레이팅(PER 15배→30배)은 단순 물량(Q)이 아니라 '차세대 공정 난이도 급등(0.2mm 이하 초미세 피치·집적도 상승) + 신규 디바이스 폼팩터(스마트글래스·온디바이스 AI·ASIC) 개화'가 맞물려 OPM 45%+를 돌파할 때 발화하며, 에코델타 신공장 가동(26.4Q~27년)이 이 3요소(<code>수급+실적×기대감</code>)의 재결합 트리거가 된다.</strong></td>
+<td style="text-align: left;">• <strong>10년 역사적 실증(2016~2026.3Q)</strong>: 5G/EUV 전환기(2020~2021) 및 온디바이스 AI 개화기(2023~2026.1H) 모두 <code>OPM 40%→49%</code> 레벨업과 함께 PER 상단(<code>28~37배</code>) 리레이팅이 발생.<br>• <strong>9M26 누적 OPM <code>49.20%</code>, TTM OPM <code>48.87%</code></strong>로 역사적 중위(<code>38.7%</code>) 대비 <code>+10.2%p</code> 높은 구조적 마진 레짐 유지.</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 수정EPS: <code>869원 → 298원</code><br>• TTM 영업이익 <code>2,005.9억 원</code>(YoY <code>+15.5%</code>), TTM OPM <code>48.87%</code> 달성</td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 <code>&lt; 335.1억 원</code> 또는 에코델타 신공장 가동 후 TTM OPM이 <code>42.0%</code> 미만으로 회귀하고 비메모리 소켓 수출 성장률이 YoY 마이너스(<code>-</code>)로 전환될 경우 리레이팅 가설 <code>[약화]</code> 강등</strong></td>
+<td style="text-align: center;"><strong>[유지]</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>가설 8</strong></td>
+<td style="text-align: left;"><strong>[26.11.14 3Q26 공시 &amp; 11월 Global Trend 신규] 3Q26 외형 조정(QoQ <code>-42.2%</code>)은 2Q 조기 선적 역기저 + 7월 부분파업 + 기말 환율 하락(영업외 <code>-99.7억</code>)의 일시적 삼중고였으며, ① OPM <code>47.67%</code> 및 3Q 단독 FCF <code>+594.4억</code> 방어, ② 11월 30일 에코델타 신공장 준공(공정률 <code>93.5%</code>), ③ 글로벌 테스트 피어(WinWay·Chroma) 폭증 및 ASIC/CPO/스마트글래스 테스트 시간 증가가 맞물려 <code>48,000~52,500원</code> 구간은 중기 비중확대(분할매수) 구간이 된다.</strong></td>
+<td style="text-align: left;">• <strong>DART 2026.3Q(<code>20261113000396</code>)</strong>: 3Q26 단독 매출 <code>826.9억</code>, 영업이익 <code>394.2억</code>(<code>OPM 47.67%</code>), 의료기기 부품 3Q 단독 <code>101.6억</code>(9M <code>287.3억</code>) 호조, 3Q 단독 OCF <code>738.2억</code> / FCF <code>594.4억</code>, 순현금 <strong><code>4,865.0억</code></strong>. <strong><code>55㎛ Pitch 리노핀</code> 및 <code>15,000핀+ 수냉식 Lid 소켓</code> R&amp;D 명시</strong>.<br>• <strong>Global Trend(26.11.02~11.11)</strong>: IBK(후공정 P/E <code>21.6~24.9배</code> 역사적 저평가), 메리츠(테스트 SAM <code>$2.8B→$4.0B</code>, CPO/ASIC 확산), 유안타(테스트는 대체 불가능한 가격결정력 병목, WinWay 3Q YoY <code>+153%</code>).</td>
+<td style="text-align: left;"><strong>[2026.2Q → 2026.3Q]</strong><br>• 매출액: <code>1,431.9억 → 826.9억</code> (<strong>QoQ <code>-42.2%</code></strong>)<br>• 영업이익: <code>735.1억 → 394.2억</code> (<strong>QoQ <code>-46.4%</code></strong>)<br>• 수정EPS: <code>869원 → 298원</code><br>• 코드 산출 Base 적정주가 <code>🛡️ 67,380원(+28.3%)</code> / <code>🚀 78,160원(+48.9%)</code>, 하방 지지선 <code>48,000원</code></td>
+<td style="text-align: left;"><strong>차기 분기(2026.4Q) 영업이익 <code>&lt; 335.1억 원</code>(직전분기 대비 <code>-15%</code> 하회) 또는 분기 지배주주 EPS <code>&lt; 238원</code> 기록 시 핵심 가설 즉시 <code>[약화]</code> 강등 및 1단계 고정 안전핀(<code>45,600원</code>) 이탈 시 기계적 손절</strong></td>
+<td style="text-align: center;"><strong>[신규 설정 / 유지]</strong></td>
+</tr>
+</tbody>
+</table>
     <script>
-        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-10-31 09:34:17", "stock_code": "058470", "corp_name": "리노공업", "anchor_price": 55400, "primary_metric": "PER", "bench": {"stock_name": "리노공업", "close": 61700.0, "bps": 10235.0, "pbr": 5.41, "eps": 2465.0, "per": 22.47, "div_yield": 1.44, "dps": 800.0, "market_cap_str": "4조 2,221억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 7767.91, "mcap_eok": 42046.16, "non_op_assets_eok": 420.0, "recognized_non_op_eok": 294.0, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 5.41, "non_op_ratio_mcap_pct": 1.0, "non_op_max_ratio_pct": 5.41, "core_bps": 9682, "nopat_eok": 1633.55, "core_roic_pct": 22.23, "core_profit_sustainable": true, "implied_core_op_ev_eok": 37201.16}, "step1_2_bottleneck": {"is_phase2": true, "is_early_ignition": false, "theme_name": "사용자/리포트 S-Curve Phase 2 지정 (--s-curve-phase2)", "exposure_pct": 91.73, "source_pdf": "Global_Trend 80p+ 심층 리포트 검증", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "penetration_zone": "더블 S-Curve Zone A (1차 28.5% 캐시카우 + 2차 12.0% 🔥10% 언저리 변곡점)", "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_duration_label": "⏳ 장기 구조적 병목 (30개월 / 2년+ 지속)", "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요", "capa_util_pct": 85.0, "curr_opm_pct": 49.33, "core_bottleneck_only_mode": false, "pen_base_boost": 0.11, "pen_bull_boost": 0.14, "bn_base_bonus": 0.05, "bn_bull_bonus": 0.07, "total_sc_bn_base_mult": 1.16, "total_sc_bn_bull_mult": 1.21, "peg_factor": 0.9}, "step1_8_k_return": {"payout_ratio_pct": 36.2, "tsr_pct": 36.2, "div_yield_pct": 1.44, "dps": 800.0, "treasury_shares": 316250, "treasury_ratio_pct": 0.41, "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 36.2% ≥ 25% & DPS 우상향)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 316,250주 [0.41%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "무차입 순현금·오너 지분 안정·터널링 0건·에코델타 증설 후 배당 확대 여력 풍부", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 9.91, "flags": ["④ 사업구성레짐(OPM 과거중위 39.4% → 현재 49.3%, +9.9%p [고마진 신사업 믹스 개선])"]}, "section8": {"primary_metric": "PER", "pbr_min": 2.71, "pbr_max": 13.98, "pbr_r2": 0.77, "pbr_dir": 63.2, "per_min": 17.26, "per_max": 70.25, "per_r2": 0.79, "per_dir": 63.2, "official_pbr": 5.41, "official_per": 22.47, "official_div": 1.44}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": true, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 532.0원 → 2026.2Q 869.0원 (QoQ 반등/흑자유지 ✅)", "qoq_rev_pct": 43.5, "qoq_op_pct": 55.4, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 997.7억→1,431.9억(QoQ +43.5%) | 영업이익 473.0억→735.1억(QoQ +55.4%) | 수정EPS 532원→869원", "kill_switch_guide": "차기 분기 영업이익 < 624.9억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 695원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 75.49665276109695, "bps_2y_chg": 38.19362931936209, "op_yoy_q": 37.551924604666674, "op_yoy_ttm": 34.187950879747625, "op_yoy_used": 37.551924604666674, "op_yoy_detail": "분기(2025.2Q→2026.2Q) +37.6% (534.4억 → 735.1억) | TTM 영업이익 YoY: +34.2%", "curr_roe": 24.18039773222162, "mid_cycle_roe": 21.55166795815347, "mid_cycle_eps": 1499.8677035347832, "pbr_cycle_max": 13.97693130023202, "pbr_3y_max": 13.97693130023202, "pbr_3y_mean": 6.76894040813641, "pbr_3y_p20": 5.2703629071844995, "pbr_3y_p65": 6.865894413329174, "pbr_3y_p90": 10.664288527499867, "per_3y_max": 70.2487532819756, "per_3y_mean": 37.58659466766759, "per_3y_p20": 30.191430134326684, "per_3y_p65": 38.12441304477517, "per_3y_p90": 52.96597783106452, "curr_eps_used": 2465.0, "curr_bps_used": 10235.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 133.46, "median_52w_range_pct": 87.73, "effective_52w_range": 87.73, "forward_bps": 10235.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.08, "sc_base_mult": 1.16, "sc_bull_mult": 1.21, "kgov_mult": 1.0, "peg_factor_used": 0.9, "base_mult_a": 1.2528, "bull_mult_a": 1.3068, "scurve_info": {"is_phase2": true, "is_early_ignition": false, "theme_name": "사용자/리포트 S-Curve Phase 2 지정 (--s-curve-phase2)", "exposure_pct": 91.73, "source_pdf": "Global_Trend 80p+ 심층 리포트 검증", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요"}, "tp1_price": 104600, "tp1_price_a": 112970, "tp1_upside": 88.81, "tp1_upside_a": 103.92, "bear_auto": 53940, "base_auto": 82120, "bull_auto": 119860, "base_auto_a": 102880, "bull_auto_a": 156630, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 2663.3, "implied_op_bull_a_eok": 2877.4}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ +55.4%, YoY +37.6%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(4,551.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 55400, "d_low20": 55300, "poc_low": 82900, "poc_high": 89800, "poc_pct": 31.4, "poc_trail_pin": 80413, "d_ma5": 60500, "d_ma20": 71565, "d_ma60": 69295, "vol_ma20": 1020730, "vol_ratio": 0.8, "stoch_k": 11.7, "stoch_d": 9.2, "w_close": 55400, "w_ma10": 70450, "w_ma20": 72050, "w_ma60": 79544, "bb_upper": 90912, "bb_lower": 53188, "w_macd": -5546.5, "w_macd_sig": -4711.8, "w_macd_hist": -834.7, "w_mfi14": 52.9, "w_rsi14": 36.5, "w_mfi14_12w_max": 60.4, "buy1": 52080, "buy2": 55400, "buy3": 56510, "avg_buy_price": 54737, "init_stop_pin": 49480, "breakout_trail_pin": 80413, "gate1_rr": 18.3, "exec_rr": 5.21, "is_overvalued": false, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 55400.0, "fcf_eok": 980.0, "norm_fcf_eok": 1195.0, "distb_shares": 75895600, "total_shares": 76211850, "treasury_shares": 316250, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -4551.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 42046.16, "market_cap_total_eok": 42221.36, "ev_distb_eok": 37495.16, "non_op_assets_eok": 420.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 294.0, "non_op_ratio_mcap_pct": 1.0, "non_op_ratio_book_pct": 5.41, "sotp_triggered": false, "core_op_ev_eok": 37201.16, "implied_g_distb_pct": 29.36, "implied_g_total_pct": 29.47, "implied_g_ev_pct": 26.21, "implied_g_core_ev_pct": null, "norm_g_distb_pct": 23.95, "norm_g_ev_pct": 20.91, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"55400\" data-shares=\"75895600\" data-total-shares=\"76211850\" data-fcf=\"980.0\" data-reported-fcf=\"980.0\" data-net-debt=\"-4551.0\" data-non-op-assets=\"294.0\" data-bear=\"53940\" data-base=\"82120\" data-bull=\"119860\" data-base-a=\"102880\" data-bull-a=\"156630\" data-tp1=\"104600\" data-tp1-a=\"112970\" data-buy1=\"52080\" data-buy2=\"55400\" data-buy3=\"56510\" data-stop-pin=\"49480\" data-poc-low=\"82900\"></div>", "data_quality": {"status": "ok", "warnings": []}};
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-11-17 13:21:16", "stock_code": "058470", "corp_name": "리노공업", "anchor_price": 47550, "primary_metric": "PER", "bench": {"stock_name": "리노공업", "close": 49000.0, "bps": 10235.0, "pbr": 4.65, "eps": 2465.0, "per": 19.29, "div_yield": 1.68, "dps": 800.0, "market_cap_str": "3조 6,239억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 7767.91, "mcap_eok": 36088.36, "non_op_assets_eok": 420.0, "recognized_non_op_eok": 294.0, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 5.41, "non_op_ratio_mcap_pct": 1.16, "non_op_max_ratio_pct": 5.41, "core_bps": 9682, "nopat_eok": 1564.59, "core_roic_pct": 21.29, "core_profit_sustainable": true, "implied_core_op_ev_eok": 30929.36}, "step1_2_bottleneck": {"is_phase2": true, "is_early_ignition": false, "theme_name": "온디바이스 AI & NPU 고집적 R&D 리노핀/소켓 (Phase 2 스위트스팟)", "exposure_pct": 85.0, "source_pdf": "26.08.28_신한_생성형AI와 온디바이스AI.pdf & 26.09.16.IM증권.소나기 피할 반도체.pdf", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "penetration_zone": "더블 S-Curve Zone A (1차 28.5% 캐시카우 + 2차 12.0% 🔥10% 언저리 변곡점)", "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_duration_label": "⏳ 장기 구조적 병목 (30개월 / 2년+ 지속)", "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요", "capa_util_pct": 85.0, "curr_opm_pct": 48.87, "core_bottleneck_only_mode": false, "scurve_sell_triggered": false, "shortage_easing": false, "slope_decel": false, "policy_headwind": false, "sell_signal_summary": "🟢 해당 없음 (병목 유지 · 성장 기울기 건전 · 정책 역풍 미감지)", "pen_base_boost": 0.11, "pen_bull_boost": 0.14, "bn_base_bonus": 0.05, "bn_bull_bonus": 0.07, "total_sc_bn_base_mult": 1.16, "total_sc_bn_bull_mult": 1.21, "peg_factor": 0.9}, "step1_8_k_return": {"payout_ratio_pct": 36.0, "tsr_pct": 36.2, "div_yield_pct": 1.68, "dps": 800.0, "treasury_shares": 316250, "treasury_ratio_pct": 0.41, "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 36.2% ≥ 25% & DPS 우상향)", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 316,250주 [0.41%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "무차입 순현금·오너 지분 안정·터널링 0건·에코델타 증설 후 배당 확대 여력 풍부", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": 10.19, "flags": ["④ 사업구성레짐(OPM 과거중위 38.7% → 현재 48.9%, +10.2%p [고마진 신사업 믹스 개선])"]}, "section8": {"primary_metric": "PER", "pbr_min": 2.71, "pbr_max": 13.98, "pbr_r2": 0.8, "pbr_dir": 61.5, "per_min": 17.26, "per_max": 70.26, "per_r2": 0.81, "per_dir": 64.1, "official_pbr": 4.65, "official_per": 19.29, "official_div": 1.68}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": false, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.2Q 869.0원 → 2026.3Q 298.0원 (흑자 지속(소폭조정) 🟢)", "qoq_rev_pct": -42.2, "qoq_op_pct": -46.4, "qoq_summary_str": "[2026.2Q → 2026.3Q] 매출액 1,431.9억→826.9억(QoQ -42.2%) | 영업이익 735.1억→394.2억(QoQ -46.4%) | 수정EPS 869원→298원", "kill_switch_guide": "차기 분기 영업이익 < 335.1억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 238원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": 64.66466158658157, "bps_2y_chg": 36.25818641729233, "op_yoy_q": -18.319973313654966, "op_yoy_ttm": 15.503663278491315, "op_yoy_used": -18.319973313654966, "op_yoy_detail": "분기(2025.3Q→2026.3Q) -18.3% (482.6억 → 394.2억) | TTM 영업이익 YoY: +15.5%", "curr_roe": 21.08380628109419, "mid_cycle_roe": 21.214342568889073, "mid_cycle_eps": 1516.2939974847027, "pbr_cycle_max": 13.97839754615128, "pbr_3y_max": 13.97839754615128, "pbr_3y_mean": 6.743468066166292, "pbr_3y_p20": 5.198512632162261, "pbr_3y_p65": 6.80259445393651, "pbr_3y_p90": 10.654400649349954, "per_3y_max": 70.25612270703895, "per_3y_mean": 37.3566922562334, "per_3y_p20": 30.160064310159303, "per_3y_p65": 38.020155309224776, "per_3y_p90": 52.96390842062727, "curr_eps_used": 2465.0, "curr_bps_used": 10235.0, "prev_swing_grade": "B", "prev_swing_score": 46}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 167.09, "median_52w_range_pct": 92.85, "effective_52w_range": 92.85, "forward_bps": 10235.0, "is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(2,465원) ≥ 5년 Mid-Cycle 중위 EPS(1,516원) × 1.35배 (단순 사이클 피크)", "op_mult": 1.0, "sc_base_mult": 1.16, "sc_bull_mult": 1.21, "kgov_mult": 1.0, "peg_factor_used": 0.9, "base_mult_a": 1.16, "bull_mult_a": 1.21, "scurve_sell_triggered": false, "scurve_info": {"is_phase2": true, "is_early_ignition": false, "theme_name": "온디바이스 AI & NPU 고집적 R&D 리노핀/소켓 (Phase 2 스위트스팟)", "exposure_pct": 85.0, "source_pdf": "26.08.28_신한_생성형AI와 온디바이스AI.pdf & 26.09.16.IM증권.소나기 피할 반도체.pdf", "penetration_pct": 28.5, "second_penetration_pct": 12.0, "is_near_10pct_inflection": true, "inflection_desc": "1차(모바일 AP 28.5%) + 2차(온디바이스 AI·NPU R&D 소켓 침투율 ~12.0% 🔥10% 언저리 변곡점)", "bottleneck_grade": "S", "bottleneck_factors": ["기술격차 해자: 초미세 피치(0.2mm 이하) 리노핀·IC 테스트 소켓 글로벌 독점적 수율 (OPM 47.4%)", "특허/벤더 Lock-in: 글로벌 빅테크(Apple, Qualcomm, Nvidia, TSMC) R&D 초기 설계부터 락인", "생산 Capa: 에코델타시티 신공장 이전(2026.4Q 완공) 전까지 물리적 고집적 핀 Capa 병목 지속"], "bottleneck_lead_time_months": 30, "bottleneck_lead_reason": "에코델타시티 신공장 셋업 및 경쟁사 초미세 핀 특허 우회·글로벌 빅테크 R&D 인증에 최소 24~36개월 소요"}, "tp1_price": 104600, "tp1_price_a": 104600, "tp1_upside": 119.98, "tp1_upside_a": 119.98, "bear_auto": 46820, "base_auto": 67380, "bull_auto": 105170, "base_auto_a": 78160, "bull_auto_a": 127260, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 2035.8, "implied_op_bull_a_eok": 3013.5}, "cyclical_guard": {"is_peak_trap": true, "peak_trap_reason": "현재/추정 EPS(2,465원) ≥ 5년 Mid-Cycle 중위 EPS(1,516원) × 1.35배 (단순 사이클 피크)"}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -46.4%, YoY -18.3%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(4,865.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 47550, "d_low20": 45100, "poc_low": 50020, "poc_high": 54940, "poc_pct": 26.5, "poc_trail_pin": 48519, "d_ma5": 50700, "d_ma20": 55475, "d_ma60": 65915, "vol_ma20": 606763, "vol_ratio": 0.47, "stoch_k": 31.2, "stoch_d": 24.8, "w_close": 47550, "w_ma5": 52950, "w_ma10": 65275, "w_ma20": 66678, "w_ma60": 79501, "w_ma120": 60378, "w_disp5_pct": -10.2, "w_disp20_pct": -28.69, "w_disp60_pct": -40.19, "w_disp120_pct": -21.25, "w_poc_low": 38700, "w_poc_high": 51600, "w_poc_price": 45150, "w_poc_pct": 21.8, "w_vp_dist_pct": 5.32, "w_vp_status": "POC돌파지지(+15점)", "bb_upper": 87493, "bb_lower": 45862, "w_macd": -8436.4, "w_macd_sig": -6206.9, "w_macd_hist": -2229.5, "w_mfi14": 49.7, "w_rsi14": 34.7, "w_mfi14_12w_max": 60.4, "w_swing_score": 46, "w_swing_grade": "B", "w_swing_signal": "🔵 B-급 완충 눌림목 구간 (45~54점 히스테리시스: 45점 하회 전 눌림목 분할 대응 유지)", "buy1": 44700, "buy2": 47550, "buy3": 48500, "avg_buy_price": 46980, "init_stop_pin": 42460, "breakout_trail_pin": 48519, "gate1_rr": 5.21, "exec_rr": 4.51, "is_overvalued": false, "is_track2": false, "is_value_trap_hold": false, "is_downtrend_hold": false, "sop_mode_desc": "🚀 [Track 1: 오름차순 정렬 완료 (Buy1 < Buy2 < Buy3 < 목표가)]: 낮은 추세선(47,550원)을 2차 본대로, 높은 추세선/매물대(48,500원)를 3차 확인사살로 배치하여 가격 역전 및 역손익비 원천 차단!"}, "reverse_dcf": {"status": "success", "price": 47550.0, "fcf_eok": 1092.9, "norm_fcf_eok": 1350.0, "distb_shares": 75895600, "total_shares": 76211850, "treasury_shares": 316250, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -4865.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 36088.36, "market_cap_total_eok": 36238.73, "ev_distb_eok": 31223.36, "non_op_assets_eok": 420.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 294.0, "non_op_ratio_mcap_pct": 1.16, "non_op_ratio_book_pct": 5.41, "sotp_triggered": false, "core_op_ev_eok": 30929.36, "implied_g_distb_pct": 22.26, "implied_g_total_pct": 22.37, "implied_g_ev_pct": 18.47, "implied_g_core_ev_pct": null, "norm_g_distb_pct": 16.77, "norm_g_ev_pct": 13.11, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"47550\" data-shares=\"75895600\" data-total-shares=\"76211850\" data-fcf=\"1092.9\" data-reported-fcf=\"1092.9\" data-net-debt=\"-4865.0\" data-non-op-assets=\"294.0\" data-bear=\"46820\" data-base=\"67380\" data-bull=\"105170\" data-base-a=\"78160\" data-bull-a=\"127260\" data-tp1=\"104600\" data-tp1-a=\"104600\" data-buy1=\"44700\" data-buy2=\"47550\" data-buy3=\"48500\" data-stop-pin=\"42460\" data-poc-low=\"50020\"></div>", "data_quality": {"status": "ok", "warnings": []}, "input_params": {"code": "058470", "sector_type": "A", "rerating_date": null, "distb_shares": 75895600, "total_shares": 76211850, "fcf": 1092.9, "norm_fcf": 1350.0, "net_debt": -4865.0, "non_op_assets": 420.0, "dart_exposure": null, "forward_eps": null, "forward_eps_g": null, "expected_dps": 0.0, "sc_override": null, "early_ignition": false}};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");

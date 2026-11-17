@@ -816,7 +816,8 @@ VERIFIED_BOTTLENECK_AND_KGOV_DB = {
         "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 33%+ 고배당 지속)",
         "buyback_cliff_warn": False,
         "related_party_eok": 0.0,
-        "k_gov_note": "안정적 고배당 박스권 캐시카우",
+        "is_listed_parent_sales": True,
+        "k_gov_note": "안정적 고배당 박스권 캐시카우 (상장 모회사 JW중외제약 수액 유통 구조 — 오너 개인회사 사익편취 터널링 아님)",
         "kgov_mult": 1.00,
     },
     "214180": {  # 헥토이노베이션
@@ -1083,11 +1084,19 @@ def compute_step1_2_scurve_bottleneck_matrix(
             curr_opm_pct = round((float(s3_m["영업이익"].iloc[-1]) / float(s3_m["매출액"].iloc[-1])) * 100.0, 2)
 
     # Axis 1: Is penetration near ~10% inflection (8.0% ~ 18.0%)?
-    is_10pct_zone_primary = 8.0 <= pen1 <= 18.0
-    is_10pct_zone_secondary = 8.0 <= pen2 <= 18.0
-    is_near_10pct = is_10pct_zone_primary or is_10pct_zone_secondary or bool(sc_info.get("is_near_10pct_inflection")) or early_ignition
+    # [PATCH v5.1 Option A] Enforce Principle 4 (Free Call Option): if sc_info["is_phase2"] is False
+    # (standalone new-tech revenue < 30% or undisclosed / --no-s-curve / excluded), S-Curve penetration boost MUST be 0.0%!
+    is_p2_qualified = bool(sc_info.get("is_phase2"))
+    is_10pct_zone_primary = is_p2_qualified and (8.0 <= pen1 <= 18.0)
+    is_10pct_zone_secondary = is_p2_qualified and (8.0 <= pen2 <= 18.0)
+    is_near_10pct = is_p2_qualified and (
+        is_10pct_zone_primary or is_10pct_zone_secondary or bool(sc_info.get("is_near_10pct_inflection")) or early_ignition
+    )
 
-    if is_10pct_zone_primary:
+    if not is_p2_qualified:
+        pen_zone_code = f"Zone D [무상 콜옵션/비해당 — 단독매출 30% 미달·미공시로 침투율({pen1:.1f}%/{pen2:.1f}%) 할증 0% 차단]"
+        pen_base_boost, pen_bull_boost = 0.00, 0.00
+    elif is_10pct_zone_primary:
         pen_zone_code = "Zone A (10% 언저리 골든 변곡점 초입)"
         pen_base_boost, pen_bull_boost = 0.12, 0.16
     elif is_10pct_zone_secondary and pen1 > 18.0:
@@ -1335,16 +1344,38 @@ def compute_step1_8_k_market_shareholder_return(
         )
     )
 
-    tunneling_status = (
-        f"⚠️ [오너 개인회사 내부거래 감시]: 특수관계자(오너 일가 개인회사 등) 연간 내부거래 약 {rel_party_eok:,.1f}억 원 — 일감 몰아주기(터널링) 확대 시 밸류에이션 할인 트리거 작동"
-        if rel_party_eok >= 30.0
-        else f"🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [{rel_party_eok:,.1f}억 원])"
-    )
+    is_parent_channel = bool(v_meta.get("is_listed_parent_sales", False))
+    if is_parent_channel and rel_party_eok >= 30.0:
+        tunneling_status = (
+            f"🟢 정상 영업 유통 (상장 모회사·계열사 유통 채널 거래 약 {rel_party_eok:,.1f}억 원 — "
+            f"오너 개인회사 사익편취 터널링 비해당, 할인 0%)"
+        )
+    elif rel_party_eok >= 30.0:
+        tunneling_status = (
+            f"⚠️ [오너 개인회사 내부거래 감시]: 특수관계자(오너 일가 개인회사 등) 연간 내부거래 약 {rel_party_eok:,.1f}억 원 — 일감 몰아주기(터널링) 확대 시 밸류에이션 할인 트리거 작동"
+        )
+    else:
+        tunneling_status = f"🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [{rel_party_eok:,.1f}억 원])"
 
     k_gov_note = v_meta.get("k_gov_note", "DART 특수관계자 주석 및 메자닌(CB/BW) 리픽싱 잔액 0건 여부 확인 필수")
     base_kgov_mult = float(v_meta.get("kgov_mult", 1.00))
-    if governance_discount and governance_discount > 0:
-        base_kgov_mult = round(base_kgov_mult * (1.0 - float(governance_discount)), 4)
+    if governance_discount and abs(float(governance_discount)) > 0:
+        disc_r = abs(float(governance_discount))
+        if disc_r > 1.0:
+            disc_r = disc_r / 100.0
+        base_kgov_mult = round(base_kgov_mult * (1.0 - disc_r), 4)
+    else:
+        # [PATCH v5.1 Option A-2 #6] Only discount genuine owner-private tunneling (exclude listed parent/subsidiary distribution)
+        auto_gov_pen = 0.0
+        if not is_parent_channel:
+            if rel_party_eok >= 500.0:
+                auto_gov_pen += 0.04
+            elif rel_party_eok >= 100.0:
+                auto_gov_pen += 0.02
+        if is_cliff:
+            auto_gov_pen += 0.02
+        if auto_gov_pen > 0:
+            base_kgov_mult = round(base_kgov_mult * (1.0 - auto_gov_pen), 4)
 
     print(f"    - [1] 배당성향 & 총주주환원율(TSR): 배당성향 {used_payout:.1f}% (배당수익률 {div_yield:.2f}%, DPS {dps:,.0f}원) | 총주주환원율(TSR) {tsr_pct:.1f}%")
     print(f"    - [2] 한국 배당소득 분리과세 판정: {tax_status}")
@@ -2086,6 +2117,7 @@ def compute_section3_stock_nature_and_tp1(
     step1_2_res=None,
     step1_8_res=None,
     distb_shares=0,
+    sec8_res=None,
 ):
     """
     (B) Section 3 종목 체질 판별, 사이클주 '피크 이익 × 높은 멀티플' 함정 차단(Peak-Cycle Trap Guard),
@@ -2211,52 +2243,90 @@ def compute_section3_stock_nature_and_tp1(
         eff_per_p65 = round(compressed_base_per, 2)
         eff_per_p90 = round(compressed_bull_per, 2)
 
+    raw_pbr_10y_min = float((sec8_res or {}).get("pbr_min") or pbr_p20)
+    raw_per_10y_min = float((sec8_res or {}).get("per_min") or per_p20)
+    # Guard against pre-split data artifacts (>30% below 3Y p20) by bounding 10Y cycle trough at 0.82 * 3Y p20
+    pbr_10y_min = raw_pbr_10y_min if raw_pbr_10y_min >= pbr_p20 * 0.70 else pbr_p20 * 0.88
+    per_10y_min = raw_per_10y_min if raw_per_10y_min >= per_p20 * 0.70 else per_p20 * 0.88
+
     if sec2_res.get("is_type_b"):
-        bear_auto_b = round((bps * 0.75) / 10) * 10 if bps > 0 else round(low_52w_close)
+        # [PATCH v5.1 Option A-2 #1 & #2] Type B (Structural Value Trap):
+        # Anchor Bear purely on Book Value (min of 0.70x BPS and 10Y trough PBR * BPS, floored at 0.65x BPS)
+        # with ZERO dependency on curr_price so intrinsic targets never chase daily price drops!
+        bear_mult_b = max(0.65, min(0.70, raw_pbr_10y_min if raw_pbr_10y_min >= 0.50 else 0.67))
+        bear_auto_b = round((bps * bear_mult_b) / 10) * 10 if bps > 0 else round(low_52w_close)
     else:
-        bear_pbr_val = bps * pbr_p20 if bps and bps > 0 else 0
-        bear_per_val = trailing_eps * per_p20 if trailing_eps and trailing_eps > 0 else 0
+        # [PATCH v5.1 Option A-2 #1] Pure Fundamental Bear Floor (ZERO dependency on curr_price):
+        # Uses bounded cycle trough multiples (or midpoint with 3Y p20 for low-vol box stocks)
+        # so Bear/Base/Bull stay 100% invariant to daily stock price fluctuations.
+        eff_bear_pbr = (0.5 * (pbr_p20 + min(pbr_p20, pbr_10y_min))) if is_low_vol_box else min(pbr_p20, pbr_10y_min)
+        eff_bear_per = (0.5 * (per_p20 + min(per_p20, per_10y_min))) if is_low_vol_box else min(per_p20, per_10y_min)
+        bear_pbr_val = bps * eff_bear_pbr if bps and bps > 0 else 0
+        bear_per_val = trailing_eps * eff_bear_per if trailing_eps and trailing_eps > 0 else 0
         bear_candidates = [v for v in (bear_pbr_val, bear_per_val) if v > 0]
         bear_auto_b = (
             round(min(bear_candidates) / 10) * 10 if bear_candidates else round(low_52w_close)
         )
-        if bear_auto_b >= curr_price * 0.95:
-            bear_auto_b = round(min(bear_pbr_val if bear_pbr_val > 0 else low_52w_close, low_52w_close) / 10) * 10
 
-    base_candidates = [
-        v
-        for v in (
-            eps_for_valuation * eff_per_p65 if eps_for_valuation and eps_for_valuation > 0 else 0,
-            forward_bps * pbr_p65 if forward_bps and forward_bps > 0 else 0,
-        )
-        if v > 0
-    ]
-    bull_candidates = [
-        v
-        for v in (
-            eps_for_valuation * eff_per_p90 if eps_for_valuation and eps_for_valuation > 0 else 0,
-            forward_bps * pbr_p90 if forward_bps and forward_bps > 0 else 0,
-        )
-        if v > 0
-    ]
+    # [PATCH v5.1 Option A-2 #5] SOTP 20% Rule aligned with Section 8 Primary Metric Inheritance:
+    # When non-operating assets >= 20% of Book/Market Cap (sotp_triggered), decompose PBR into
+    # `(core_forward_bps * pbr_band) + recognized_non_op_per_share`, while respecting primary_metric (PER vs PBR).
+    sotp_active = bool(sotp_res and sotp_res.get("sotp_triggered") and bps > 0)
+    if sotp_active:
+        core_bps_v = float(sotp_res.get("core_bps", bps))
+        non_op_per_sh = max(0.0, (bps - core_bps_v) * (1.0 - float(sotp_res.get("non_op_haircut", 0.30))))
+        retained_per_sh = max(0.0, float(forward_bps) - float(bps))
+        core_fwd_bps = core_bps_v + retained_per_sh
+        pbr_base_val = (core_fwd_bps * pbr_p65) + non_op_per_sh
+        pbr_bull_val = (core_fwd_bps * pbr_p90) + non_op_per_sh
+    else:
+        pbr_base_val = forward_bps * pbr_p65 if forward_bps and forward_bps > 0 else 0
+        pbr_bull_val = forward_bps * pbr_p90 if forward_bps and forward_bps > 0 else 0
 
-    # If peak earnings trap is triggered and mid_cycle_eps is available, cap PER valuation by Mid-Cycle EPS * Mean PER
-    if is_peak_earnings and mid_cycle_eps and mid_cycle_eps > 0:
-        mean_per = sec2_res.get("per_3y_mean") or 12.0
-        mid_cycle_base_val = mid_cycle_eps * mean_per
-        if base_candidates:
-            base_candidates = [min(base_candidates[0], mid_cycle_base_val * 1.15)] + base_candidates[1:]
+    if sec2_res.get("is_type_b"):
+        # Pure book-anchored trough valuation (PBR p20 for Base, 3Y Mean PBR for Bull) — zero dependency on curr_price!
+        trap_base_pbr = bps * max(pbr_p20, 0.80) if bps and bps > 0 else bear_auto_b * 1.12
+        trap_bull_pbr = bps * max(sec2_res.get("pbr_3y_mean") or pbr_p65, pbr_p20 * 1.12) if bps and bps > 0 else bear_auto_b * 1.28
+        base_auto_b = max(bear_auto_b + 100, round(trap_base_pbr / 10) * 10)
+        bull_auto_b = max(base_auto_b + 100, round(trap_bull_pbr / 10) * 10)
+    else:
+        per_base_val = eps_for_valuation * eff_per_p65 if eps_for_valuation and eps_for_valuation > 0 else 0
+        per_bull_val = eps_for_valuation * eff_per_p90 if eps_for_valuation and eps_for_valuation > 0 else 0
 
-    base_auto_b = (
-        round((sum(base_candidates) / len(base_candidates)) / 10) * 10
-        if base_candidates
-        else round(curr_price * 1.20)
-    )
-    bull_auto_b = (
-        round((sum(bull_candidates) / len(bull_candidates)) / 10) * 10
-        if bull_candidates
-        else round(curr_price * 1.50)
-    )
+        # If peak earnings trap is triggered and mid_cycle_eps is available, cap PER valuation by Mid-Cycle EPS * Mean PER
+        if is_peak_earnings and mid_cycle_eps and mid_cycle_eps > 0:
+            mean_per = sec2_res.get("per_3y_mean") or 12.0
+            mid_cycle_base_val = mid_cycle_eps * mean_per
+            if per_base_val > 0:
+                per_base_val = min(per_base_val, mid_cycle_base_val * 1.15)
+
+        primary_m = (sec8_res or {}).get("primary_metric", "PBR")
+        pbr_dir_ok = float((sec8_res or {}).get("pbr_dir", 50.0)) >= 50.0
+        per_dir_ok = float((sec8_res or {}).get("per_dir", 50.0)) >= 50.0
+
+        if per_base_val > 0 and pbr_base_val > 0:
+            if primary_m == "PER" and not pbr_dir_ok:
+                # PBR failed directional consistency (<50%): weight primary PER 70% + SOTP/Book PBR 30%
+                w_per, w_pbr = 0.70, 0.30
+            elif primary_m == "PBR" and (not per_dir_ok or sotp_active):
+                # PBR is primary (or SOTP on a PBR-driven stock): weight SOTP/Book PBR 70% + PER 30%
+                w_per, w_pbr = 0.30, 0.70
+            else:
+                w_per, w_pbr = 0.50, 0.50
+            base_auto_b = round((per_base_val * w_per + pbr_base_val * w_pbr) / 10) * 10
+            bull_auto_b = round((per_bull_val * w_per + pbr_bull_val * w_pbr) / 10) * 10
+        elif per_base_val > 0:
+            base_auto_b = round(per_base_val / 10) * 10
+            bull_auto_b = round(per_bull_val / 10) * 10
+        elif pbr_base_val > 0:
+            base_auto_b = round(pbr_base_val / 10) * 10
+            bull_auto_b = round(pbr_bull_val / 10) * 10
+        else:
+            base_auto_b = round(curr_price * 1.20)
+            bull_auto_b = round(curr_price * 1.50)
+
+        if bear_auto_b >= base_auto_b:
+            bear_auto_b = round((base_auto_b * 0.75) / 10) * 10
 
     op_yoy = sec2_res.get("op_yoy_used")
     is_type_b = sec2_res.get("is_type_b", False)
@@ -2745,14 +2815,26 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
         qoq_op_v = float(sec2_res.get("qoq_op_pct") or 0.0)
         opm_pts = 15 if (op_yoy_v >= 25.0 and qoq_op_v >= 0.0) else (5 if op_yoy_v > 0 else (-15 if qoq_op_v <= -15.0 else 0))
         w_swing_score = max(0, min(100, int(round(50 + ma_pts + vp_pts + mom_pts + opm_pts))))
+        # [PATCH v5.1 Option A-2 #4] Hysteresis Buffer (45 ~ 55 pts) to prevent grade flip-flopping on 2~3 pt changes:
+        # - < 45 pts: Confirmed Grade C (Downtrend / Below POC)
+        # - 45 ~ 54 pts: Buffer Zone (C+ / B- transition — keeps previous state or uses smooth staged entry)
+        # - >= 55 pts: Confirmed Grade B / A / S
+        prev_grade = sec2_res.get("prev_swing_grade")
+        prev_score = sec2_res.get("prev_swing_score")
+        prev_entered_deep_c = (prev_grade == "C") and (prev_score is not None and float(prev_score) < 45.0)
         if w_swing_score >= 80 and opm_pts >= 5 and w_vp_dist_pct >= 0:
             w_swing_grade, w_swing_signal = "S", "🎯 S급 중기 스윙 타점 (DART 이익가속 + 주봉 POC 매물대 돌파 + 20주선 골든 이격)"
         elif w_swing_score >= 68:
             w_swing_grade, w_swing_signal = "A", "🟢 A급 중기 스윙 우위 (정배열·매물대 상단 안착)"
-        elif w_swing_score >= 50:
+        elif w_swing_score >= 55:
             w_swing_grade, w_swing_signal = "B", "🔵 B급 눌림목/지지 확인 (20주선 및 POC 지지 체크)"
+        elif w_swing_score >= 45:
+            if prev_entered_deep_c:
+                w_swing_grade, w_swing_signal = "C", "🟡 C+급 완충 관찰 구간 (45~54점 히스테리시스: 55점 돌파 전 보수적 정찰·지지선 대기 유지)"
+            else:
+                w_swing_grade, w_swing_signal = "B", "🔵 B-급 완충 눌림목 구간 (45~54점 히스테리시스: 45점 하회 전 눌림목 분할 대응 유지)"
         else:
-            w_swing_grade, w_swing_signal = "C", "🟠 C급 보수적 관망 (매물벽 저항 또는 실적 모멘텀 대기)"
+            w_swing_grade, w_swing_signal = "C", "🟠 C급 하락추세 경계 (<45점: 매물벽 저항·역배열 — 지지선 대기 및 소량 정찰 제한)"
 
         print(f"\n  [주봉 (Weekly, 기준일: {curr_w_date}, 종가: {curr_w_close:,.0f}원)]")
         print(
@@ -2831,18 +2913,44 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
     weekly_trend_ok = (curr_p >= w_ma20_val * 0.95) and (w_ma20_val >= w_ma60_val * 0.97)
 
     sc_sell_active = bool(sec3_res.get("scurve_sell_triggered", False))
+    is_type_b_trap = bool(sec2_res.get("is_type_b", False))
+
+    # Pre-compute Gate 1 (Fundamental R:R) with realistic minimum downside floor (5.0% box / 8.0% trend)
+    base_up_curr = ((primary_t / curr_p) - 1.0) * 100.0 if curr_p > 0 else 0.0
+    bear_dn_curr = abs(((bear_b / curr_p) - 1.0) * 100.0) if (curr_p > 0 and bear_b < curr_p) else 8.0
+    min_dn_floor = 5.0 if is_box else 8.0
+    gate1_rr = round(base_up_curr / max(bear_dn_curr, min_dn_floor), 2) if (base_up_curr > 0 and not is_type_b_trap) else 0.0
+
     is_track2 = (
         sc_info.get("is_phase2", False)
         and not sec3_res.get("is_peak_trap", False)
         and not sc_sell_active
+        and not is_type_b_trap
         and (curr_p >= primary_t * 0.96)
         and (curr_p <= track2_ceiling)
         and weekly_trend_ok
         and not overheated
     )
     is_overvalued = (curr_p >= primary_t * 0.96) and not is_track2
+    is_downtrend_hold = (res.get("w_swing_grade") == "C") and not is_track2 and not is_overvalued and not is_type_b_trap
+    is_staged_c_scout = bool(is_downtrend_hold and gate1_rr >= 1.50 and not sec3_res.get("is_peak_trap", False))
 
-    if is_overvalued:
+    if is_type_b_trap:
+        # [PATCH v5.1 Option A-2 #2] Structural Value Trap (Type B): Block current-price buying in execution layer!
+        trap_ceil = int(round(min(curr_p * 0.92, primary_t * 0.88) / 10) * 10)
+        buy1 = int(round(min(bear_b, trap_ceil * 0.90) / 10) * 10)
+        buy2 = int(round((buy1 + (trap_ceil - buy1) * 0.50) / 10) * 10)
+        buy3 = trap_ceil
+        if buy2 <= buy1:
+            buy2 = int(round((buy1 * 1.02) / 10) * 10)
+        if buy3 <= buy2:
+            buy3 = int(round((buy2 * 1.02) / 10) * 10)
+        sop_mode_desc = (
+            f"🚫 [유형 B 구조적 가치함정 — 턴어라운드 확인 전 현재가({curr_p:,}원) 매수 금지 모드]: "
+            f"2년 누적 EPS 급감 및 저ROE 가치함정 구간이므로 분기 영업이익·수정EPS QoQ 반등 공시 전까지 신규 진입을 보류하며, "
+            f"불가피한 분할 대기선은 청산가치 하단({buy1:,}~{buy3:,}원)으로만 제한합니다!"
+        )
+    elif is_overvalued:
         buy1 = int(round((base_b * 0.80) / 10) * 10)
         buy2 = int(round((base_b * 0.85) / 10) * 10)
         buy3 = int(round((base_b * 0.90) / 10) * 10)
@@ -2855,6 +2963,58 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
         if buy3 <= buy2:
             buy3 = int(round((buy2 * 1.02) / 10) * 10)
         sop_mode_desc = f"🔥 [Track 2: S-Curve 주도주 돌파 분할매수 모드 (데드존 해체)]: 대안 B({base_b:,}원) 돌파 후 1차 타겟({primary_t:,}원) 대비 상방 여력 확보 & 주봉 추세 건전(60주 이격도 {disparity_60w:.1f}%)"
+    elif is_downtrend_hold:
+        # [PATCH v5.1 Option A-2 #3] Korean Market Staged Entry for Grade C (<45 pts):
+        # - If Gate 1 R:R >= 1.50 (deeply undervalued quality stock), allow a 20~30% scout entry near current price (-2% dip, Buy3)
+        #   so V-shaped institutional rebounds are not missed, while keeping 70~80% main capital (Buy1/Buy2) at deep support!
+        # - If Gate 1 R:R < 1.50 or Peak Trap, keep all 3 steps strictly below current price * 0.95.
+        down_ceil_pct = 0.98 if is_staged_c_scout else 0.95
+        down_ceil = int(round(min(curr_p * down_ceil_pct, primary_t * 0.88) / 10) * 10)
+        buy1 = int(round(min(bear_b, curr_p * 0.86, primary_t * 0.78) / 10) * 10)
+        if down_ceil <= buy1 * 1.04:
+            down_ceil = int(round(min(primary_t * 0.90, max(curr_p * 0.96, buy1 * 1.06)) / 10) * 10)
+
+        support_candidates = sorted(
+            list(
+                set([
+                    res.get("d_low20", 0),
+                    res.get("bb_lower", 0),
+                    res.get("w_poc_low", 0),
+                    res.get("w_poc_price", 0),
+                ])
+            )
+        )
+        mid_ceil = int(round(min(curr_p * 0.94, down_ceil * 0.96) / 10) * 10)
+        valid_supports = [lvl for lvl in support_candidates if (buy1 * 1.015) <= lvl <= mid_ceil]
+        if is_staged_c_scout:
+            buy2 = int(round(valid_supports[-1] / 10) * 10) if valid_supports else int(round((buy1 + (mid_ceil - buy1) * 0.65) / 10) * 10)
+            buy3 = down_ceil
+        elif len(valid_supports) >= 2:
+            buy2 = int(round(valid_supports[0] / 10) * 10)
+            buy3 = int(round(valid_supports[-1] / 10) * 10)
+        elif len(valid_supports) == 1:
+            buy2 = int(round(valid_supports[0] / 10) * 10)
+            buy3 = down_ceil
+        else:
+            buy2 = int(round((buy1 + (down_ceil - buy1) * 0.50) / 10) * 10)
+            buy3 = down_ceil
+
+        if buy2 <= buy1:
+            buy2 = int(round((buy1 * 1.025) / 10) * 10)
+        if buy3 <= buy2:
+            buy3 = int(round((buy2 * 1.025) / 10) * 10)
+
+        if is_staged_c_scout:
+            sop_mode_desc = (
+                f"⚖️ [한국형 C등급({res.get('w_swing_score', 0)}점) 단계적 진입 모드 — 정찰(3차 20~30%) + 본대(1·2차 70~80%) 분리]: "
+                f"펀더멘털 저평가(Gate 1 R:R {gate1_rr:.2f}:1 ≥ 1.5)는 통과했으나 주봉 역배열 구간이므로, "
+                f"V자 반등 소외 방지용 소량 정찰병만 3차({buy3:,}원, 현재가 -2% 눌림/바닥확인)에 허용하고 본대 물량(70%+)은 반드시 하방 지지선({buy1:,}~{buy2:,}원) 또는 20주선({res.get('w_ma20', 0):,}원)·MACD 양전환 확인 시 집행합니다!"
+            )
+        else:
+            sop_mode_desc = (
+                f"⚠️ [주봉 C등급({res.get('w_swing_score', 0)}점) 하락추세 칼날받기 차단 → 지지선/추세전환 대기 모드]: "
+                f"주봉 역배열·매물벽 저항 구간이므로 현재가({curr_p:,}원) 즉시 매수를 금지하고 하단 지지선({buy1:,}~{buy3:,}원) 눌림목 바닥 확인 또는 주봉 20주선 회복 후 진입합니다."
+            )
     else:
         max_buy_ceiling = int(round(min(curr_p * 0.92, base_b * 0.85) if curr_p > primary_t else min(primary_t * 0.92, curr_p * 1.04)))
         buy1 = int(round(min(bear_b, curr_p * 0.94, primary_t * 0.82) / 10) * 10)
@@ -2914,9 +3074,12 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
     exec_rr = (target_upside_pct / abs(avg_loss_pct)) if avg_loss_pct < 0 else 0.0
 
     # Gate 1 (Fundamental R:R) & Gate 2 (Execution R:R)
+    # [PATCH v5.1 Option A] Enforce realistic minimum downside risk floor (5.0% box / 8.0% trend)
+    # so stocks near 52-week lows never produce illusory Gate 1 R:R of 30:1 ~ 50:1.
     base_up_curr = ((primary_t / curr_p) - 1.0) * 100.0 if curr_p > 0 else 0.0
-    bear_dn_curr = abs(((bear_b / curr_p) - 1.0) * 100.0) if (curr_p > 0 and bear_b < curr_p) else 1.0
-    gate1_rr = round(base_up_curr / max(bear_dn_curr, 0.5), 2) if base_up_curr > 0 else 0.0
+    bear_dn_curr = abs(((bear_b / curr_p) - 1.0) * 100.0) if (curr_p > 0 and bear_b < curr_p) else 8.0
+    min_dn_floor = 5.0 if is_box else 8.0
+    gate1_rr = round(base_up_curr / max(bear_dn_curr, min_dn_floor), 2) if (base_up_curr > 0 and not is_type_b_trap) else 0.0
 
     print("\n  [🛡️ 마스터 SOP 무결성 검증 완료 — 3분할 매수가 & 2단계 안전핀 자동 설계]")
     print(f"    - 전략 모드: {sop_mode_desc}")
@@ -2944,6 +3107,9 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
         "exec_rr": round(exec_rr, 2),
         "is_overvalued": is_overvalued,
         "is_track2": is_track2,
+        "is_value_trap_hold": is_type_b_trap,
+        "is_downtrend_hold": is_downtrend_hold,
+        "sop_mode_desc": sop_mode_desc,
     })
     return res
 
@@ -3333,6 +3499,7 @@ def run_valuation_backtest(
         step1_2_res=step1_2_res,
         step1_8_res=step1_8_res,
         distb_shares=distb_shares,
+        sec8_res=sec8_res,
     )
 
     # [v4.2 Step 3.5] Multi-Stage Risk Causal Chain Diagnosis
@@ -3341,6 +3508,15 @@ def run_valuation_backtest(
     )
 
     # [Phase 3 Section 4] Master SOP Indicators & Dual Safety Pin
+    if export_json and os.path.exists(export_json):
+        try:
+            with open(export_json, "r", encoding="utf-8") as _pf:
+                _prev_d = json.load(_pf)
+                _prev_s4 = _prev_d.get("section4") or {}
+                sec2_res["prev_swing_grade"] = _prev_s4.get("w_swing_grade")
+                sec2_res["prev_swing_score"] = _prev_s4.get("w_swing_score")
+        except Exception:
+            pass
     sec4_res = compute_section4_master_sop_indicators(
         df_day, df_full_week, sec2_res, sec3_res
     )

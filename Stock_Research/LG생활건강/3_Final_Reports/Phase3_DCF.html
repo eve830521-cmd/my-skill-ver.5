@@ -406,397 +406,246 @@ p > em {
     </script>
 </head>
 <body>
-    <h1>🎯 LG생활건강 (051900) Phase 3: 가격 판독기 (Price Evaluator — v4.2.2)</h1>
+    <h1>[Phase 3] LG생활건강 (051900) 적정주가(DCF) 및 매매 전략 보고서 (v5.1 Option A-2 클린 리빌드)</h1>
 <blockquote>
-<p>💡 <strong>[가격 판독기 핵심 요약]</strong>
-- <strong>단일 기준 주가(Single Price Anchor)</strong>: <strong><code>269,500원</code></strong> (2026-10-22 일봉 종가 기준)
-- <strong>지배주주 순이익 귀속률</strong>: <strong><code>100.0%</code></strong> (비지배지분 순이익 차감 완료)
-- <strong>가치함정 판정 결과</strong>: <strong><code>🔴 [유형 B: 구조적 버블 붕괴 가치함정 (Structural Value Trap)]</code></strong>
-- <strong>주 밸류에이션 지표</strong>: <strong><code>PER</code></strong> (10년 백테스트 $R^2=0.79$, 방향일치율 56.4% 1순위 강제 상속)
-- <strong>S-Curve 지위</strong>: <code>[🎁 0원 무상 콜옵션 (할증 0%, sc_mult = 1.00)]</code> (대안 B = 대안 A)
-- <strong>마스터 SOP 타점</strong>: 1차 253,180원 / 2차 264,900원 / 3차 274,800원 (완성 평단 264,354원) | 1단계 안전핀 240,520원 (-5.0%) | Gate 1 R:R 4.75:1 / Gate 2 R:R 3.47:1</p>
+<p><strong>작성 기준일</strong>: 2026-04-17 | <strong>단일 기준 주가 (Anchor Price)</strong>: <strong><code>241,500원</code></strong>
+<strong>적용 방법론</strong>: v5.1 Option A-2 (목표주가 현재가 순환참조 완전 제거 &amp; 유형 B 순자산 바닥 고정 + 한국형 실전 SOP 리스크 통제)
+<strong>유통주식수(자기주식 차감)</strong>: <code>14,659,784주</code> (발행총수 <code>17,071,782주</code> - 자기주식 <code>2,411,998주 [14.13%]</code>)
+<strong>지배주주 순이익 귀속률</strong>: <code>100.0%</code> | <strong>실질 순차입금</strong>: <code>-11,500.0억 원</code> (순현금)
+<strong>최적 밸류에이션 주 지표</strong>: <strong>PER</strong> (<code>Phase 1 Section 8</code> 백테스트 1순위 강제 상속)
+<strong>최종 전략 판정</strong>: <strong>🚫 [유형 B: 구조적 가치함정 — 턴어라운드 확인 전 현재가(<code>241,500원</code>) 즉시 매수 금지 / 청산가치 하단(<code>199,960~222,180원</code>) 분할 대기]</strong> (<code>Gate 1 R:R = 0.00:1</code> 차단 / <code>Gate 2 실전 R:R = 2.79:1</code>)</p>
 </blockquote>
 <hr />
-<h2>1. 역DCF 정밀 판독 (Equity · EV · SOTP 본업EV 병기)</h2>
-<h3>1) Step 0.5: 현금흐름(FCF) 품질 및 순운전자본(NWC) 검증</h3>
-<p>DART 2026년 반기보고서(26기 반기) 연결 재무제표를 바탕으로 FCF 품질을 정밀 검증하였습니다 <code>[공시 팩트: 반기보고서(2026.08.14) p.34-39]</code>.</p>
+<h2>Section 1. 역DCF(Reverse DCF) 기반 시장 내재 기대치 진단</h2>
+<p>현재 주가 <strong><code>241,500원</code></strong>(자기주식 <code>2,411,998주</code> 차감 유통시총 <strong><code>35,403.4억 원</code></strong>, 순차입금 <code>-11,500.0억 원</code> 반영 실질 EV <strong><code>23,903.4억 원</code></strong>)이 향후 10년간 시장에서 요구하는 내재 잉여현금흐름(FCF) 성장률을 WACC <code>9.0%</code>, 영구성장률 <code>2.0%</code> 기준으로 역산했습니다.</p>
+<h3>📌 [코드 자동 생성 1-C] Phase 3 Section 1 역DCF 3단 요구성장률 요약표 (WACC <code>9.0%</code>, 영구성장률 <code>2.0%</code>)</h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">품질 체크 항목</th>
-<th style="text-align: left;">점검 기준</th>
-<th style="text-align: left;">기업 현황 (2026년 상반기 실측 팩트)</th>
-<th style="text-align: center;">회계적 판정</th>
+<th style="text-align: left;">평가 기준 (Valuation Basis)</th>
+<th style="text-align: center;">산출 가치 (억 원)</th>
+<th style="text-align: center;">보고 FCF (<code>3,120.0억</code>) 내재 요구성장률</th>
+<th style="text-align: center;">오너 정규화 FCF (<code>3,400.0억</code>) 내재 요구성장률</th>
+<th style="text-align: left;">비고 및 해석 기준</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>OCF / 당기순이익 갭</strong></td>
-<td style="text-align: left;">OCF ÷ 순이익 비율이 1.5배 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">1H26 OCF(2,140.2억 원) ÷ 당기순이익(1,663.5억 원) = <strong><code>1.29배</code></strong> (감가상각비 927억 원 등 비현금성 비용 가산)</td>
-<td style="text-align: center;">🟢 <strong>우수 (정상 범위)</strong></td>
+<td style="text-align: left;"><strong>① 유통시총 (Floating Equity)</strong></td>
+<td style="text-align: center;"><strong><code>35,403.4억</code></strong></td>
+<td style="text-align: center;"><strong><code>-3.69%</code></strong></td>
+<td style="text-align: center;"><strong><code>-5.60%</code></strong></td>
+<td style="text-align: left;">자기주식(<code>2,411,998주</code>) 차감 실질 유통주식수(<code>14,659,784주</code>) 기준</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>순운전자본(NWC) 변동</strong></td>
-<td style="text-align: left;">WC 변동이 OCF의 30% 초과 시 ⚠️ 경고</td>
-<td style="text-align: left;">1H26 운전자본 순변동(-482.5억 원) ÷ OCF(2,140.2억 원) = <strong><code>22.5%</code></strong> (매출 회복에 따른 매출채권 증가분 정상 회수 진행)</td>
-<td style="text-align: center;">🟢 <strong>양호 (기준치 이내)</strong></td>
+<td style="text-align: left;"><strong>② 실질 기업가치 (EV)</strong></td>
+<td style="text-align: center;"><strong><code>23,903.4억</code></strong></td>
+<td style="text-align: center;"><strong><code>-12.25%</code></strong></td>
+<td style="text-align: center;"><strong><code>-14.06%</code></strong></td>
+<td style="text-align: left;">순차입금(<code>-11,500.0억</code>) 및 우선주 반영 실질 EV 기준</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>비경상 일회성 이익</strong></td>
-<td style="text-align: left;">자산처분이익, 보험금 등 비영업 유입</td>
-<td style="text-align: left;">유형자산 처분이익 9.8억, 투자부동산 처분이익 2.1억 합산 <strong>11.9억 원</strong> (OCF 대비 0.5% 미만으로 극히 미미)</td>
-<td style="text-align: center;">🟢 <strong>정상 (순수 본업)</strong></td>
+<td style="text-align: left;"><strong>③ 본업 기업가치 (Core EV, SOTP)</strong></td>
+<td style="text-align: center;"><strong><code>20,508.4억</code></strong></td>
+<td style="text-align: center;"><strong><code>N/A (적자/미산출)</code></strong></td>
+<td style="text-align: center;"><strong><code>N/A (적자/미산출)</code></strong></td>
+<td style="text-align: left;">🟢 비영업자산 20% 미만 (참고치)</td>
 </tr>
 </tbody>
 </table>
+<h3>🔍 역DCF 핵심 해석 (역발상 점검 &amp; 가치함정 경보)</h3>
 <ul>
-<li><strong>기준 FCF 산출</strong>: 상반기 영업현금흐름(2,140억 원)에서 필수 CapEx(950억 원)를 차감한 잉여현금흐름을 연환산하고, 하반기 계절성 및 유지보수 투자를 감안한 보수적 <strong>기준 FCF는 <code>2,400.0억 원</code></strong>으로 확정합니다.</li>
+<li><strong>수치상 과도한 비관 반영 vs 본업 감익(Type B) 구조</strong>: 유통시총 기준 내재 요구성장률은 <strong><code>-3.69%</code></strong>, 순현금(<code>1.15조 원</code>)을 차감한 실질 기업가치(EV <code>23,903.4억 원</code>) 기준 요구성장률은 <strong><code>-12.25%</code></strong>(오너 정규화 FCF <code>3,400.0억 원</code> 기준 <strong><code>-14.06%</code></strong>)로, 시장은 LG생활건강의 현금창출력이 매년 12% 이상 영구 축소될 것이라는 극단적 비관을 주가에 반영하고 있습니다.</li>
+<li><strong>왜 역DCF 저평가만으로 즉시 매수하면 안 되는가? (Option A-2 핵심 교훈)</strong>:</li>
+<li><strong>OPM 레짐 붕괴(<code>14.8% → 2.9%</code>)</strong>: 과거 중국 따이공·면세 채널 호황기 영업이익률(<code>14.8%</code>) 대비 현재 연결 OPM(<code>2.9%</code>)이 <code>-11.8%p</code> 하락하며 구조적 마진 훼손(<code>Step 2.0</code> 사업구성 레짐 변화)이 발생했습니다.</li>
+<li><strong>직전 분기 감익 지속(<code>2026.1Q → 2026.2Q</code>)</strong>: 매출액은 <code>15,765.9억 → 16,574.2억 원</code>(<code>QoQ +5.1%</code>)으로 소폭 늘었으나 영업이익은 <code>1,078.3억 → 1,027.8억 원</code>(<code>QoQ -4.7%</code>), 수정 EPS는 <code>5,017원 → 4,405원</code>으로 둔화되었습니다.</li>
+<li>따라서 <strong>순자산(BPS <code>318,003원</code>) 바닥에 기반한 중기 회복 가치(Base <code>270,060원</code>)는 존재하지만</strong>, 분기 영업이익·EPS의 QoQ 반등이 확인되기 전까지는 현재가(<code>241,500원</code>) 추격매수를 금지(<code>Gate 1 R:R = 0.00:1</code>)하고 청산가치 하단(<code>199,960~222,180원</code>)에서만 보수적으로 대기해야 합니다.</li>
 </ul>
 <hr />
-<h3>2) Step 1: 역DCF 정밀 연산 — 3대 기준 요구성장률 병기 (<code>calc_reverse_dcf.py</code> SSOT)</h3>
-<p>LG생활건강의 자본구조(가용 순현금 1조 1,500억 원 및 우선주 시총 2,725억 원)를 반영하여 유통시총(Equity) 기준과 실질 기업가치(EV) 기준의 요구 FCF 성장률을 나란히 병기합니다 <code>[Pipeline SSOT Engine 연산]</code>.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">입력 변수</th>
-<th style="text-align: center;">실측 수치</th>
-<th style="text-align: left;">데이터 출처 및 산출 근거 (DART 공시 팩트)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>단일 기준 주가 (Anchor Price)</strong></td>
-<td style="text-align: center;"><strong><code>269,500원</code></strong></td>
-<td style="text-align: left;">2026-10-22 일봉 종가 (전 Phase 100% 동일 고정)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>공시 보통주 유통주식수 (<code>distb_stock_co</code>)</strong></td>
-<td style="text-align: center;"><strong><code>14,659,784주</code></strong></td>
-<td style="text-align: left;">보통주 총발행(14,975,523주) − 자기주식(315,739주) 차감</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>총 발행주식수 (<code>istc_totqy</code>)</strong></td>
-<td style="text-align: center;"><strong><code>17,071,782주</code></strong></td>
-<td style="text-align: left;">보통주(14,975,523주) + 우선주(2,096,259주) 합계</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>보통주 실질 유통 시가총액</strong></td>
-<td style="text-align: center;"><strong><code>3조 9,508.12억 원</code></strong></td>
-<td style="text-align: left;">단일 기준 주가(269,500원) × 공시 유통주식수(14,659,784주)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>우선주 시가총액 (<code>pref_mcap</code>)</strong></td>
-<td style="text-align: center;"><strong><code>2,725.0억 원</code></strong></td>
-<td style="text-align: left;">우선주 기준 주가(130,000원) × 우선주 유통수(2,096,259주)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>가용 순현금 (Net Debt)</strong></td>
-<td style="text-align: center;"><strong><code>-1조 1,500.0억 원</code></strong></td>
-<td style="text-align: left;">총차입금 약 2,000억 원 − 현금성자산 1조 3,546억 원 (순현금 1.15조)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>실질 기업가치 (Enterprise Value)</strong></td>
-<td style="text-align: center;"><strong><code>3조 733.12억 원</code></strong></td>
-<td style="text-align: left;">유통시총(39,508억) + 우선주시총(2,725억) − 가용순현금(11,500억)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>비영업자산 안전가치</strong></td>
-<td style="text-align: center;"><strong><code>1,661.0억 원</code></strong></td>
-<td style="text-align: left;">지분 578억 + FVOCI 264억 + 투자부동산 819억 (장부 대비 2.94% &lt; 20%)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>기준 FCF (<code>fcf_eok</code>)</strong></td>
-<td style="text-align: center;"><strong><code>2,400.0억 원</code></strong></td>
-<td style="text-align: left;">연간 보수적 잉여현금흐름 체력</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>할인율 (WACC) / 영구성장률 ($g$)</strong></td>
-<td style="text-align: center;"><strong><code>9.0%</code> / <code>2.0%</code></strong></td>
-<td style="text-align: left;">소비재 업종 표준 WACC 및 잠재성장률 고정 (추정기간 5년)</td>
-</tr>
-</tbody>
-</table>
-<h4>📊 역DCF 요구 FCF 성장률 연산 결과</h4>
+<h2>Section 2. 시나리오별 적정주가 (Option A-2 순수 펀더멘털 앵커 &amp; 레드팀 검증)</h2>
+<h3>2.1 Option A-2 순수 펀더멘털 목표주가 산출 구조 (현재가 순환참조 0%)</h3>
 <ul>
-<li><strong>▶ ① [유통시총(Equity) 기준 (3조 9,508억)] 요구 FCF 성장률</strong>: <strong><code>연간 +4.86%</code></strong> (총발행주식 기준: +8.50%)</li>
-<li><strong>▶ ② [실질 기업가치(EV) 기준 (3조 733억)] 요구 FCF 성장률</strong>: <strong><code>연간 -0.97%</code></strong> (순현금 1.15조 반영 시 실질 역성장 허용)</li>
-<li><strong>▶ ③ [SOTP 본업 EV 기준 (2조 9,570억)]</strong>: 비영업자산 비중이 2.94%(&lt;20%)로 SOTP 분리 게이트 미해당(단독 분리 면제)</li>
+<li><strong>과거 현재가 연동(<code>curr_price × 0.88</code> 등) 완전 폐기</strong>: 주가가 하락할수록 목표주가와 Bear 지지선이 함께 낮아지던 순환참조를 제거하고, <strong>역사적 최저 PBR(<code>0.69배</code>, <code>max(0.65, min(0.70, pbr_10y_min))</code>)과 주당순자산(<code>BPS 318,003원</code>)의 순수 곱셈</strong>으로 시나리오별 가치를 고정했습니다.</li>
+<li><strong>Bear (청산가치 하방 지지선)</strong>: <code>BPS 318,003원 × 0.69배 = 219,420원</code> (현재가와 무관하게 고정된 역사적 락바텀).</li>
+<li><strong>Base (기본 적정가치)</strong>: <code>BPS 318,003원 × PBR P20(0.849배) = 270,060원</code> (<code>🛡️ 대안 B 270,060원 / 🚀 대안 A 270,060원</code>, 비영업자산 20% 미만 및 S-Curve/K-환원 가감 <code>×1.0000</code>).</li>
+<li><strong>Bull (턴어라운드 상단)</strong>: <code>BPS 318,003원 × 3년 평균 PBR(0.996배, ~1.0x Book 회복) = 316,590원</code> (<code>🛡️ 대안 B 316,590원 / 🚀 대안 A 316,590원</code>).</li>
 </ul>
-<h4>🔍 시장 프라이싱 역산 해석</h4>
-<ol>
-<li><strong>Equity 기준(+4.86%)</strong>: 현재 주가 269,500원은 회사가 향후 5년간 연평균 +4.86%의 완만한 FCF 성장만 달성해도 정당화되는 매우 보수적인 가격대입니다.</li>
-<li><strong>EV 기준(-0.97%)</strong>: 1조 1,500억 원의 가용 순현금 버퍼를 감안한 실질 기업가치 기준으로는 <strong>매년 -0.97%씩 FCF가 역성장하더라도 현재 주가가 설명</strong>됩니다. 즉, 시장은 LG생활건강의 현금창출력이 영구히 정체될 것으로 가정하는 극단적 비관론(Extreme Pessimism)을 가격에 반영하고 있어, 하방 안전마진이 매우 두텁게 확보되어 있습니다.</li>
-</ol>
-<hr />
-<h2>2. 가치함정 이원화 판정 (유형 A vs 유형 B) &amp; 4대 레짐 종합 판독</h2>
-<h3>1) 가치함정 판별 공식 매트릭스 (<code>backtest_valuation.py</code> 자동 판정)</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">점검 지표</th>
-<th style="text-align: center;">실측 수치</th>
-<th style="text-align: center;">판별 기준선</th>
-<th style="text-align: center;">함정 징후 판정</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>지배주주 2년 누적 EPS 증감률</strong></td>
-<td style="text-align: center;"><strong><code>-144.8%</code></strong></td>
-<td style="text-align: center;">음수(-) 전환</td>
-<td style="text-align: center;">⚠️ <strong>이익 레벨 급락</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>지배주주 2년 누적 BPS 증감률</strong></td>
-<td style="text-align: center;"><strong><code>+1.41%</code></strong></td>
-<td style="text-align: center;">양수(+) 유지</td>
-<td style="text-align: center;">🟢 <strong>자본 잠식 없음</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>최근 4분기 합산 지배 ROE</strong></td>
-<td style="text-align: center;"><strong><code>-1.31%</code></strong></td>
-<td style="text-align: center;">5년 중위(3.06%) 하회</td>
-<td style="text-align: center;">⚠️ <strong>수익성 일시 훼손</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>직전 분기 대비 (QoQ) 실적</strong></td>
-<td style="text-align: center;"><strong>매출 <code>+5.1%</code>, OP <code>-4.7%</code></strong></td>
-<td style="text-align: center;">1Q 1,078억 ➔ 2Q 1,028억</td>
-<td style="text-align: center;">🟢 <strong>1,000억대 안착</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>DART 소급보정 지배 EPS 추이</strong></td>
-<td style="text-align: center;"><strong>5,017원 ➔ 4,405원</strong></td>
-<td style="text-align: center;">2개 분기 연속 흑자 유지</td>
-<td style="text-align: center;">🟢 <strong>흑자 기조 안착</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>최종 가치함정 판정 결과</strong></td>
-<td style="text-align: center;"><strong><code>🔴 [유형 B: 구조적 버블 붕괴 가치함정 (Structural Value Trap)]</code></strong></td>
-<td style="text-align: center;"><strong>정당한 디레이팅</strong></td>
-<td style="text-align: center;"></td>
-</tr>
-</tbody>
-</table>
-<h3>2) 4대 레짐 변화 종합 판독 (가치함정 원인 해부)</h3>
-<ul>
-<li><strong>④ 사업구성 레짐 (-11.9%p 훼손)</strong>:</li>
-<li>과거 중국 면세 슈퍼사이클 당시 OPM 14.9%(과거 10년 중위)를 구가하던 럭셔리 독점 레짐이 붕괴되고, 현재는 OPM 2.9~6.5% 수준의 일반 소비재로 체질이 강등되었습니다.</li>
-<li>따라서 현재 주가가 10년 역사적 고점(176만 원) 대비 85% 폭락하고 PBR이 0.80배까지 내려앉은 것은 시장의 단순한 착오가 아닌, <strong>사업구성 레짐 훼손에 따른 '정당한 디레이팅(유형 B 가치함정)'</strong>입니다.</li>
-<li><strong>② 자본구조 레짐의 강력한 안전판</strong>:</li>
-<li>그러나 동사는 일반적인 한계기업과 달리 <strong>부채를 전액 상환하고도 1조 1,500억 원의 가용 순현금(주당 78,400원)을 보유</strong>하고 있으며, The Avon Company 매각(26.09.01)으로 해외 적자 누수를 원천 차단했습니다.</li>
-<li>따라서 파산이나 유상증자 위험은 0%이며, <strong>PBR 0.70~0.80배(주가 23만~27만 원) 구간은 강력한 하방 경직성을 지닌 안전마진 록인(Lock-in) 영역</strong>입니다.</li>
-</ul>
-<hr />
-<h2>3. 시나리오 밸류에이션 (<code>🛡️대안 B | 🚀대안 A</code>) &amp; <code>[Step 3.0]</code> 사이클 함정 점검</h2>
-<h3>1) <code>[Step 3.0]</code> 사이클주 피크 멀티플 함정 차단 검증</h3>
-<ul>
-<li><strong>사이클 피크 검증</strong>: 현재 EPS(-4,342원, 턴어라운드 초입)는 과거 5개년 Mid-Cycle 중위 EPS(11,231원) 대비 과열되지 않았으며, 호황 정점의 피크 이익을 기록하는 국면이 아닙니다.</li>
-<li><strong>정상 멀티플 적용 승인</strong>: 따라서 피크 멀티플 압축(Peak Compression) 대상이 아니며, Section 8 10년 백테스트에서 도출된 정상화 PER 분위수를 시나리오 평가에 그대로 상속합니다.</li>
-</ul>
-<h3>2) 시나리오 밸류에이션 6열 표준 표 (확률 25-50-25 고정)</h3>
+<h3>📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PER)</h3>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">시나리오</th>
 <th style="text-align: center;">확률 (고정)</th>
-<th style="text-align: left;">핵심 드라이버 가정 (AI 맥락 해석)</th>
-<th style="text-align: left;">적용 멀티플 (코드 SSOT 산출)</th>
-<th style="text-align: center;">적정주가 (🛡️대안 B / 🚀대안 A)</th>
-<th style="text-align: center;">현재가(269,500원) 대비 기대수익률</th>
+<th style="text-align: left;">핵심 드라이버 가정 (AI 해석 영역)</th>
+<th style="text-align: left;">적용 멀티플 (코드 산출)</th>
+<th style="text-align: left;">적정주가 (🛡️대안 B / 🚀대안 A)</th>
+<th style="text-align: left;">현재가 대비 등락률 (🛡️대안 B / 🚀대안 A)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>Bull (호황 상단)</strong></td>
-<td style="text-align: center;"><strong><code>25%</code></strong></td>
-<td style="text-align: left;">• 북미 오프라인 직진출(코스트코 682곳·세포라·얼타) 고성장 지속<br>• 에이본 매각 종결 효과로 뷰티 OPM 12% 안착<br>• 2027F 정상화 EPS 18,233원 달성 가시화</td>
-<td style="text-align: left;">PER 상위 90% (<code>21.9배</code>)<br><em>(대안 A 할증 0% 고정)</em></td>
-<td style="text-align: center;">🛡️ <strong><code>399,400원</code></strong><br>🚀 <strong><code>399,400원</code></strong></td>
-<td style="text-align: center;">🛡️ <strong><code>+48.2%</code></strong><br>🚀 <strong><code>+48.2%</code></strong></td>
+<td style="text-align: center;"><strong>25%</strong></td>
+<td style="text-align: left;">[AI가 전방 호황/가동률 상단 서술]</td>
+<td style="text-align: left;">PER 상위 90% (대안A ×1.0000)</td>
+<td style="text-align: left;">🛡️ <strong>316,590원</strong> / 🚀 <strong>316,590원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+31.1%</strong> / 🚀 <strong>+31.1%</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Base (기본 적정)</strong></td>
-<td style="text-align: center;"><strong><code>50%</code></strong></td>
-<td style="text-align: left;">• 2026F 연간 영업이익 3,800억~3,900억 원 턴어라운드 달성<br>• 환율 1,300원대 안착으로 매출원가율 48% 안정화<br>• 중국 채널 완만한 효율화 및 음료 캐시카우 유지</td>
-<td style="text-align: left;">PER 상위 65% (<code>19.0배</code>)<br><em>(대안 A 할증 0% 고정)</em></td>
-<td style="text-align: center;">🛡️ <strong><code>347,070원</code></strong><br>🚀 <strong><code>347,070원</code></strong></td>
-<td style="text-align: center;">🛡️ <strong><code>+28.8%</code></strong><br>🚀 <strong><code>+28.8%</code></strong></td>
+<td style="text-align: center;"><strong>50%</strong></td>
+<td style="text-align: left;">[AI가 컨센서스/본업 유지 서술]</td>
+<td style="text-align: left;">PER 상위 65% (대안A ×1.0000)</td>
+<td style="text-align: left;">🛡️ <strong>270,060원</strong> / 🚀 <strong>270,060원</strong></td>
+<td style="text-align: left;">🛡️ <strong>+11.8%</strong> / 🚀 <strong>+11.8%</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Bear (하방 지지)</strong></td>
-<td style="text-align: center;"><strong><code>25%</code></strong></td>
-<td style="text-align: left;">• 중국 면세 부진 지속 및 국내 음료 소비 둔화 심화<br>• HDB 울산공장 유휴화(가동률 38%) 장기화로 OPM 5% 정체<br>• 2H26 에이본 처분손실 회계 반영 충격</td>
-<td style="text-align: left;">10년 역사적 하방 지지선<br>(PBR 0.75배 상당)</td>
-<td style="text-align: center;">🛡️ <strong><code>253,180원</code></strong><br>🚀 <strong><code>253,180원</code></strong></td>
-<td style="text-align: center;">🛡️ <strong><code>-6.1%</code></strong><br>🚀 <strong><code>-6.1%</code></strong></td>
+<td style="text-align: center;"><strong>25%</strong></td>
+<td style="text-align: left;">[AI가 전방 둔화/가동률 하락 서술]</td>
+<td style="text-align: left;">하방 지지선 (할증 0% 고정)</td>
+<td style="text-align: left;">🛡️ <strong>219,420원</strong> / 🚀 <strong>219,420원</strong></td>
+<td style="text-align: left;">🛡️ <strong>-9.1%</strong> / 🚀 <strong>-9.1%</strong></td>
 </tr>
 </tbody>
 </table>
+<h3>2.2 레드팀(Red-Team) 역산 내재 영업이익 &amp; Capa 천장 검증</h3>
 <ul>
-<li><strong>중간 목표가 (TP1)</strong>: <strong><code>311,620원</code> (<code>+15.6%</code>)</strong> (일봉 60일선 290,242원 돌파 및 52주 중위 매물대 안착 타깃)</li>
-<li><strong>가중평균 기대주가</strong>: $399,400 \times 0.25 + 347,070 \times 0.50 + 253,180 \times 0.25 = \mathbf{336,680\text{원}}$ (현재가 대비 <strong><code>+24.9%</code></strong> 기대수익)</li>
+<li><strong>레드팀 검증 결과</strong>: <code>🚀 대안 A</code> 적정주가(<code>Base 270,060원 / Bull 316,590원</code>)가 정당화되기 위해 필요한 <strong>역산 내재 영업이익은 Base <code>3,045.6억 원</code>, Bull <code>2,907.4억 원</code></strong> 수준입니다.</li>
+<li>현재 설비 가동률(<code>62.0%</code>)에 충분한 여유 Capa가 존재하므로 물리적 증설 없이도 화장품 가동률 및 믹스 회복만으로 달성 가능한 범위(<code>🟢 물리적 Capa 한계 내 달성 가능</code>)이나, <strong>실제 분기 영업이익이 반기/분기 기준 <code>1,100억 원+</code> 궤도로 복귀하는지 확인하는 것이 핵심 선결 과제</strong>입니다.</li>
 </ul>
 <hr />
-<h3>3) 듀얼 R:R 게이트 검증 및 4분면 투자의견 매트릭스</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">게이트 구분</th>
-<th style="text-align: left;">산식 및 수치 대입</th>
-<th style="text-align: center;">도출 R:R 값</th>
-<th style="text-align: center;">합격 기준선</th>
-<th style="text-align: center;">판정 결과</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Gate 1 (펀더멘털 안전마진)</strong></td>
-<td style="text-align: left;">$\frac{\text{Base 기대수익(+28.8\%)}}{\text{Bear 하방위험(-6.1\%)}} = \frac{77,570\text{원}}{16,320\text{원}}$</td>
-<td style="text-align: center;"><strong><code>4.75 : 1</code></strong></td>
-<td style="text-align: center;">$\ge 2.0 : 1$</td>
-<td style="text-align: center;">🟢 <strong>초우량 합격</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Gate 2 (마스터 SOP 트레이딩)</strong></td>
-<td style="text-align: left;">$\frac{\text{1차 목표가 대비 수익(311,620 - 264,354)}}{\text{완성 평단 대비 1단계 손절(264,354 - 240,520)}} = \frac{47,266\text{원}}{23,834\text{원}}$</td>
-<td style="text-align: center;"><strong><code>3.47 : 1</code></strong></td>
-<td style="text-align: center;">$\ge 1.5 : 1$</td>
-<td style="text-align: center;">🟢 <strong>초우량 합격</strong></td>
-</tr>
-</tbody>
-</table>
-<pre><code>                ▲ 펀더멘털 안전마진 (Gate 1 R:R)
-   (Gate 1: 4.75)│
-                 │   👑 [1사분면: 적극 매수 (Strong Buy)]
-                 │       LG생활건강 해당 (Gate 1: 4.75 / Gate 2: 3.47)
-                 │       • 펀더멘털 저평가 + 우수한 트레이딩 손익비
-  ───────────────┼────────────────────────► 실전 트레이딩 손익비 (Gate 2 R:R)
-                 │                              (Gate 2: 3.47)
-                 │
-</code></pre>
-<ul>
-<li><strong>최종 투자의견</strong>: <strong><code>🟢 적극 분할매수 (Strong Buy — Deep Value 턴어라운드 추종)</code></strong></li>
-</ul>
-<hr />
-<h2>3.5 비관론자 반론(Pre-mortem) &amp; 리스크 도미노 연쇄 시나리오 및 Kill-Switch</h2>
-<h3>1) 비관론자의 핵심 반론 (Pre-mortem)</h3>
-<p><em>"증권사들이 2026년 3,800억 턴어라운드를 외치지만, 2H26에 에이본 매각손실이 회계적으로 반영되면 당기순이익이 1,000억 원 초반으로 쪼그라들고, 국내 음료 소비 위축과 울산 생필품 공장의 유휴화(가동률 38%)가 고착화되면 2027년에도 EPS 18,000원 회복은 공염불에 그칠 것이다."</em></p>
-<h3>2) 리스크 3단계 도미노 사슬 및 수치 방어벽 점검</h3>
-<pre><code class="language-mermaid">flowchart TD
-    subgraph SG_1[&quot;1차 촉발 요인&quot;]
-        A1[&quot;중국 럭셔리 화장품 수요 둔화&quot;]
-        A2[&quot;저관여 생필품 PB 침투 &amp; 에이전틱 커머스&quot;]
-        A3[&quot;내수 음료 소비 위축&quot;]
-    end
-
-    subgraph SG_2[&quot;2차 영업 전이 (전이 임계치)&quot;]
-        A1 &amp; A2 --&gt; B1[&quot;HDB 울산공장 가동률 38.2% 정체&quot;]
-        B1 --&gt; B2[&quot;전사 매출원가율 48% 고착 &amp; OPM 6%대 제약&quot;]
-    end
-
-    subgraph SG_3[&quot;3차 재무·자본 타격&quot;]
-        B2 --&gt; C1[&quot;2H26 에이본 일회성 처분손실 반영으로 순이익 일시 둔화&quot;]
-        C1 --&gt; C2[&quot;시장 실망 매물로 Bear 지지선(253,180원) 테스트&quot;]
-    end
-
-    subgraph SG_4[&quot;🛡️ 무차입 현금 방어벽&quot;]
-        D1[&quot;가용 순현금 1조 1,500억 원 (주당 78,400원)&quot;] -.-&gt;|&quot;하방 완전 차단&quot;| C2
-        D2[&quot;연간 FCF 2,400억 유입 &amp; 자사주 100% 소각&quot;] -.-&gt;|&quot;주주환원 방어&quot;| C2
-    end
-</code></pre>
-<h3>3) 🚨 핵심 투자 가설 약화 정량 킬스위치 (Kill-Switch)</h3>
-<ul>
-<li><strong>차기 분기(2026.11.03 발표 예정 3Q26) 분기보고서 검증 기준</strong>:</li>
-<li><strong>영업이익 Kill-Switch</strong>: 3Q26 영업이익이 <strong><code>&lt; 873.6억 원</code></strong> (직전 분기 1,028억 대비 -15% 하회) 기록 시</li>
-<li><strong>수정 EPS Kill-Switch</strong>: 3Q26 분기 지배주주 EPS가 <strong><code>&lt; 3,524원</code></strong> 미달 시</li>
-<li><strong>실행 조치</strong>: 위 수치 하회 시 가설 2(환율/원가), 가설 3(HDB 정상화), 가설 6(북미 성장)은 즉시 <code>[약화]</code>로 강등되며, 매수 포지션은 즉시 1단계 안전핀(240,520원) 준수로 전환합니다.</li>
-</ul>
-<hr />
-<h2>4. 마스터 SOP 실전 액션 플랜 &amp; 인터랙티브 계산기</h2>
-<h3>1) 기술적 정예 보조지표 종합 진단 (일봉 &amp; 주봉)</h3>
-<ul>
-<li><strong>일봉 20일 매물대 (Volume Profile POC)</strong>:</li>
-<li>20일간 거래의 43.4%가 집중된 핵심 POC 박스권: <strong><code>264,900원 ~ 274,800원</code></strong></li>
-<li>현재 주가(269,500원)는 매물대 정중앙에 위치하여 하단 지지 및 상단 돌파 대기 중.</li>
-<li><strong>일봉 이동평균선</strong>: 5일선 272,600원 | 20일선 274,700원 | 60일선 290,242원</li>
-<li><strong>주봉 지표</strong>: 주봉 20주선 274,550원, 볼린저밴드 중심선 274,550원, 주봉 MFI(14) 58.8, RSI(14) 47.7 (과매도 탈출 후 중립 수렴 국면).</li>
-</ul>
-<h3>2) 무결성 3분할 매매 타점 &amp; 이중 안전핀 위계질서</h3>
-<pre><code>[가격 위계질서 부등식 검증 100% 성립]
-1단계 안전핀(240,520원) &lt; 1차 매수가(253,180원) &lt; 2차 매수가(264,900원) &lt; 3차 매수가(274,800원) &lt; 1차 목표가(311,620원)
-</code></pre>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">매매 실행 단계</th>
-<th style="text-align: center;">진입 비중</th>
-<th style="text-align: center;">지정 매수가 (KRW)</th>
-<th style="text-align: left;">기술적·밸류에이션 근거</th>
-<th style="text-align: left;">액션 SOP 및 체결 규칙</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>1차 매수 (눌림목 선취매)</strong></td>
-<td style="text-align: center;"><strong><code>30%</code></strong></td>
-<td style="text-align: center;"><strong><code>253,180원</code></strong></td>
-<td style="text-align: left;">Bear 하방 지지선 &amp; PBR 0.75배 근접</td>
-<td style="text-align: left;">현재가 조정 시 분할 매수 대기</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>2차 매수 (추세 돌파 본대)</strong></td>
-<td style="text-align: center;"><strong><code>40%</code></strong></td>
-<td style="text-align: center;"><strong><code>264,900원</code></strong></td>
-<td style="text-align: left;">20일 매물대 POC 하단 지지 반등선</td>
-<td style="text-align: left;">지지 확인 후 본대 투입</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>3차 매수 (확인사살 안착)</strong></td>
-<td style="text-align: center;"><strong><code>30%</code></strong></td>
-<td style="text-align: center;"><strong><code>274,800원</code></strong></td>
-<td style="text-align: left;">20일 매물대 POC 상단 돌파 안착선</td>
-<td style="text-align: left;">20주선 및 상단 매물대 돌파 시 불타기</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>▶ 3분할 완성 평균단가</strong></td>
-<td style="text-align: center;"><strong><code>100%</code></strong></td>
-<td style="text-align: center;"><strong><code>264,354원</code></strong></td>
-<td style="text-align: left;">1차 목표가(311,620원) 대비 <strong><code>+17.9%</code> 기대수익</strong></td>
-<td style="text-align: left;">비중 100% 포트폴리오 완성</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3>3) 2단계 이중 안전핀 (손절 및 본절 보호) 실행 규칙</h3>
-<pre><code class="language-mermaid">flowchart LR
-    A[&quot;진입 개시 (1차 253,180원 / 2차 264,900원)&quot;] --&gt; B[&quot;🚨 1단계 초입 고정 안전핀: 240,520원 (-5.0%)&lt;br/&gt;절대 준수 (기계적 손절)&quot;]
-    B --&gt; C[&quot;주가 상승 ➔ 20일 매물대 상단(274,800원) 돌파 안착&quot;]
-    C --&gt; D[&quot;🔒 2단계 본절 보호핀 가동: 256,953원 상향&lt;br/&gt;원금 보존 및 수익 록인 (Trailing Stop)&quot;]
-    D --&gt; E[&quot;1차 익절(311,620원) ➔ 2차 익절(347,070원) 분할 실현&quot;]
-</code></pre>
+<h2>Section 3. 주식 성향 및 2중 손익비(Dual R:R) 게이트 판정</h2>
 <ol>
-<li><strong>🚨 1단계: 초입 고정 손절 안전핀 (Hard Stop 1) — <code>240,520원</code></strong>:</li>
-<li>1차 매수가(253,180원) 대비 <strong><code>-5.0%</code></strong>, 3분할 완성 평단가(264,354원) 대비 <strong><code>-9.0%</code></strong> 수준.</li>
-<li>PBR 0.71배선으로, 이 가격이 붕괴된다는 것은 숨겨진 대규모 부실이 발생했음을 의미하므로 <strong>이유를 묻지 않고 전량 손절하여 자본을 보호</strong>합니다.</li>
-<li><strong>🔒 2단계: 상단 매물대 돌파 후 본절 보호핀 (Trailing Stop 2) — <code>256,953원</code></strong>:</li>
-<li>주가가 20일 매물대 상단(274,800원)을 종가 기준으로 완전히 돌파 안착할 경우에만 발동.</li>
-<li>손절 기준선을 240,520원에서 <strong><code>256,953원</code></strong>으로 상향 이동하여, 주가가 재차 밀리더라도 손실 없이 본전 이상에서 거래를 종결(Trailing Stop)합니다.</li>
+<li><strong>주식 성향 분류</strong>: <strong>유형 B (구조적 저성장·가치함정 주의 — ROE <code>2.9%</code>, 2년 누적 EPS 급감)</strong></li>
+<li>52주 최고가(<code>334,000원</code>) 대비 최저가(<code>233,500원</code>) 변동폭 <code>1.43배</code>로 외형상 저변동성 박스권처럼 보이나, 본질은 과거 고마진 레거시(중국 면세) 축소에 따른 <strong>유형 B 구조적 이익 둔화 구간</strong>입니다.</li>
+<li><strong>2중 손익비 게이트 (Dual R:R Gate) 실측 판정</strong>:</li>
+<li><strong>Gate 1 (현재가 <code>241,500원</code> 즉시 진입 손익비)</strong>: <strong><code>0.00 : 1</code> (🚫 유형 B 가치함정 즉시 매수 차단)</strong><ul>
+<li>명목상 <code>Base 적정주가(270,060원) &gt; 현재가(241,500원)</code>으로 <code>+11.8%</code> 상승여력이 있으나, <strong>Option A-2 규율에 따라 유형 B 가치함정 종목은 분기 실적 턴어라운드 확인 전까지 현재가 즉시 매수(<code>Gate 1</code>)를 <code>0.00:1</code>로 강제 차단</strong>하여 "목표주가만 믿고 샀다가 계속 물리는" 하방 리스크를 원천 봉쇄합니다.</li>
+</ul>
+</li>
+<li><strong>Gate 2 (마스터 SOP 3분할 완성 평단가 <code>211,070원</code> 기준 실전 손익비)</strong>: <strong><code>2.79 : 1</code> (통과 — 청산가치 하단 대기 시 유효)</strong><ul>
+<li>기대수익(분자): <code>(Base 적정가 270,060원 - 완성 평단가 211,070원) / 211,070원</code> = <strong><code>+27.95%</code></strong></li>
+<li>손실위험(분모): <code>(완성 평단가 211,070원 - 1단계 고정 안전핀 189,960원) / 211,070원</code> = <strong><code>-10.00%</code></strong></li>
+<li>따라서 <strong>현재가(<code>241,500원</code>) 추격은 보류하되, 역사적 최저 PBR(<code>219,420원</code>) 이하의 극단적 투매 구간(<code>199,960~222,180원</code>)에서만 제한적 분할 대기가 정당화</strong>됩니다.</li>
+</ul>
+</li>
 </ol>
 <hr />
-<h3>4) 분할 익절 SOP</h3>
+<h2>Section 4. 마스터 SOP 실전 매매 전략 (3분할 매수 &amp; 2단계 안전핀)</h2>
+<h3>📌 [코드 자동 생성 2-B] Phase 3 Section 4 마스터 SOP 3분할 매수가 &amp; 2단계 안전핀 실행표 (단일 기준 주가 <code>241,500원</code>)</h3>
+<blockquote>
+<p><strong>🚦 코드 전략 모드 판정</strong>: 🚫 [유형 B 구조적 가치함정 — 턴어라운드 확인 전 현재가(241,500원) 매수 금지 모드]: 2년 누적 EPS 급감 및 저ROE 가치함정 구간이므로 분기 영업이익·수정EPS QoQ 반등 공시 전까지 신규 진입을 보류하며, 불가피한 분할 대기선은 청산가치 하단(199,960~222,180원)으로만 제한합니다!</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">실행 단계 (SOP Action Ladder)</th>
+<th style="text-align: center;">비중 / 구분</th>
+<th style="text-align: center;">코드 확정 가격 (원)</th>
+<th style="text-align: center;">현재가(<code>241,500원</code>) 대비</th>
+<th style="text-align: center;">완성 평단(<code>211,070원</code>) 대비</th>
+<th style="text-align: left;">실행 조건 및 기술적/밸류에이션 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>🚨 1단계 초입 고정 안전핀 (Hard Stop 1)</strong></td>
+<td style="text-align: center;"><strong>전량 손절선</strong></td>
+<td style="text-align: center;"><strong><code>189,960원</code></strong></td>
+<td style="text-align: center;"><code>-21.3%</code></td>
+<td style="text-align: center;"><code>-10.0%</code></td>
+<td style="text-align: left;"><code>1단계 안전핀(189,960원) &lt; 1차 매수가(199,960원)</code> 위계 100% 준수</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🟢 1차 매수 (가치/눌림목 선취매)</strong></td>
+<td style="text-align: center;"><strong>30%</strong></td>
+<td style="text-align: center;"><strong><code>199,960원</code></strong></td>
+<td style="text-align: center;"><code>-17.2%</code></td>
+<td style="text-align: center;"><code>-5.3%</code></td>
+<td style="text-align: left;">하방 지지선(<code>219,420원</code>) 및 안전마진 확보 구간</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🔵 2차 매수 (추세 확인 본대)</strong></td>
+<td style="text-align: center;"><strong>40%</strong></td>
+<td style="text-align: center;"><strong><code>211,070원</code></strong></td>
+<td style="text-align: center;"><code>-12.6%</code></td>
+<td style="text-align: center;"><code>+0.0%</code></td>
+<td style="text-align: left;">🚫 [유형 B 가치함정] 분기 영업익·EPS QoQ 반등 공시 전 현재가 매수 보류 (청산가치 하단 대기)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🟣 3차 매수 (매물대 돌파/안착)</strong></td>
+<td style="text-align: center;"><strong>30%</strong></td>
+<td style="text-align: center;"><strong><code>222,180원</code></strong></td>
+<td style="text-align: center;"><code>-8.0%</code></td>
+<td style="text-align: center;"><code>+5.3%</code></td>
+<td style="text-align: left;">🚫 [유형 B 가치함정] 실적 턴어라운드 및 20일 POC(<code>234,900~245,300원</code>) 회복 확인</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>⭐ 3분할 완성 평균단가 (Avg Buy)</strong></td>
+<td style="text-align: center;"><strong>100%</strong></td>
+<td style="text-align: center;"><strong><code>211,070원</code></strong></td>
+<td style="text-align: center;"><code>-12.6%</code></td>
+<td style="text-align: center;"><code>0.0%</code></td>
+<td style="text-align: left;"><strong>Gate 1 R:R <code>0.00:1</code> / Gate 2 실전 R:R <code>2.79:1</code></strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🔒 2단계 본절 보호핀 (Trailing Stop 2)</strong></td>
+<td style="text-align: center;"><strong>익절 보호선</strong></td>
+<td style="text-align: center;"><strong><code>227,853원</code></strong></td>
+<td style="text-align: center;"><code>-5.7%</code></td>
+<td style="text-align: center;"><code>+8.0%</code></td>
+<td style="text-align: left;">매물대 상단(<code>245,300원</code>) 돌파 안착 성공 시 손절선 상향</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🎯 1차 목표가 (TP1 / Base)</strong></td>
+<td style="text-align: center;"><strong>분할 익절 1</strong></td>
+<td style="text-align: center;"><strong>🛡️ <code>301,620원</code> / 🚀 <code>270,060원</code></strong></td>
+<td style="text-align: center;"><code>🛡️ +24.9% / 🚀 +11.8%</code></td>
+<td style="text-align: center;"><code>🛡️ +42.9% / 🚀 +27.9%</code></td>
+<td style="text-align: left;">보수적 대안 B(<code>270,060원</code>) vs v4.3 병목·주주환원 반영 대안 A(<code>270,060원</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>🚀 2차 목표가 (Bull 상단)</strong></td>
+<td style="text-align: center;"><strong>최종 익절 2</strong></td>
+<td style="text-align: center;"><strong>🛡️ <code>316,590원</code> / 🚀 <code>316,590원</code></strong></td>
+<td style="text-align: center;"><code>🛡️ +31.1% / 🚀 +31.1%</code></td>
+<td style="text-align: center;"><code>🛡️ +50.0% / 🚀 +50.0%</code></td>
+<td style="text-align: left;">주봉 MFI(14) 80 하향이탈 또는 RSI 과열 괴리 시 분할 차익실현</td>
+</tr>
+</tbody>
+</table>
+<h3>📌 [코드 자동 생성 2-C] Argon 4.0 주봉 5·20·60·120주선 이격도 · 매물대(POC) · MFI/MACD · DART 실적 결합 중기 스윙 타점표</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">주봉 5·20·60·120주선 &amp; 이격도(%)</th>
+<th style="text-align: left;">주봉 104주 최다 매물대(Volume Profile POC)</th>
+<th style="text-align: left;">주간 수급 (MFI 14W / RSI 14W)</th>
+<th style="text-align: left;">주봉 MACD (12, 26, 9)</th>
+<th style="text-align: left;">🏆 중기 스윙 결합 점수 &amp; 타점 판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">• <strong>5주선</strong>: <code>244,000원</code> (<code>-1.0%</code>)<br>• <strong>20주선</strong>: <code>275,200원</code> (<code>-12.2%</code>)<br>• <strong>60주선</strong>: <code>267,575원</code> (<code>-9.7%</code>)<br>• <strong>120주선</strong>: <code>295,912원</code> (<code>-18.4%</code>)</td>
+<td style="text-align: left;">• <strong>POC 구간</strong>: <code>282,750~297,300원</code><br>• <strong>POC 중심가</strong>: <code>290,025원</code> (비중 <code>16.3%</code>)<br>• <strong>현재가 이격</strong>: <code>-16.7%</code><br>• <strong>판정</strong>: <strong><code>매물벽하단저항(-8점)</code></strong></td>
+<td style="text-align: left;">• <strong>주봉 MFI(14)</strong>: <strong><code>31.6</code></strong><br>• <strong>12주 최고 MFI</strong>: <code>64.4</code><br>• <strong>주봉 RSI(14)</strong>: <code>41.8</code></td>
+<td style="text-align: left;">• <strong>MACD</strong>: <code>-6,657.3</code><br>• <strong>Signal</strong>: <code>113.2</code><br>• <strong>Hist</strong>: <strong><code>-6,770.4</code></strong></td>
+<td style="text-align: left;">• <strong>통합 점수</strong>: <strong><code>52점 (B등급)</code></strong><br>• <strong>최종 시그널</strong>: <strong>🔵 B-급 완충 눌림목 구간 (45~54점 히스테리시스: 45점 하회 전 눌림목 분할 대응 유지)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3>🛡️ 실전 집행 규율 &amp; Kill-Switch 연동</h3>
 <ul>
-<li><strong>1차 익절 (50% 비중 실현)</strong>: <strong><code>311,620원</code> (TP1, 기대수익 +17.9%)</strong> 도달 시 보유 물량의 절반을 분할 익절하여 확정 수익을 챙깁니다.</li>
-<li><strong>2차 익절 (30% 비중 실현)</strong>: <strong><code>347,070원</code> (Base 적정주가, 기대수익 +31.3%)</strong> 도달 시 추가 익절을 단행합니다.</li>
-<li><strong>잔여 물량 (20% 비중 트레일링)</strong>: <strong><code>399,400원</code> (Bull 호황 상단, 기대수익 +51.1%)</strong>까지 열어두고 20일선을 깨지 않는 한 추세를 끝까지 향유합니다.</li>
+<li><strong>주봉 스윙 진단 (<code>52점, B등급 완충 구간</code>)</strong>: 주봉 MFI(<code>31.6</code>)가 과매도권에 근접해 기술적 점수는 <code>52점(B등급)</code>을 유지하고 있으나, 주봉 20주선(<code>275,200원</code>)과 104주 최대 매물대(<code>282,750~297,300원</code>) 아래에 갇혀 있고 MACD 히스토그램(<code>-6,770.4</code>)이 음(-)의 구간입니다.</li>
+<li><strong>포퍼식 반증 임계치(Kill-Switch)</strong>: 차기 분기 연결 영업이익이 <strong><code>873.6억 원</code></strong>(직전 분기 대비 <code>-15%</code>) 미만으로 하락하거나 지배주주 분기 EPS가 <strong><code>3,524원</code></strong>을 하회할 경우, 하단 지정가 대기 주문도 전면 취소하고 관망으로 전환합니다. 반대로 보유 자기주식(<code>2,411,998주</code>, <code>14.13%</code>)의 전격 소각 공시 및 비중국 화장품 OPM 반등이 동시에 확인될 경우 Track 1 정상 분할모드로 격상합니다.</li>
 </ul>
 <hr />
-<h2>5. 📋 인터랙티브 계산기 직결 태그 (auto_tables.md SSOT 바인딩)</h2>
-<!-- [AUTO-GENERATED BY backtest_valuation.py v4.2 — DO NOT EDIT NUMBERS MANUALLY] -->
-<div id="dcf-calculator-root" data-price="269500" data-shares="14659784" data-total-shares="17071782" data-fcf="2400.0" data-net-debt="-11500.0" data-non-op-assets="1162.7" data-bear="253180" data-base="347070" data-bull="399400" data-base-a="347070" data-bull-a="399400" data-tp1="311620" data-tp1-a="311620" data-buy1="253180" data-buy2="264900" data-buy3="274800" data-stop-pin="240520" data-poc-low="264900"></div>
+<h3>📌 [코드 자동 생성 3] HTML 계산기 직결 태그 (플레이스홀더 0건)</h3>
+<div id="dcf-calculator-root" data-price="241500" data-shares="14659784" data-total-shares="17071782" data-fcf="3120.0" data-reported-fcf="3120.0" data-net-debt="-11500.0" data-non-op-assets="3395.0" data-bear="219420" data-base="270060" data-bull="316590" data-base-a="270060" data-bull-a="316590" data-tp1="301620" data-tp1-a="301620" data-buy1="199960" data-buy2="211070" data-buy3="222180" data-stop-pin="189960" data-poc-low="234900"></div>
     <script>
-        const SSOT_DATA = {"version": "4.2", "generated_at": "2026-10-22 13:48:10", "stock_code": "051900", "corp_name": "LG생활건강", "anchor_price": 269500, "primary_metric": "PER", "bench": {"stock_name": "LG생활건강", "close": 271500.0, "bps": 337569.0, "pbr": 0.8, "eps": -4342.0, "per": null, "div_yield": 0.74, "dps": 2000.0, "market_cap_str": "4조 584억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 49486.89, "mcap_eok": 39508.12, "non_op_assets_eok": 1661.0, "recognized_non_op_eok": 1162.7, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 3.36, "non_op_ratio_mcap_pct": 4.2, "non_op_max_ratio_pct": 4.2, "core_bps": 326239, "nopat_eok": 1436.12, "core_roic_pct": 3.0, "core_profit_sustainable": false, "implied_core_op_ev_eok": 26845.42}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": -11.94, "flags": ["④ 사업구성레짐(OPM 과거중위 14.9% → 현재 2.9%, -11.9%p [본업 마진 훼손/경쟁 심화])"]}, "section8": {"primary_metric": "PER", "pbr_min": 0.67, "pbr_max": 8.37, "pbr_r2": 0.29, "pbr_dir": 46.2, "per_min": 11.58, "per_max": 38.05, "per_r2": 0.79, "per_dir": 56.4, "official_pbr": 0.8, "official_per": 0.0, "official_div": 0.74}, "section2": {"is_type_b": true, "verdict": "🔴 [유형 B: 구조적 버블 붕괴 가치함정 (Structural Value Trap)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": false, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 5,017.0원 → 2026.2Q 4,405.0원 (흑자 지속(소폭조정) 🟢)", "qoq_rev_pct": 5.1, "qoq_op_pct": -4.7, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 15,765.9억→16,574.2억(QoQ +5.1%) | 영업이익 1,078.3억→1,027.8억(QoQ -4.7%) | 수정EPS 5,017원→4,405원", "kill_switch_guide": "차기 분기 영업이익 < 873.6억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 3,524원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": -144.77286252727632, "bps_2y_chg": 1.4058505333887101, "op_yoy_q": 87.51059693036711, "op_yoy_ttm": -46.887655829512006, "op_yoy_used": 87.51059693036711, "op_yoy_detail": "분기(2025.2Q→2026.2Q) +87.5% (548.1억 → 1,027.8억) | TTM 영업이익 YoY: -46.9%", "curr_roe": -1.307775713123062, "mid_cycle_roe": 3.058524132762662, "mid_cycle_eps": 11231.0, "pbr_cycle_max": 8.368315789690882, "pbr_3y_max": 1.482712916638873, "pbr_3y_mean": 0.9853330638863732, "pbr_3y_p20": 0.8374823991086559, "pbr_3y_p65": 1.0281514328885557, "pbr_3y_p90": 1.1831653272352562, "per_3y_max": 38.04588742173859, "per_3y_mean": 19.90878828425332, "per_3y_p20": 16.603235831001214, "per_3y_p65": 20.78456990389042, "per_3y_p90": 24.64751086248947, "curr_eps_used": -4342.0, "curr_bps_used": 337569.0}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 55.12, "median_52w_range_pct": 41.09, "effective_52w_range": 41.09, "forward_bps": 337569.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.0, "sc_base_mult": 1.0, "sc_bull_mult": 1.0, "base_mult_a": 1.0, "bull_mult_a": 1.0, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "theme_name": "K-뷰티 인디브랜드 & 홈 뷰티 디바이스 [🚫 수혜 제외: 대중국 오프라인/면세점 한방 화장품 비중이 70% 이상으로, 미국 인디 트렌드 수혜 익스포저 3% 미달 및 레거시 잠식 위험으로 수혜 제외]", "exposure_pct": 0.0, "source_pdf": "26.09.30.신한투자증권.K-소비재 미국 침투.pdf p.22"}, "tp1_price": 311620, "tp1_price_a": 311620, "tp1_upside": 15.63, "tp1_upside_a": 15.63, "bear_auto": 253180, "base_auto": 347070, "bull_auto": 399400, "base_auto_a": 347070, "bull_auto_a": 399400}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -4.7%, YoY +87.5%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(11,500.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 269500, "d_low20": 255000, "poc_low": 264900, "poc_high": 274800, "poc_pct": 43.4, "poc_trail_pin": 256953, "d_ma5": 272600, "d_ma20": 274700, "d_ma60": 290242, "vol_ma20": 54501, "vol_ratio": 0.3, "stoch_k": 57.5, "stoch_d": 43.1, "w_close": 269500, "w_ma10": 288550, "w_ma20": 274550, "w_ma60": 271125, "bb_upper": 337630, "bb_lower": 211470, "w_macd": 3797.5, "w_macd_sig": 6191.0, "w_macd_hist": -2393.5, "w_mfi14": 58.8, "w_rsi14": 47.7, "w_mfi14_12w_max": 64.4, "buy1": 253180, "buy2": 264900, "buy3": 274800, "avg_buy_price": 264354, "init_stop_pin": 240520, "breakout_trail_pin": 256953, "gate1_rr": 4.75, "exec_rr": 3.47, "is_overvalued": false, "is_track2": false}, "reverse_dcf": {"status": "success", "price": 269500.0, "fcf_eok": 2400.0, "norm_fcf_eok": null, "distb_shares": 14659784, "total_shares": 17071782, "treasury_shares": 2411998, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -11500.0, "pref_mcap_eok": 2725.0, "market_cap_distb_eok": 39508.12, "market_cap_total_eok": 46008.45, "ev_distb_eok": 30733.12, "non_op_assets_eok": 1661.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 1162.7, "non_op_ratio_mcap_pct": 4.2, "non_op_ratio_book_pct": 2.94, "sotp_triggered": false, "core_op_ev_eok": 29570.42, "implied_g_distb_pct": 4.86, "implied_g_total_pct": 8.5, "implied_g_ev_pct": -0.97, "implied_g_core_ev_pct": null, "norm_g_distb_pct": null, "norm_g_ev_pct": null, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"269500\" data-shares=\"14659784\" data-total-shares=\"17071782\" data-fcf=\"2400.0\" data-net-debt=\"-11500.0\" data-non-op-assets=\"1162.7\" data-bear=\"253180\" data-base=\"347070\" data-bull=\"399400\" data-base-a=\"347070\" data-bull-a=\"399400\" data-tp1=\"311620\" data-tp1-a=\"311620\" data-buy1=\"253180\" data-buy2=\"264900\" data-buy3=\"274800\" data-stop-pin=\"240520\" data-poc-low=\"264900\"></div>"};
+        const SSOT_DATA = {"version": "4.3", "generated_at": "2026-11-17 13:21:09", "stock_code": "051900", "corp_name": "LG생활건강", "anchor_price": 241500, "primary_metric": "PER", "bench": {"stock_name": "LG생활건강", "close": 235500.0, "bps": 337569.0, "pbr": 0.72, "eps": -4342.0, "per": null, "div_yield": 0.83, "dps": 2000.0, "market_cap_str": "3조 6,166억"}, "sotp": {"sotp_triggered": false, "book_eq_eok": 49486.89, "mcap_eok": 35403.38, "non_op_assets_eok": 4850.0, "recognized_non_op_eok": 3395.0, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 9.8, "non_op_ratio_mcap_pct": 13.7, "non_op_max_ratio_pct": 13.7, "core_bps": 304485, "nopat_eok": 1436.12, "core_roic_pct": 3.22, "core_profit_sustainable": false, "implied_core_op_ev_eok": 20508.38}, "step1_2_bottleneck": {"is_phase2": false, "is_early_ignition": false, "theme_name": "K-뷰티 인디브랜드 & 홈 뷰티 디바이스 [🚫 수혜 제외: 대중국 오프라인/면세점 한방 화장품 비중이 70% 이상으로, 미국 인디 트렌드 수혜 익스포저 3% 미달 및 레거시 잠식 위험으로 수혜 제외]", "exposure_pct": 0.0, "source_pdf": "26.09.30.신한투자증권.K-소비재 미국 침투.pdf p.22", "penetration_pct": 3.0, "second_penetration_pct": 0.0, "is_near_10pct_inflection": false, "penetration_zone": "Zone D [무상 콜옵션/비해당 — 단독매출 30% 미달·미공시로 침투율(3.0%/0.0%) 할증 0% 차단]", "inflection_desc": "🚫 수혜 제외 (북미 인디 뷰티 익스포저 미달 및 중국/면세 레거시 잠식 구간)", "bottleneck_grade": "N/A", "bottleneck_factors": ["중국 럭셔리 화장품 경쟁 심화로 병목 해자 약화"], "bottleneck_lead_time_months": 6, "bottleneck_duration_label": "⚡ 단기 일시적 병목 (6개월 / 1년 미만 해소 주의)", "bottleneck_lead_reason": "인디 브랜드 ODM 확산으로 레거시 브랜드 진입장벽 약화", "capa_util_pct": 62.0, "curr_opm_pct": 2.93, "core_bottleneck_only_mode": false, "scurve_sell_triggered": false, "shortage_easing": false, "slope_decel": false, "policy_headwind": false, "sell_signal_summary": "🟢 해당 없음 (병목 유지 · 성장 기울기 건전 · 정책 역풍 미감지)", "pen_base_boost": 0.0, "pen_bull_boost": 0.0, "bn_base_bonus": 0.0, "bn_bull_bonus": 0.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "peg_factor": 0.8}, "step1_8_k_return": {"payout_ratio_pct": 30.0, "tsr_pct": 30.0, "div_yield_pct": 0.83, "dps": 2000.0, "treasury_shares": 2411998, "treasury_ratio_pct": 14.13, "tax_incentive_status": "⚪ 배당 유지 중이나 이익 체력 회복 선행 필요", "buyback_cliff_warn": false, "cliff_status": "🟢 정상 (현재 자기주식 2,411,998주 [14.13%] 보유 — 소각 전환 여부 모니터링)", "related_party_eok": 0.0, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [0.0억 원])", "k_gov_note": "우선주 시총 EV 합산 및 유형 B 가치함정 점검 대상", "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": -11.84, "flags": ["④ 사업구성레짐(OPM 과거중위 14.8% → 현재 2.9%, -11.8%p [본업 마진 훼손/경쟁 심화])"]}, "section8": {"primary_metric": "PER", "pbr_min": 0.65, "pbr_max": 8.75, "pbr_r2": 0.31, "pbr_dir": 47.4, "per_min": 10.42, "per_max": 31.59, "per_r2": 0.86, "per_dir": 57.9, "official_pbr": 0.72, "official_per": 0.0, "official_div": 0.83}, "section2": {"is_type_b": true, "verdict": "🔴 [유형 B: 구조적 버블 붕괴 가치함정 (Structural Value Trap)]", "controlling_ratio_pct": 100.0, "qoq_eps_positive": false, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 5,017.0원 → 2026.2Q 4,405.0원 (흑자 지속(소폭조정) 🟢)", "qoq_rev_pct": 5.1, "qoq_op_pct": -4.7, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 15,765.9억→16,574.2억(QoQ +5.1%) | 영업이익 1,078.3억→1,027.8억(QoQ -4.7%) | 수정EPS 5,017원→4,405원", "kill_switch_guide": "차기 분기 영업이익 < 873.6억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 3,524원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": -144.77286252727632, "bps_2y_chg": 1.4058505333886873, "op_yoy_q": 87.51059693036711, "op_yoy_ttm": -46.887655829512006, "op_yoy_used": 87.51059693036711, "op_yoy_detail": "분기(2025.2Q→2026.2Q) +87.5% (548.1억 → 1,027.8억) | TTM 영업이익 YoY: -46.9%", "curr_roe": -1.307775713123062, "mid_cycle_roe": 3.058524132762662, "mid_cycle_eps": 11231.0, "pbr_cycle_max": 8.75124052575596, "pbr_3y_max": 1.4368605380512576, "pbr_3y_mean": 0.9378671453658889, "pbr_3y_p20": 0.7937920030616453, "pbr_3y_p65": 0.982596591211309, "pbr_3y_p90": 1.1087834840546091, "per_3y_max": 31.59040298402142, "per_3y_mean": 16.665701877636955, "per_3y_p20": 13.918431699541365, "per_3y_p65": 17.464745673661668, "per_3y_p90": 20.46541304367626, "curr_eps_used": -4342.0, "curr_bps_used": 337569.0, "prev_swing_grade": "B", "prev_swing_score": 52}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 55.12, "median_52w_range_pct": 41.09, "effective_52w_range": 41.09, "forward_bps": 337569.0, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.0, "sc_base_mult": 1.0, "sc_bull_mult": 1.0, "kgov_mult": 1.0, "peg_factor_used": 0.8, "base_mult_a": 1.0, "bull_mult_a": 1.0, "scurve_sell_triggered": false, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "penetration_pct": 18.0, "is_near_10pct_inflection": false, "theme_name": "K-뷰티 인디브랜드 & 홈 뷰티 디바이스 [🚫 수혜 제외: 대중국 오프라인/면세점 한방 화장품 비중이 70% 이상으로, 미국 인디 트렌드 수혜 익스포저 3% 미달 및 레거시 잠식 위험으로 수혜 제외]", "exposure_pct": 0.0, "source_pdf": "26.09.30.신한투자증권.K-소비재 미국 침투.pdf p.22", "second_penetration_pct": 0.0, "inflection_desc": "🚫 수혜 제외 (북미 인디 뷰티 익스포저 미달 및 중국/면세 레거시 잠식 구간)", "bottleneck_grade": "N/A", "bottleneck_factors": ["중국 럭셔리 화장품 경쟁 심화로 병목 해자 약화"], "bottleneck_lead_time_months": 6, "bottleneck_lead_reason": "인디 브랜드 ODM 확산으로 레거시 브랜드 진입장벽 약화"}, "tp1_price": 301620, "tp1_price_a": 301620, "tp1_upside": 24.89, "tp1_upside_a": 24.89, "bear_auto": 219420, "base_auto": 270060, "bull_auto": 316590, "base_auto_a": 270060, "bull_auto_a": 316590, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 3045.6, "implied_op_bull_a_eok": 2907.4}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -4.7%, YoY +87.5%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(11,500.0억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 241500, "d_low20": 224500, "poc_low": 234900, "poc_high": 245300, "poc_pct": 35.1, "poc_trail_pin": 227853, "d_ma5": 232000, "d_ma20": 246700, "d_ma60": 275258, "vol_ma20": 51087, "vol_ratio": 0.58, "stoch_k": 17.0, "stoch_d": 12.8, "w_close": 241500, "w_ma5": 244000, "w_ma10": 262000, "w_ma20": 275200, "w_ma60": 267575, "w_ma120": 295912, "w_disp5_pct": -1.02, "w_disp20_pct": -12.25, "w_disp60_pct": -9.74, "w_disp120_pct": -18.39, "w_poc_low": 282750, "w_poc_high": 297300, "w_poc_price": 290025, "w_poc_pct": 16.3, "w_vp_dist_pct": -16.73, "w_vp_status": "매물벽하단저항(-8점)", "bb_upper": 335669, "bb_lower": 214731, "w_macd": -6657.3, "w_macd_sig": 113.2, "w_macd_hist": -6770.4, "w_mfi14": 31.6, "w_rsi14": 41.8, "w_mfi14_12w_max": 64.4, "w_swing_score": 52, "w_swing_grade": "B", "w_swing_signal": "🔵 B-급 완충 눌림목 구간 (45~54점 히스테리시스: 45점 하회 전 눌림목 분할 대응 유지)", "buy1": 199960, "buy2": 211070, "buy3": 222180, "avg_buy_price": 211070, "init_stop_pin": 189960, "breakout_trail_pin": 227853, "gate1_rr": 0.0, "exec_rr": 2.79, "is_overvalued": false, "is_track2": false, "is_value_trap_hold": true, "is_downtrend_hold": false, "sop_mode_desc": "🚫 [유형 B 구조적 가치함정 — 턴어라운드 확인 전 현재가(241,500원) 매수 금지 모드]: 2년 누적 EPS 급감 및 저ROE 가치함정 구간이므로 분기 영업이익·수정EPS QoQ 반등 공시 전까지 신규 진입을 보류하며, 불가피한 분할 대기선은 청산가치 하단(199,960~222,180원)으로만 제한합니다!"}, "reverse_dcf": {"status": "success", "price": 241500.0, "fcf_eok": 3120.0, "norm_fcf_eok": 3400.0, "distb_shares": 14659784, "total_shares": 17071782, "treasury_shares": 2411998, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -11500.0, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 35403.38, "market_cap_total_eok": 41228.35, "ev_distb_eok": 23903.38, "non_op_assets_eok": 4850.0, "non_op_haircut": 0.3, "recognized_non_op_eok": 3395.0, "non_op_ratio_mcap_pct": 13.7, "non_op_ratio_book_pct": 9.8, "sotp_triggered": false, "core_op_ev_eok": 20508.38, "implied_g_distb_pct": -3.69, "implied_g_total_pct": -0.25, "implied_g_ev_pct": -12.25, "implied_g_core_ev_pct": null, "norm_g_distb_pct": -5.6, "norm_g_ev_pct": -14.06, "norm_g_core_ev_pct": null}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"241500\" data-shares=\"14659784\" data-total-shares=\"17071782\" data-fcf=\"3120.0\" data-reported-fcf=\"3120.0\" data-net-debt=\"-11500.0\" data-non-op-assets=\"3395.0\" data-bear=\"219420\" data-base=\"270060\" data-bull=\"316590\" data-base-a=\"270060\" data-bull-a=\"316590\" data-tp1=\"301620\" data-tp1-a=\"301620\" data-buy1=\"199960\" data-buy2=\"211070\" data-buy3=\"222180\" data-stop-pin=\"189960\" data-poc-low=\"234900\"></div>", "data_quality": {"status": "ok", "warnings": []}, "input_params": {"code": "051900", "sector_type": "A", "rerating_date": null, "distb_shares": 14659784, "total_shares": 17071782, "fcf": 3120.0, "norm_fcf": 3400.0, "net_debt": -11500.0, "non_op_assets": 4850.0, "dart_exposure": null, "forward_eps": null, "forward_eps_g": null, "expected_dps": 0.0, "sc_override": null, "early_ignition": false}};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -849,7 +698,14 @@ p > em {
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -960,7 +816,7 @@ p > em {
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
