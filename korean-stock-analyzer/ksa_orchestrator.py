@@ -36,7 +36,10 @@ from ssot_common import (  # noqa: E402
     get_model_config,
     update_model_config,
 )
-from backtest_valuation import run_valuation_backtest  # noqa: E402
+from backtest_valuation import (  # noqa: E402
+    refresh_price_eq_in_ssot,
+    run_valuation_backtest,
+)
 from calc_reverse_dcf import (  # noqa: E402
     analyze_reverse_dcf,
     resolve_ctrl_equity,
@@ -171,9 +174,24 @@ def append_extended_ssot_tables(ssot_json_path):
     stop1 = s4.get("init_stop_pin", 0)
     stop2 = s4.get("breakout_trail_pin", 0)
     tp1_b = s3.get("tp1_price", 0)
+    tp1_a = s3.get("tp1_price_a", tp1_b)
     base_b = s3.get("base_auto", 0)
     base_a = s3.get("base_auto_a", 0)
     bull_a = s3.get("bull_auto_a", 0)
+    tech_r1 = s3.get("tech_resist_1")
+    has_pre_resist = bool(s3.get("has_pre_base_resist") and tech_r1)
+    if s3.get("is_low_vol_box"):
+        tp1_row_label = "🎯 1차 목표가 (TP1 박스권)"
+        tp1_note = f"박스권 1차 저항 목표 (이론적 Base 🛡️ {base_b:,}원 / 🚀 {base_a:,}원)"
+    elif has_pre_resist:
+        tp1_row_label = "🎯 1차 목표가 (Base 본목표)"
+        tp1_note = (
+            f"1차 목표가 = Base(`{base_b:,}원`/`{base_a:,}원`) · "
+            f"🧱 선행 매물저항 **`{int(tech_r1):,}원`**(`{(int(tech_r1)/anchor-1)*100 if anchor else 0:+.1f}%`) 도달 시 20~30% 스윙 부분익절 체크"
+        )
+    else:
+        tp1_row_label = "🎯 1차 목표가 (TP1 매물저항)"
+        tp1_note = f"매물대 1차 저항 익절 (참고 Base 🛡️ {base_b:,}원 / 🚀 {base_a:,}원)"
 
     if s4.get("is_value_trap_hold"):
         buy2_cond = f"🚫 [유형 B 가치함정] 분기 영업익·EPS QoQ 반등 공시 전 현재가 매수 보류 (청산가치 하단 대기)"
@@ -197,7 +215,7 @@ def append_extended_ssot_tables(ssot_json_path):
 | **🟣 3차 매수 (매물대 돌파/안착)** | **30%** | **`{buy3:,}원`** | `{(buy3/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(buy3/avg_p - 1)*100 if avg_p else 0:+.1f}%` | {buy3_cond} |
 | **⭐ 3분할 완성 평균단가 (Avg Buy)** | **100%** | **`{avg_p:,}원`** | `{(avg_p/anchor - 1)*100 if anchor else 0:+.1f}%` | `0.0%` | **Gate 1 R:R `{s4.get('gate1_rr', 0):.2f}:1` / Gate 2 실전 R:R `{s4.get('exec_rr', 0):.2f}:1`** |
 | **🔒 2단계 본절 보호핀 (Trailing Stop 2)** | **익절 보호선** | **`{stop2:,}원`** | `{(stop2/anchor - 1)*100 if anchor else 0:+.1f}%` | `{(stop2/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 매물대 상단(`{s4.get('poc_high', 0):,}원`) 돌파 안착 성공 시 손절선 상향 |
-| **🎯 1차 목표가 (TP1 / Base)** | **분할 익절 1** | **🛡️ `{tp1_b:,}원` / 🚀 `{base_a:,}원`** | `🛡️ {(tp1_b/anchor - 1)*100 if anchor else 0:+.1f}% / 🚀 {(base_a/anchor - 1)*100 if anchor else 0:+.1f}%` | `🛡️ {(tp1_b/avg_p - 1)*100 if avg_p else 0:+.1f}% / 🚀 {(base_a/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 보수적 대안 B(`{base_b:,}원`) vs v4.3 병목·주주환원 반영 대안 A(`{base_a:,}원`) |
+| **{tp1_row_label}** | **분할 익절 1** | **🛡️ `{tp1_b:,}원` / 🚀 `{tp1_a:,}원`** | `🛡️ {(tp1_b/anchor - 1)*100 if anchor else 0:+.1f}% / 🚀 {(tp1_a/anchor - 1)*100 if anchor else 0:+.1f}%` | `🛡️ {(tp1_b/avg_p - 1)*100 if avg_p else 0:+.1f}% / 🚀 {(tp1_a/avg_p - 1)*100 if avg_p else 0:+.1f}%` | {tp1_note} |
 | **🚀 2차 목표가 (Bull 상단)** | **최종 익절 2** | **🛡️ `{s3.get('bull_auto', 0):,}원` / 🚀 `{bull_a:,}원`** | `🛡️ {(s3.get('bull_auto', 0)/anchor - 1)*100 if anchor else 0:+.1f}% / 🚀 {(bull_a/anchor - 1)*100 if anchor else 0:+.1f}%` | `🛡️ {(s3.get('bull_auto', 0)/avg_p - 1)*100 if avg_p else 0:+.1f}% / 🚀 {(bull_a/avg_p - 1)*100 if avg_p else 0:+.1f}%` | 주봉 MFI(14) 80 하향이탈 또는 RSI 과열 괴리 시 분할 차익실현 |
 """
 
@@ -343,6 +361,8 @@ def cmd_prep(args):
             )
             update_ssot_json(ssot_path, dcf_res)
 
+        refresh_price_eq_in_ssot(ssot_path)
+
         # Persist input_params for future zero-arg `prep` runs
         with open(ssot_path, "r", encoding="utf-8") as f:
             final_ssot = json.load(f)
@@ -462,6 +482,16 @@ def build_ai_prep_digest(comp_dir, corp_name):
 
     auto_md_path = os.path.join(comp_dir, "2_Translated_DB", "auto_tables.md")
     auto_md_txt = open(auto_md_path, "r", encoding="utf-8").read() if os.path.exists(auto_md_path) else "(auto_tables.md 없음)"
+    if auto_md_txt and "코드 자동 생성 2-D" in auto_md_txt:
+        # Strip [코드 자동 생성 2-D] from ai_prep_digest.md so Tier-1 (Argon Medium) focuses strictly on Phase 1~3 core analysis;
+        # [2-D] remains in auto_tables.md & valuation_metrics.json for 0-token --patch-ssot and separate Tier-2 (Hydrogen High) use.
+        auto_md_txt = re.sub(
+            r"\n*### 📌 \[코드 자동 생성 2-D\].*?(?=\n### 📌 \[|\Z)",
+            "\n",
+            auto_md_txt,
+            flags=re.DOTALL,
+        )
+        auto_md_txt = re.sub(r"\n{3,}", "\n\n", auto_md_txt).strip()
 
     thesis_path = os.path.join(comp_dir, "Weekly_Trend", "thesis_log.md")
     thesis_txt = open(thesis_path, "r", encoding="utf-8").read() if os.path.exists(thesis_path) else "(thesis_log.md 없음)"
@@ -661,6 +691,7 @@ def patch_ssot_into_reports(comp_dir):
         "코드 자동 생성 2",
         "코드 자동 생성 2-B",
         "코드 자동 생성 2-C",
+        "코드 자동 생성 2-D",
     )
 
     for fname in ("Phase1_Report.md", "Phase2_Story.md", "Phase3_DCF.md"):
@@ -695,6 +726,14 @@ def patch_ssot_into_reports(comp_dir):
             )
 
         if fname == "Phase3_DCF.md":
+            # Ensure optional [코드 자동 생성 2-D] Reference 3-Factor table is injected above calculator tag if missing
+            pe_blk = extract_section_from_auto_md(auto_md, "코드 자동 생성 2-D")
+            if pe_blk and "[코드 자동 생성 2-D]" not in txt:
+                anchor_marker = "### 📌 [코드 자동 생성 3]"
+                if anchor_marker in txt:
+                    txt = txt.replace(anchor_marker, pe_blk + "\n\n---\n\n" + anchor_marker, 1)
+                elif c_tag and c_tag in txt:
+                    txt = txt.replace(c_tag, pe_blk + "\n\n" + c_tag, 1)
             # Ensure all probe numbers from validate_report.py exist in Phase 3
             s3 = curr_ssot.get("section3", {}) or {}
             s4 = curr_ssot.get("section4", {}) or {}

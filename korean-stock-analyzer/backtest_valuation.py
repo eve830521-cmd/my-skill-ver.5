@@ -37,8 +37,64 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
+def _parse_naver_investor_flows(trend_rows):
+    """Aggregates KRX Foreign / Institutional / Retail net buying flows from Naver trend/dealTrendInfos rows."""
+    if not trend_rows:
+        return {}
+
+    def _pnum(val):
+        if val is None:
+            return 0.0
+        s = str(val).replace(",", "").replace("+", "").replace("%", "").strip()
+        if not s or s in ("N/A", "-"):
+            return 0.0
+        try:
+            return float(s)
+        except ValueError:
+            return 0.0
+
+    f_sum = o_sum = r_sum = vol_sum = sm_won = 0.0
+    f_5d = o_5d = 0.0
+    hold_ratios = []
+    for idx, row in enumerate(trend_rows):
+        fq = _pnum(row.get("foreignerPureBuyQuant"))
+        oq = _pnum(row.get("organPureBuyQuant"))
+        rq = _pnum(row.get("individualPureBuyQuant"))
+        vol = _pnum(row.get("accumulatedTradingVolume"))
+        close_p = _pnum(row.get("closePrice"))
+        hr_raw = row.get("foreignerHoldRatio")
+        if hr_raw not in (None, "", "-", "N/A"):
+            hold_ratios.append(_pnum(hr_raw))
+        f_sum += fq
+        o_sum += oq
+        r_sum += rq
+        vol_sum += vol
+        sm_won += (fq + oq) * close_p
+        if idx < 5:
+            f_5d += fq
+            o_5d += oq
+
+    sm_shares = f_sum + o_sum
+    sm_vol_pct = (sm_shares / vol_sum * 100.0) if vol_sum > 0 else 0.0
+    fr_now = hold_ratios[0] if hold_ratios else 0.0
+    fr_old = hold_ratios[-1] if hold_ratios else 0.0
+    return {
+        "days": len(trend_rows),
+        "foreign_net_shares": int(round(f_sum)),
+        "organ_net_shares": int(round(o_sum)),
+        "retail_net_shares": int(round(r_sum)),
+        "smart_money_net_shares": int(round(sm_shares)),
+        "smart_money_vol_pct": round(sm_vol_pct, 2),
+        "smart_money_net_eok": round(sm_won / 1e8, 1),
+        "foreign_5d_shares": int(round(f_5d)),
+        "organ_5d_shares": int(round(o_5d)),
+        "foreign_hold_ratio_pct": round(fr_now, 2),
+        "foreign_hold_chg_pctp": round(fr_now - fr_old, 2),
+    }
+
+
 def fetch_naver_official_metrics(stock_code):
-    """Fetches benchmark official metrics from Naver Mobile Integration API."""
+    """Fetches benchmark official metrics and KRX investor flows from Naver Mobile APIs."""
     url = f"https://m.stock.naver.com/api/stock/{stock_code}/integration"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
@@ -66,6 +122,17 @@ def fetch_naver_official_metrics(stock_code):
             except Exception:
                 return None
 
+        trend_rows = data.get("dealTrendInfos") or []
+        try:
+            t_url = f"https://m.stock.naver.com/api/stock/{stock_code}/trend?pageSize=20&page=1"
+            t_req = urllib.request.Request(t_url, headers={"User-Agent": "Mozilla/5.0"})
+            t_resp = urllib.request.urlopen(t_req, timeout=5).read().decode("utf-8")
+            t_data = json.loads(t_resp)
+            if isinstance(t_data, list) and t_data:
+                trend_rows = t_data
+        except Exception:
+            pass
+
         res = {
             "stock_name": data.get("stockName"),
             "close": parse_num(metrics.get("현재가") or metrics.get("전일")),
@@ -76,6 +143,7 @@ def fetch_naver_official_metrics(stock_code):
             "div_yield": parse_num(metrics.get("배당수익률")),
             "dps": parse_num(metrics.get("주당배당금")),
             "market_cap_str": metrics.get("시총"),
+            "investor_flow": _parse_naver_investor_flows(trend_rows),
         }
         return res
     except Exception as e:
@@ -2118,6 +2186,8 @@ def compute_section3_stock_nature_and_tp1(
     step1_8_res=None,
     distb_shares=0,
     sec8_res=None,
+    tech_snap=None,
+    ev_implied_g=None,
 ):
     """
     (B) Section 3 종목 체질 판별, 사이클주 '피크 이익 × 높은 멀티플' 함정 차단(Peak-Cycle Trap Guard),
@@ -2155,23 +2225,36 @@ def compute_section3_stock_nature_and_tp1(
 
     bps = bench.get("bps") or sec2_res.get("curr_bps_used") or 0
     trailing_eps = bench.get("eps") or sec2_res.get("curr_eps_used") or 0
-    eps = forward_eps if (forward_eps is not None and forward_eps > 0) else trailing_eps
+
+    # [PATCH v5.1 Consistency Fix #1] Suspend optimistic forward_eps when stock is in weekly Grade-C downtrend
+    w_swing_grade_pre = (tech_snap or {}).get("w_swing_grade")
+    forward_eps_suspended = False
+    if forward_eps is not None and forward_eps > 0 and w_swing_grade_pre == "C":
+        forward_eps_suspended = True
+        print(
+            f"    - 🚨 [주봉 C등급 하락추세 낙관치 차단]: 현재 주봉 스윙 {w_swing_grade_pre}등급"
+            f"({(tech_snap or {}).get('w_swing_score', 0)}점)이므로 추정 forward_eps({forward_eps:,.0f}원) 반영을 일시 정지하고 "
+            f"확정 TTM EPS({trailing_eps:,.0f}원) · 현행 BPS({bps:,.0f}원)로 회귀합니다."
+        )
+    eff_forward_eps = None if forward_eps_suspended else forward_eps
+
+    eps = eff_forward_eps if (eff_forward_eps is not None and eff_forward_eps > 0) else trailing_eps
     curr_pbr = (curr_price / bps) if bps > 0 else (bench.get("pbr") or 0)
 
     if (
-        forward_eps is not None
+        eff_forward_eps is not None
         and bps > 0
         and trailing_eps > 0
-        and forward_eps > bps * 0.55
-        and (forward_eps / trailing_eps) >= 3.5
+        and eff_forward_eps > bps * 0.55
+        and (eff_forward_eps / trailing_eps) >= 3.5
     ):
-        split_factor = round(forward_eps / trailing_eps)
+        split_factor = round(eff_forward_eps / trailing_eps)
         if split_factor >= 3:
-            eps = round(forward_eps / split_factor, 1)
+            eps = round(eff_forward_eps / split_factor, 1)
             expected_dps = round(float(expected_dps or 0.0) / split_factor, 1)
 
     forward_bps = bps
-    if forward_eps is not None and bps > 0:
+    if eff_forward_eps is not None and bps > 0:
         retained_eps = max(0.0, float(eps) - float(expected_dps or 0.0))
         forward_bps = round(bps + retained_eps)
 
@@ -2186,16 +2269,16 @@ def compute_section3_stock_nature_and_tp1(
 
     eff_per_p65 = (
         min(per_p65, 18.0)
-        if (forward_eps is not None and trailing_eps > 0 and eps > trailing_eps * 1.25 and per_p65 > 22.0)
+        if (eff_forward_eps is not None and trailing_eps > 0 and eps > trailing_eps * 1.25 and per_p65 > 22.0)
         else per_p65
     )
     eff_per_p90 = (
         min(per_p90, 24.0)
-        if (forward_eps is not None and trailing_eps > 0 and eps > trailing_eps * 1.25 and per_p90 > 28.0)
+        if (eff_forward_eps is not None and trailing_eps > 0 and eps > trailing_eps * 1.25 and per_p90 > 28.0)
         else per_p90
     )
 
-    # [PATCH v4.2.1 #2] Cyclical "Peak Earnings × Peak Multiple" Trap Guard vs Structural Re-rating Separation
+    # [PATCH v4.2.1 #2 + v5.1 Consistency Fix #2] Cyclical Peak Guard with 3-Factor Non-Overheated Ramp-Up Exemption
     sc_info_pre = _detect_scurve_phase2_status(
         stock_code,
         corp_name=corp_name or bench.get("stock_name"),
@@ -2207,6 +2290,7 @@ def compute_section3_stock_nature_and_tp1(
     mid_cycle_roe = sec2_res.get("mid_cycle_roe")
     curr_roe = sec2_res.get("curr_roe")
     qoq_op_pct = sec2_res.get("qoq_op_pct")
+    op_yoy_pre = sec2_res.get("op_yoy_used")
     opm_shift = (regime_res or {}).get("opm_shift_pctp")
     is_cyclical_sector = str(sector_type).upper() in ("A", "B")
 
@@ -2221,11 +2305,46 @@ def compute_section3_stock_nature_and_tp1(
         )
     )
 
+    # 3-Factor Non-Overheated Ramp-Up Exemption:
+    # Exempt ONLY when (1) Earnings actively accelerate with solid EPS/ROE quality,
+    # (2) Expectations NOT overheated (Reverse DCF EV g <= +12% — or if ev_implied_g is None, strict low/mid 3Y PBR band),
+    # AND (3) Supply/Demand NOT overheated (Weekly MFI < 75 & 12W Max MFI < 80).
+    w_mfi14_pre = float((tech_snap or {}).get("w_mfi14", 50.0))
+    w_mfi12max_pre = float((tech_snap or {}).get("w_mfi14_12w_max", 50.0))
+    qoq_eps_pos_pre = sec2_res.get("qoq_eps_positive")
+    is_rampup_earnings = (
+        (qoq_op_pct is not None and qoq_op_pct >= 15.0)
+        and (op_yoy_pre is not None and op_yoy_pre >= 20.0)
+        and (trailing_eps > 0)
+        and (qoq_eps_pos_pre is not False)
+        and (curr_roe is None or curr_roe >= 8.5)
+    )
+    pbr_3y_mean_pre = sec2_res.get("pbr_3y_mean") or pbr_p65
+    pbr_band_pos_pre = (
+        ((curr_pbr - pbr_p20) / max(pbr_p90 - pbr_p20, 0.1)) * 100.0
+        if (curr_pbr > 0 and pbr_p90 > pbr_p20)
+        else None
+    )
+    if ev_implied_g is not None:
+        ev_g_not_overheated = ev_implied_g <= 12.0
+    else:
+        # Close ev_implied_g=None loophole: FCF-deficit/uncomputed stocks pass ONLY if PBR sits strictly in lower-half 3Y band
+        ev_g_not_overheated = bool(
+            curr_pbr > 0
+            and curr_pbr <= pbr_3y_mean_pre
+            and (pbr_band_pos_pre is None or pbr_band_pos_pre <= 50.0)
+        )
+    mfi_not_overheated = (w_mfi14_pre < 75.0) and (w_mfi12max_pre < 80.0)
+    pbr_not_overheated = (curr_pbr <= 0) or (curr_pbr < pbr_p90 * 0.95)
+    is_non_overheated_rampup = bool(
+        is_rampup_earnings and ev_g_not_overheated and mfi_not_overheated and pbr_not_overheated
+    )
+
     is_peak_earnings = False
     peak_trap_reason = ""
     eps_for_valuation = eps
 
-    if is_cyclical_sector and not is_structural_rerating:
+    if is_cyclical_sector and not is_structural_rerating and not is_non_overheated_rampup:
         if mid_cycle_eps and mid_cycle_eps > 0 and eps >= mid_cycle_eps * 1.35:
             is_peak_earnings = True
             peak_trap_reason = f"현재/추정 EPS({eps:,.0f}원) ≥ 5년 Mid-Cycle 중위 EPS({mid_cycle_eps:,.0f}원) × 1.35배 (단순 사이클 피크)"
@@ -2412,9 +2531,17 @@ def compute_section3_stock_nature_and_tp1(
     base_auto_a = max(bear_auto_b + 10, round((base_auto_b * base_mult_a) / 10) * 10)
     bull_auto_a = max(base_auto_a + 10, round((bull_auto_b * bull_mult_a) / 10) * 10)
 
-    # [v4.3] Dynamic PEG(0.80 ~ 0.95) Rerating based on Bottleneck Lead Time + 10% Inflection (disabled if sell signal active)
+    # [v4.3] Dynamic PEG(0.80 ~ 0.95) Rerating based on Bottleneck Lead Time + 10% Inflection (disabled if sell signal or C-grade suspended)
     peg_factor_used = float((step1_2_res or {}).get("peg_factor", 0.80))
-    if forward_eps_g is not None and forward_eps_g > 0 and eps > 0 and sc_info["is_phase2"] and not is_type_b and not sc_sell_triggered:
+    if (
+        forward_eps_g is not None
+        and forward_eps_g > 0
+        and eps > 0
+        and sc_info["is_phase2"]
+        and not is_type_b
+        and not sc_sell_triggered
+        and not forward_eps_suspended
+    ):
         capped_g = min(float(forward_eps_g), 35.0)
         peg_target_per = capped_g * peg_factor_used
         peg_price = round((eps * peg_target_per) / 10) * 10
@@ -2428,6 +2555,25 @@ def compute_section3_stock_nature_and_tp1(
     if pbr_cap_price > bull_auto_b and bull_auto_a > pbr_cap_price:
         bull_auto_a = pbr_cap_price
 
+    final_base_b = (
+        round(base_target / 10) * 10
+        if (base_target is not None and base_target > 0)
+        else base_auto_b
+    )
+    final_base_a = max(bear_auto_b + 10, round((final_base_b * base_mult_a) / 10) * 10)
+    final_bull_b = (
+        round(bull_target / 10) * 10
+        if (bull_target is not None and bull_target > 0)
+        else bull_auto_b
+    )
+    final_bull_a = max(final_base_a + 10, round((final_bull_b * bull_mult_a) / 10) * 10)
+
+    # [PATCH v5.1 Consistency Fix #3 + Semiconductor Sobujang Dual-Anchor TP1]
+    # 1) Remove curr_price * 1.06 circularity from TP1.
+    # 2) For sharp-drawdown trend/semiconductor stocks where 52W p75 sits >25% above recent 60D high p75,
+    #    blend 60% 60D overhead resistance + 40% 52W resistance so stale cycle peaks don't distort TP1.
+    # 3) If tech_tp1_raw < Base (deeply beaten-down recovery), anchor TP1 cleanly at Base (no artificial >Base jump!)
+    #    and expose tech_tp1_raw separately as `tech_resist_1` (선행 매물대 저항 체크선).
     tp1_p70 = float(w52["close"].quantile(0.70))
     tp1_p75 = float(w52["close"].quantile(0.75))
     d60_ma = (
@@ -2440,10 +2586,29 @@ def compute_section3_stock_nature_and_tp1(
         if not df_day.empty
         else tp1_p75
     )
-    tp1_price_b = round(max(tp1_p75, d60_high_p75, curr_price * 1.06) / 10) * 10
-    tp1_price_a = (
-        round((tp1_price_b * op_mult) / 10) * 10 if op_mult != 1.0 else tp1_price_b
-    )
+    if (not is_low_vol_box) and (d60_high_p75 > 0) and (tp1_p75 > d60_high_p75 * 1.25):
+        tech_tp1_raw = round((0.40 * tp1_p75 + 0.60 * d60_high_p75) / 10) * 10
+    else:
+        tech_tp1_raw = round(max(tp1_p75, d60_high_p75) / 10) * 10
+
+    if is_low_vol_box:
+        tp1_price_b = max(bear_auto_b + 100, min(final_bull_b, tech_tp1_raw))
+        tp1_cand_a = round((tp1_price_b * op_mult) / 10) * 10 if op_mult != 1.0 else tp1_price_b
+        tp1_price_a = max(bear_auto_b + 100, min(final_bull_a, tp1_cand_a))
+        tech_resist_1 = tp1_price_b
+        has_pre_base_resist = False
+    else:
+        tech_resist_1 = max(bear_auto_b + 100, min(final_bull_b, tech_tp1_raw))
+        has_pre_base_resist = tech_tp1_raw < final_base_b
+        if has_pre_base_resist:
+            tp1_price_b = final_base_b
+            tp1_price_a = final_base_a
+        else:
+            tp1_price_b = max(final_base_b, min(final_bull_b, tech_tp1_raw))
+            tp1_cand_a = round((tp1_price_b * op_mult) / 10) * 10 if op_mult != 1.0 else tp1_price_b
+            tp1_floor_a = max(final_base_a, tp1_price_b) if base_mult_a >= 1.0 else final_base_a
+            tp1_price_a = max(tp1_floor_a, min(final_bull_a, tp1_cand_a))
+
     tp1_upside_b = ((tp1_price_b / curr_price) - 1.0) * 100.0 if curr_price > 0 else 0.0
     tp1_upside_a = ((tp1_price_a / curr_price) - 1.0) * 100.0 if curr_price > 0 else 0.0
 
@@ -2466,6 +2631,12 @@ def compute_section3_stock_nature_and_tp1(
         )
         print(
             f"      ➔ 호황 정점 이익에 높은 멀티플(p65~p90)을 곱하는 고전적 함정을 차단하기 위해 압축 PER(Base {eff_per_p65:.2f}배 / Bull {eff_per_p90:.2f}배) 및 Mid-Cycle 정상화 이익 캡을 강제 적용했습니다."
+        )
+    elif is_non_overheated_rampup and is_cyclical_sector:
+        print(
+            f"    - 🚀 [Step 3.0 3요소 비과열 램프업 예외 통과]: 실적 가속(QoQ {qoq_op_pct:+.1f}%, YoY {op_yoy_pre:+.1f}%) + "
+            f"기대감 비과열(역DCF EV {f'{ev_implied_g:+.1f}%' if ev_implied_g is not None else 'N/A'} ≤ +12%, PBR {curr_pbr:.2f}배) + "
+            f"수급 비과열(주봉 MFI {w_mfi14_pre:.1f} < 75) 동시 충족으로 정상 성장 멀티플을 유지합니다."
         )
     else:
         print("    - 🟢 [사이클 고점 함정 체크]: 피크 이익 과열 구간 아님 (정상 멀티플 밴드 적용)")
@@ -2510,19 +2681,6 @@ def compute_section3_stock_nature_and_tp1(
         f"      ④ 최종 대안 A 멀티플 가중치 (상한 캡 1.38/1.45 적용): Base ×{base_mult_a:.4f} ({(base_mult_a-1)*100:+.1f}%) | Bull ×{bull_mult_a:.4f} ({(bull_mult_a-1)*100:+.1f}%) | Bear ×1.0000 (하방 보호 고정)"
     )
 
-    final_base_b = (
-        round(base_target / 10) * 10
-        if (base_target is not None and base_target > 0)
-        else base_auto_b
-    )
-    final_base_a = max(bear_auto_b + 10, round((final_base_b * base_mult_a) / 10) * 10)
-    final_bull_b = (
-        round(bull_target / 10) * 10
-        if (bull_target is not None and bull_target > 0)
-        else bull_auto_b
-    )
-    final_bull_a = max(final_base_a + 10, round((final_bull_b * bull_mult_a) / 10) * 10)
-
     # [NEW v4.3] Red-Team Reverse Implied Capa & Margin Ceiling Audit
     capa_util_pct = float((step1_2_res or {}).get("capa_util_pct", 80.0))
     ttm_op_eok = float((sotp_res or {}).get("nopat_eok", 0.0)) / 0.78 if sotp_res else 0.0
@@ -2557,6 +2715,7 @@ def compute_section3_stock_nature_and_tp1(
     )
     print(
         f"      • TP1  (단기 실전): 🛡️ 대안 B {tp1_price_b:,.0f}원 ({tp1_upside_b:+.1f}%)  |  🚀 대안 A {tp1_price_a:,.0f}원 ({tp1_upside_a:+.1f}%) [52주 70~75%: {tp1_p70:,.0f}~{tp1_p75:,.0f}원 / 60일선: {d60_ma:,.0f}원]"
+        + (f"\n      • 🧱 [반도체 소부장 선행 매물저항]: {tech_resist_1:,.0f}원 ({((tech_resist_1/curr_price)-1)*100:+.1f}%) — Base 도달 전 1차 스윙 체크선" if has_pre_base_resist and curr_price > 0 else "")
     )
     print(
         f"      • Bear (하방 지지): 🛡️ 대안 B·A 공통 {bear_auto_b:,.0f}원 ({(bear_auto_b/curr_price-1)*100:+.1f}%) [하방 안전마진 할증 금지]"
@@ -2570,6 +2729,8 @@ def compute_section3_stock_nature_and_tp1(
         "median_52w_range_pct": round(median_52w_range_pct, 2),
         "effective_52w_range": round(effective_52w_range, 2),
         "forward_bps": forward_bps,
+        "forward_eps_suspended": forward_eps_suspended,
+        "is_non_overheated_rampup": is_non_overheated_rampup,
         "is_peak_trap": is_peak_earnings,
         "peak_trap_reason": peak_trap_reason,
         "op_mult": op_mult,
@@ -2585,6 +2746,8 @@ def compute_section3_stock_nature_and_tp1(
         "tp1_price_a": tp1_price_a,
         "tp1_upside": round(tp1_upside_b, 2),
         "tp1_upside_a": round(tp1_upside_a, 2),
+        "tech_resist_1": tech_resist_1,
+        "has_pre_base_resist": has_pre_base_resist,
         "bear_auto": bear_auto_b,
         "base_auto": final_base_b,
         "bull_auto": final_bull_b,
@@ -2630,13 +2793,13 @@ def compute_risk_causal_chain_diagnosis(dart_ts, sotp_res, sec2_res, net_debt_eo
     }
 
 
-def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
+def compute_technical_snapshot(df_day, df_week, sec2_res):
     """
-    (C) Section 4 마스터 SOP 정예 보조지표 실측값 + 가격 오름차순(Buy1 < Buy2 < Buy3 < Target) & 2단계 안전핀(초입 안전핀 < Buy1) 자동 설계
-    Supports both Track 1 (Pullback Value/Cyclical) and Track 2 (S-Curve Leader Breakout).
+    Computes daily and weekly technical indicators, Volume Profile POC, MFI/RSI/MACD,
+    and combined Argon 4.0 weekly swing score/grade prior to Section 3 & Section 4.
     """
     print("\n======================================================================")
-    print("📐 [Phase 3 - Section 4] 마스터 SOP 정예 보조지표 & 무결성 3분할 매매 타점 자동 설계")
+    print("📐 [Phase 3 - Section 4] 마스터 SOP 정예 보조지표 & 주봉 스윙 진단")
     print("======================================================================")
 
     res = {}
@@ -2889,7 +3052,17 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
             "w_swing_signal": w_swing_signal,
         })
 
-    curr_p = res.get("d_close") or res.get("w_close") or 10000
+    return res
+
+
+def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, tech_snap=None, anchor_price=None):
+    """
+    (C) Section 4 마스터 SOP 정예 보조지표 실측값 + 가격 오름차순(Buy1 < Buy2 < Buy3 < Target) & 2단계 안전핀(초입 안전핀 < Buy1) 자동 설계
+    Supports both Track 1 (Pullback Value/Cyclical) and Track 2 (S-Curve Leader Breakout).
+    """
+    res = dict(tech_snap) if tech_snap is not None else compute_technical_snapshot(df_day, df_week, sec2_res)
+
+    curr_p = int(round(anchor_price)) if (anchor_price is not None and anchor_price > 0) else (res.get("d_close") or res.get("w_close") or 10000)
     base_b = sec3_res.get("base_auto", int(round(curr_p * 1.25)))
     base_a = sec3_res.get("base_auto_a", base_b)
     bull_a = sec3_res.get("bull_auto_a", int(round(base_a * 1.25)))
@@ -3114,6 +3287,333 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res):
     return res
 
 
+def compute_3factor_price_equation_eval(
+    curr_price,
+    sotp_res,
+    step1_2_res,
+    step1_8_res,
+    sec2_res,
+    sec3_res,
+    sec4_res,
+    reverse_dcf_res=None,
+    bench=None,
+):
+    """
+    [NEW v5.1 Reference Overlay] Standalone analysis-time evaluation under:
+        주가(Price) = (수급(Supply/Demand) + 실적(Earnings)) × 기대감(Expectation Multiples)
+    Purely informational (참고용); does NOT override or mutate the TTM Base / SOP entry anchor.
+    """
+    s2 = sec2_res or {}
+    s3 = sec3_res or {}
+    s4 = sec4_res or {}
+    sotp = sotp_res or {}
+    s12 = step1_2_res or {}
+    s18 = step1_8_res or {}
+    rd = reverse_dcf_res or {}
+    inv_flow = (bench or {}).get("investor_flow") or {}
+
+    # 1) 실적 (Earnings, 0~100)
+    e_score = 50
+    qoq_op = s2.get("qoq_op_pct")
+    op_yoy = s2.get("op_yoy_used")
+    core_roic = sotp.get("core_roic_pct")
+    curr_roe = s2.get("curr_roe")
+    is_type_b = bool(s2.get("is_type_b", False))
+
+    if qoq_op is not None:
+        e_score += 18 if qoq_op >= 20.0 else (10 if qoq_op >= 0.0 else (0 if qoq_op >= -15.0 else -16))
+    if op_yoy is not None:
+        e_score += 17 if op_yoy >= 25.0 else (9 if op_yoy >= 0.0 else (-8 if op_yoy >= -25.0 else -18))
+    if core_roic is not None:
+        e_score += 10 if core_roic >= 15.0 else (5 if core_roic >= 8.0 else -8)
+    if curr_roe is not None:
+        e_score += 5 if curr_roe >= 12.0 else (-6 if curr_roe < 8.5 else 0)
+    if is_type_b:
+        e_score -= 12
+    e_score = max(0, min(100, int(round(e_score))))
+
+    e_label = (
+        "🔥 실적 초가속/우량" if e_score >= 75 else ("🟢 실적 양호/성장" if e_score >= 58 else ("🟡 실적 중립/혼조" if e_score >= 45 else "🔴 실적 둔화/역성장"))
+    )
+    e_detail = (
+        f"QoQ 영익 {f'{qoq_op:+.1f}%' if qoq_op is not None else 'N/A'} · "
+        f"YoY {f'{op_yoy:+.1f}%' if op_yoy is not None else 'N/A'} · "
+        f"본업 ROIC {f'{core_roic:.1f}%' if core_roic is not None else 'N/A'} / ROE {f'{curr_roe:.1f}%' if curr_roe is not None else 'N/A'}"
+    )
+
+    # 2) 수급 (Supply/Demand, 0~100: 주봉 기술적 수급 + KRX 외인·기관 순매수 실측 결합)
+    sd_score = 50
+    mfi = float(s4.get("w_mfi14", 50.0))
+    mfi_max = float(s4.get("w_mfi14_12w_max", 50.0))
+    mfi_peakout = (mfi_max >= 80.0) and (mfi < 80.0)
+    is_sd_overheated = (mfi > 80.0) or mfi_peakout
+    if is_sd_overheated:
+        sd_score -= 14
+    elif 45.0 <= mfi <= 72.0:
+        sd_score += 15
+    elif 72.0 < mfi <= 80.0:
+        sd_score += 7
+    elif mfi < 35.0:
+        sd_score -= 12
+
+    vp_status = str(s4.get("w_vp_status", ""))
+    if "POC돌파지지" in vp_status:
+        sd_score += 15
+    elif "매물벽상단순항" in vp_status:
+        sd_score += 10
+    elif "POC돌파시도" in vp_status:
+        sd_score += 5
+    elif "매물벽하단저항" in vp_status:
+        sd_score -= 12
+
+    w_close = float(s4.get("w_close") or curr_price or 0)
+    w_ma5 = float(s4.get("w_ma5") or 0)
+    w_ma20 = float(s4.get("w_ma20") or 0)
+    w_ma60 = float(s4.get("w_ma60") or 0)
+    w_hist = float(s4.get("w_macd_hist") or 0)
+    if w_ma5 >= w_ma20 >= w_ma60 > 0:
+        sd_score += 12
+    elif w_ma20 >= w_ma60 > 0:
+        sd_score += 6
+    elif w_ma60 > 0 and w_close < w_ma60:
+        sd_score -= 10
+    sd_score += 7 if w_hist > 0 else -4
+
+    tr_pct = float(s18.get("treasury_ratio_pct") or 0.0)
+    bb_cliff = bool(s18.get("buyback_cliff_warn", False))
+    if bb_cliff:
+        sd_score -= 5
+    elif tr_pct >= 2.0:
+        sd_score += 5
+
+    krx_flow_str = ""
+    if inv_flow and inv_flow.get("days", 0) > 0:
+        flow_days = int(inv_flow.get("days", 20))
+        sm_pct = float(inv_flow.get("smart_money_vol_pct") or 0.0)
+        sm_eok = float(inv_flow.get("smart_money_net_eok") or 0.0)
+        f5 = float(inv_flow.get("foreign_5d_shares") or 0.0)
+        o5 = float(inv_flow.get("organ_5d_shares") or 0.0)
+        fr_hold = float(inv_flow.get("foreign_hold_ratio_pct") or 0.0)
+        fr_chg = float(inv_flow.get("foreign_hold_chg_pctp") or 0.0)
+
+        krx_adj = 0
+        if sm_pct >= 3.0:
+            krx_adj += 9
+        elif sm_pct >= 0.8:
+            krx_adj += 5
+        elif sm_pct <= -3.0:
+            krx_adj -= 9
+        elif sm_pct <= -0.8:
+            krx_adj -= 5
+
+        if f5 > 0 and o5 > 0:
+            krx_adj += 5
+        elif f5 < 0 and o5 < 0:
+            krx_adj -= 5
+
+        if fr_chg >= 0.40:
+            krx_adj += 3
+        elif fr_chg <= -0.40:
+            krx_adj -= 3
+
+        krx_adj = max(-14, min(14, krx_adj))
+        sd_score += krx_adj
+        krx_flow_str = (
+            f" · KRX {flow_days}일 외인·기관 수급비중 {sm_pct:+.2f}%({sm_eok:+.1f}억, 외인지분 {fr_hold:.2f}%[{fr_chg:+.2f}%p])"
+        )
+
+    sd_score = max(0, min(100, int(round(sd_score))))
+
+    sd_grade = s4.get("w_swing_grade", "B")
+    sd_label = (
+        "⚠️ 수급 과열/고점경보"
+        if is_sd_overheated
+        else ("🎯 수급 최우수(스마트머니 유입)" if sd_score >= 75 else ("🟢 수급 양호/지지" if sd_score >= 55 else ("🟡 수급 중립" if sd_score >= 45 else "🔴 수급 이탈/역배열")))
+    )
+    sd_detail = (
+        f"주봉 스윙 {s4.get('w_swing_score', 50)}점({sd_grade}) · MFI {mfi:.1f}(12주최고 {mfi_max:.1f}) · "
+        f"매물대 {vp_status or 'N/A'} · 자사주 {tr_pct:.2f}%{krx_flow_str}"
+    )
+
+    # 3) 기대감 (Expectation Multiples — Priced-in Level + Upside Catalyst Score)
+    fcf_v = float(rd.get("fcf_eok") or 0.0)
+    g_ev = rd.get("norm_g_ev_pct") if (fcf_v <= 0 and rd.get("norm_g_ev_pct") is not None) else rd.get("implied_g_ev_pct")
+    g_ref = g_ev if g_ev is not None else rd.get("implied_g_distb_pct")
+
+    curr_bps = float(s2.get("curr_bps_used") or 0)
+    curr_pbr = (curr_price / curr_bps) if curr_bps > 0 else 0.0
+    pbr_p20 = float(s2.get("pbr_3y_p20") or 0.8)
+    pbr_p90 = float(s2.get("pbr_3y_p90") or 2.0)
+    pbr_band_pct = (
+        round(max(0.0, min(150.0, ((curr_pbr - pbr_p20) / max(pbr_p90 - pbr_p20, 0.1)) * 100.0)), 1)
+        if curr_pbr > 0
+        else None
+    )
+
+    if g_ref is not None:
+        if g_ref <= 0.0:
+            priced_status = "❄️ 기대감 미반영/역성장 가정 (거품 0%)"
+        elif g_ref <= 12.0:
+            priced_status = "🟢 합리적 기대감 (안전마진 구간)"
+        elif g_ref <= 25.0:
+            priced_status = "🟡 상당한 기대감 선반영 (실적 입증 필수)"
+        else:
+            priced_status = "🔴 과잉 기대감 선반영 (디레이팅 경계)"
+    elif pbr_band_pct is not None:
+        if pbr_band_pct <= 25.0:
+            priced_status = "❄️ 저기대감 / 3년 PBR 밴드 하단"
+        elif pbr_band_pct <= 70.0:
+            priced_status = "🟢 중립적 기대감 / 3년 PBR 밴드 중단"
+        else:
+            priced_status = "🔴 고기대감 / 3년 PBR 밴드 상단"
+    else:
+        priced_status = "⚪ 기대감 산출 대기 (FCF/밴드 미입력)"
+
+    m_score = 50
+    if g_ref is not None:
+        m_score += 16 if g_ref <= 0.0 else (8 if g_ref <= 12.0 else (-6 if g_ref <= 25.0 else -18))
+    elif pbr_band_pct is not None:
+        m_score += 10 if pbr_band_pct <= 30.0 else (0 if pbr_band_pct <= 70.0 else -15)
+
+    sc_info = s3.get("scurve_info") or {}
+    if sc_info.get("is_phase2"):
+        m_score += 14
+    if s12.get("bottleneck_grade") in ("S", "A"):
+        m_score += 8
+    if s3.get("scurve_sell_triggered"):
+        m_score -= 22
+    if is_type_b:
+        m_score -= 20
+    m_score = max(0, min(100, int(round(m_score))))
+
+    is_exp_overheated = (g_ref is not None and g_ref > 25.0) or (pbr_band_pct is not None and pbr_band_pct >= 95.0)
+    m_detail = (
+        f"역DCF EV 요구성장률 {f'{g_ref:+.2f}%' if g_ref is not None else 'N/A'} · "
+        f"3Y PBR 밴드 위치 {f'{pbr_band_pct:.1f}%' if pbr_band_pct is not None else 'N/A'} "
+        f"({curr_pbr:.2f}x vs p20 {pbr_p20:.2f}x~p90 {pbr_p90:.2f}x) · "
+        f"S-Curve/병목 {s12.get('bottleneck_grade', 'N/A')}등급"
+    )
+
+    # 4) 3요소 종합 국면 판정 (참고용 — 엇박자 분리 & TTM Base 대비 보유자/신규진입자 문구 명확화)
+    composite_score = int(round(0.40 * e_score + 0.35 * sd_score + 0.25 * m_score))
+    base_b_ref = float(s3.get("base_auto") or 0)
+    is_base_overvalued = bool(s4.get("is_overvalued")) or (
+        base_b_ref > 0 and curr_price >= base_b_ref * 0.96 and not bool(s4.get("is_track2"))
+    )
+    g_ok_low = (g_ref is not None and g_ref <= 12.0) or (
+        g_ref is None and pbr_band_pct is not None and pbr_band_pct <= 55.0
+    )
+
+    if is_type_b or (e_score < 45 and sd_score < 55) or (sd_score < 45 and e_score < 55) or (sd_grade == "C" and e_score < 60):
+        regime_verdict = "🧊 역배열·실적/수급 약화 대기형 (기대감 수축 경계)"
+        action_note = (
+            "현재 수급과 단기 실적이 동반 약세이므로, 추정치/미래 기대감에 기댄 성급한 매수를 지양하고 "
+            "주봉 추세 회복(B등급↑) 및 분기 QoQ 반등 확인 후 접근 권장."
+        )
+    elif e_score >= 60 and (sd_score < 45 or sd_grade == "C"):
+        regime_verdict = "🌤️ 역배열·수급 눌림 vs 실적 우위형 (수급 전환 대기)"
+        action_note = (
+            "실적 펀더멘털은 견조하나 주봉 차트·KRX 수급이 아직 역배열 눌림 구간이므로, "
+            "외인·기관 순매수 전환 및 주봉 B등급(20주선) 회복 확인 후 분할 비중확대 권장."
+        )
+    elif is_sd_overheated or is_exp_overheated or s3.get("scurve_sell_triggered"):
+        regime_verdict = "⚠️ 수급·기대감 과열 경계형 (추격 금지 · 분할 익절 영역)"
+        action_note = (
+            "수급(MFI 80+) 또는 기대감(역DCF/PBR 상단)이 과열 영역이므로 신규 추격 매수를 금지하고, "
+            "보유 물량은 TP1/Bull 목표가 및 2단계 본절 보호핀 기준 분할 익절 우선."
+        )
+    elif e_score >= 65 and sd_score >= 55 and not is_exp_overheated and g_ok_low:
+        if is_base_overvalued:
+            regime_verdict = "💎 실적·수급 우위형 (FCF 거품 0% · 기보유자 추세 보유 / 신규는 눌림목)"
+            action_note = (
+                "과거 PBR 밴드 기반 TTM Base 대비 현재가가 높아 신규 진입은 SOP 눌림목을 대기하되, "
+                "실적·수급·FCF 기준 거품이 없으므로 기보유자는 2단계 본절 보호핀을 쥐고 TP1/Bull 상단까지 추세 보유 유리."
+            )
+        else:
+            regime_verdict = "💎 저평가 실적·수급 우위형 (가치·모멘텀 동시 부합)"
+            action_note = (
+                "TTM Base 대비 저평가와 실적·수급 우위가 동시에 확인되는 구간. SOP 분할 매수 구간 내 진입 및 "
+                "2단계 본절 보호핀을 활용한 TP1/Bull 상단 추세 보유 유리."
+            )
+    else:
+        regime_verdict = "🔥 기대감 선행·추세 균형형 (실적 확인 병행 보유)"
+        action_note = (
+            "실적·수급·기대감이 균형을 이루는 구간. 신규 진입은 SOP 분할 가격 엄수, 기보유자는 "
+            "차기 분기 Kill-Switch 및 주봉 MFI 80 이탈 여부를 모니터링하며 대응."
+        )
+
+    return {
+        "anchor_price": int(curr_price),
+        "earnings_score": e_score,
+        "earnings_label": e_label,
+        "earnings_detail": e_detail,
+        "supply_demand_score": sd_score,
+        "supply_demand_label": sd_label,
+        "supply_demand_detail": sd_detail,
+        "expectation_catalyst_score": m_score,
+        "expectation_priced_status": priced_status,
+        "expectation_detail": m_detail,
+        "implied_g_ref_pct": g_ref,
+        "pbr_band_position_pct": pbr_band_pct,
+        "krx_investor_flow": inv_flow if inv_flow else None,
+        "composite_score": composite_score,
+        "regime_verdict": regime_verdict,
+        "reference_action_note": action_note,
+    }
+
+
+def format_price_eq_markdown_block(pe):
+    """Formats `[코드 자동 생성 2-D]` Reference Evaluation table from price_equation_eval dict."""
+    if not pe:
+        return ""
+    return f"""### 📌 [코드 자동 생성 2-D] (참고용) 분석 시점 '주가 = (수급 + 실적) × 기대감' 3요소 종합 평가
+> **ℹ️ 참고용 독립 진단 (`Anchor {pe.get('anchor_price', 0):,}원` 기준)**: 아래 평가는 확정 TTM `Base` 매수 닻과 독립적으로 현재 시점의 3요소(실적·수급·기대감) 균형을 점검하는 참고 지표입니다. (종합 점수 **`{pe.get('composite_score', 50)}점`** — **{pe.get('regime_verdict', 'N/A')}**)
+
+| 3요소 분해 축 | 참고 점수 / 상태 | 핵심 실측 근거 |
+| :--- | :---: | :--- |
+| **① 실적 ($E$: Earnings)** | **`{pe.get('earnings_score', 50)}점`** (`{pe.get('earnings_label', 'N/A')}`) | {pe.get('earnings_detail', 'N/A')} |
+| **② 수급 ($S/D$: Supply/Demand)** | **`{pe.get('supply_demand_score', 50)}점`** (`{pe.get('supply_demand_label', 'N/A')}`) | {pe.get('supply_demand_detail', 'N/A')} |
+| **③ 기대감 ($M$: Multiples)** | **확장여력 `{pe.get('expectation_catalyst_score', 50)}점`**<br>(`{pe.get('expectation_priced_status', 'N/A')}`) | {pe.get('expectation_detail', 'N/A')} |
+| **🧭 참고 종합 시사점** | **`{pe.get('regime_verdict', 'N/A')}`** | {pe.get('reference_action_note', 'N/A')} |"""
+
+
+def refresh_price_eq_in_ssot(ssot_path):
+    """Recomputes price_equation_eval after reverse_dcf is finalized and refreshes `[코드 자동 생성 2-D]` in auto_tables.md."""
+    import re
+    if not os.path.exists(ssot_path):
+        return None
+    with open(ssot_path, "r", encoding="utf-8") as f:
+        d = json.load(f)
+    pe = compute_3factor_price_equation_eval(
+        d.get("anchor_price", 0),
+        d.get("sotp"),
+        d.get("step1_2_bottleneck"),
+        d.get("step1_8_k_return"),
+        d.get("section2"),
+        d.get("section3"),
+        d.get("section4"),
+        reverse_dcf_res=d.get("reverse_dcf"),
+        bench=d.get("bench"),
+    )
+    d["price_equation_eval"] = pe
+    with open(ssot_path, "w", encoding="utf-8") as f:
+        json.dump(d, f, ensure_ascii=False, indent=2)
+
+    auto_md_path = os.path.join(os.path.dirname(os.path.abspath(ssot_path)), "auto_tables.md")
+    if os.path.exists(auto_md_path):
+        with open(auto_md_path, "r", encoding="utf-8") as f:
+            amd = f.read()
+        blk = format_price_eq_markdown_block(pe)
+        pat = r"### 📌 \[코드 자동 생성 2-D\].*?(?=\n### 📌 \[|\Z)"
+        if re.search(pat, amd, flags=re.DOTALL):
+            amd = re.sub(pat, blk.strip() + "\n", amd, count=1, flags=re.DOTALL)
+        else:
+            amd = amd.rstrip() + "\n\n" + blk.strip() + "\n"
+        with open(auto_md_path, "w", encoding="utf-8") as f:
+            f.write(amd)
+    return pe
+
+
 def export_pipeline_ssot(
     export_json_path,
     stock_code,
@@ -3134,6 +3634,7 @@ def export_pipeline_ssot(
     step1_2_res=None,
     step1_8_res=None,
     norm_fcf_eok=None,
+    price_eq_eval=None,
 ):
     """
     [NEW v4.3] Pipeline SSOT (Single Source of Truth) Exporter
@@ -3161,6 +3662,12 @@ def export_pipeline_ssot(
     # [FIX v4.3] If reported FCF <= 0 due to expansion CapEx but Owner Normalized FCF > 0, bind norm_fcf_v to data-fcf so interactive HTML DCF slider works
     html_fcf_v = norm_fcf_v if (fcf_v <= 0 and norm_fcf_v > 0) else fcf_v
     nd_v = float(net_debt_eok if net_debt_eok is not None else (existing_dcf.get("net_debt_eok") or 0.0))
+
+    if price_eq_eval is None:
+        price_eq_eval = compute_3factor_price_equation_eval(
+            curr_price, sotp_res, step1_2_res, step1_8_res, sec2_res, sec3_res, sec4_res,
+            reverse_dcf_res=existing_dcf, bench=bench,
+        )
 
     canonical_html_tag = (
         f'<div id="dcf-calculator-root" '
@@ -3207,6 +3714,7 @@ def export_pipeline_ssot(
         "risk_causal_chain": risk_res,
         "section4": sec4_res,
         "reverse_dcf": existing_dcf,
+        "price_equation_eval": price_eq_eval,
         "canonical_html_tag": canonical_html_tag,
         "data_quality": data_quality_summary(),
     }
@@ -3226,6 +3734,16 @@ def export_pipeline_ssot(
     tp1_row = ""
     if sec3_res.get("is_low_vol_box"):
         tp1_row = f"| **TP1 (단기 박스권 1차)** | - | 52주 75% 저항대 | 박스권 상단 목표 | 🛡️ **{sec3_res['tp1_price']:,}원** / 🚀 **{sec3_res['tp1_price_a']:,}원** | 🛡️ **{sec3_res['tp1_upside']:+.1f}%** / 🚀 **{sec3_res['tp1_upside_a']:+.1f}%** |\n"
+
+    pre_resist_note = ""
+    if (not sec3_res.get("is_low_vol_box")) and sec3_res.get("has_pre_base_resist") and sec3_res.get("tech_resist_1"):
+        tr1 = int(sec3_res["tech_resist_1"])
+        tr1_up = (tr1 / curr_price - 1.0) * 100.0 if curr_price > 0 else 0.0
+        pre_resist_note = (
+            f"\n> **🧱 [반도체 소부장·추세주 선행 매물대 저항 (`TP1 = Base` 본 목표 분리)]**: "
+            f"직전 차트 매물대 저항(**`{tr1:,}원`**, `{tr1_up:+.1f}%`)이 `Base` 적정가(`{sec3_res['base_auto']:,}원`) 하단에 위치합니다. "
+            f"`TP1`은 `Base`에 닻을 고정하되, **`{tr1:,}원`** 도달 시 거래량 돌파 실패하면 20~30% 스윙 부분 익절·안착 시 홀딩으로 대응하십시오.\n"
+        )
 
     s12 = step1_2_res or {}
     s18 = step1_8_res or {}
@@ -3247,6 +3765,8 @@ def export_pipeline_ssot(
         if sec_pen_val
         else ""
     )
+
+    pe_block = format_price_eq_markdown_block(price_eq_eval)
 
     auto_md = f"""<!-- [AUTO-GENERATED BY backtest_valuation.py v4.3 — DO NOT EDIT NUMBERS MANUALLY] -->
 
@@ -3280,6 +3800,8 @@ def export_pipeline_ssot(
 | **Bull (호황 상단)** | **25%** | [AI가 전방 호황/가동률 상단 서술] | {sec8_res['primary_metric']} 상위 90% (대안A ×{sec3_res['bull_mult_a']:.4f}) | 🛡️ **{sec3_res['bull_auto']:,}원** / 🚀 **{sec3_res['bull_auto_a']:,}원** | 🛡️ **{u_up_b:+.1f}%** / 🚀 **{u_up_a:+.1f}%** |
 | **Base (기본 적정)** | **50%** | [AI가 컨센서스/본업 유지 서술] | {sec8_res['primary_metric']} 상위 65% (대안A ×{sec3_res['base_mult_a']:.4f}) | 🛡️ **{sec3_res['base_auto']:,}원** / 🚀 **{sec3_res['base_auto_a']:,}원** | 🛡️ **{b_up_b:+.1f}%** / 🚀 **{b_up_a:+.1f}%** |
 {tp1_row}| **Bear (하방 지지)** | **25%** | [AI가 전방 둔화/가동률 하락 서술] | 하방 지지선 (할증 0% 고정) | 🛡️ **{sec3_res['bear_auto']:,}원** / 🚀 **{sec3_res['bear_auto']:,}원** | 🛡️ **{d_dn:+.1f}%** / 🚀 **{d_dn:+.1f}%** |
+{pre_resist_note}
+{pe_block}
 
 ### 📌 [코드 자동 생성 3] HTML 계산기 직결 태그 (플레이스홀더 0건)
 {canonical_html_tag}
@@ -3475,7 +3997,55 @@ def run_valuation_backtest(
         stock_code, bench, df_full_week, dart_ts, curr_price, rerating_date=rerating_date
     )
 
-    # [Phase 3 Section 3] Stock Nature + Cyclical Peak-Multiple Trap Guard + Model B/A (v4.3)
+    if not export_json and resolved_corp_name:
+        default_sr_dir = os.path.join(
+            STOCK_RESEARCH_ROOT,
+            str(resolved_corp_name),
+            "2_Translated_DB",
+        )
+        if os.path.exists(os.path.dirname(default_sr_dir)):
+            export_json = os.path.join(default_sr_dir, "valuation_metrics.json")
+
+    prev_rdcf = {}
+    if export_json and os.path.exists(export_json):
+        try:
+            with open(export_json, "r", encoding="utf-8") as _pf:
+                _prev_d = json.load(_pf)
+                _prev_s4 = _prev_d.get("section4") or {}
+                sec2_res["prev_swing_grade"] = _prev_s4.get("w_swing_grade")
+                sec2_res["prev_swing_score"] = _prev_s4.get("w_swing_score")
+                prev_rdcf = _prev_d.get("reverse_dcf") or {}
+        except Exception:
+            pass
+
+    # Pre-compute technical snapshot (weekly swing grade, MFI, POC) and inline EV implied growth for Step 3.0 & C-grade forward_eps guard
+    tech_snap = compute_technical_snapshot(df_day, df_full_week, sec2_res)
+
+    inline_rdcf = prev_rdcf
+    if distb_shares > 0 and (fcf > 0 or (norm_fcf is not None and norm_fcf > 0)):
+        try:
+            from calc_reverse_dcf import analyze_reverse_dcf  # noqa: E402
+            inline_rdcf = analyze_reverse_dcf(
+                price=curr_price,
+                distb_shares=distb_shares,
+                total_shares=total_shares or distb_shares,
+                fcf_eok=fcf,
+                net_debt_eok=net_debt,
+                norm_fcf_eok=norm_fcf,
+                non_op_assets_eok=float(non_op_assets or sotp_res.get("non_op_assets_eok") or 0.0),
+                controlling_equity_eok=float(sotp_res.get("book_eq_eok") or 0.0),
+            )
+        except Exception:
+            inline_rdcf = prev_rdcf
+
+    fcf_v_tmp = float((inline_rdcf or {}).get("fcf_eok") or fcf or 0.0)
+    ev_implied_g = (
+        (inline_rdcf or {}).get("norm_g_ev_pct")
+        if (fcf_v_tmp <= 0 and (inline_rdcf or {}).get("norm_g_ev_pct") is not None)
+        else (inline_rdcf or {}).get("implied_g_ev_pct")
+    )
+
+    # [Phase 3 Section 3] Stock Nature + Cyclical Peak-Multiple Trap Guard + Model B/A (v4.3 / v5.1)
     sec3_res = compute_section3_stock_nature_and_tp1(
         stock_code,
         resolved_corp_name,
@@ -3500,6 +4070,8 @@ def run_valuation_backtest(
         step1_8_res=step1_8_res,
         distb_shares=distb_shares,
         sec8_res=sec8_res,
+        tech_snap=tech_snap,
+        ev_implied_g=ev_implied_g,
     )
 
     # [v4.2 Step 3.5] Multi-Stage Risk Causal Chain Diagnosis
@@ -3508,29 +4080,30 @@ def run_valuation_backtest(
     )
 
     # [Phase 3 Section 4] Master SOP Indicators & Dual Safety Pin
-    if export_json and os.path.exists(export_json):
-        try:
-            with open(export_json, "r", encoding="utf-8") as _pf:
-                _prev_d = json.load(_pf)
-                _prev_s4 = _prev_d.get("section4") or {}
-                sec2_res["prev_swing_grade"] = _prev_s4.get("w_swing_grade")
-                sec2_res["prev_swing_score"] = _prev_s4.get("w_swing_score")
-        except Exception:
-            pass
     sec4_res = compute_section4_master_sop_indicators(
-        df_day, df_full_week, sec2_res, sec3_res
+        df_day, df_full_week, sec2_res, sec3_res, tech_snap=tech_snap, anchor_price=curr_price
     )
 
-    # [v4.3 Pipeline SSOT] Export valuation_metrics.json & auto_tables.md
-    if not export_json and resolved_corp_name:
-        default_sr_dir = os.path.join(
-            STOCK_RESEARCH_ROOT,
-            str(resolved_corp_name),
-            "2_Translated_DB",
-        )
-        if os.path.exists(os.path.dirname(default_sr_dir)):
-            export_json = os.path.join(default_sr_dir, "valuation_metrics.json")
+    # [v5.1 Reference Overlay] Standalone `주가 = (수급 + 실적) × 기대감` Evaluation
+    price_eq_eval = compute_3factor_price_equation_eval(
+        curr_price,
+        sotp_res,
+        step1_2_res,
+        step1_8_res,
+        sec2_res,
+        sec3_res,
+        sec4_res,
+        reverse_dcf_res=inline_rdcf,
+        bench=bench,
+    )
+    print("\n  [🧭 (참고용) 분석 시점 '주가 = (수급 + 실적) × 기대감' 3요소 종합 평가]")
+    print(f"    - ① 실적 (E):  {price_eq_eval['earnings_score']}점 ({price_eq_eval['earnings_label']}) — {price_eq_eval['earnings_detail']}")
+    print(f"    - ② 수급 (S/D): {price_eq_eval['supply_demand_score']}점 ({price_eq_eval['supply_demand_label']}) — {price_eq_eval['supply_demand_detail']}")
+    print(f"    - ③ 기대감 (M): 확장여력 {price_eq_eval['expectation_catalyst_score']}점 ({price_eq_eval['expectation_priced_status']}) — {price_eq_eval['expectation_detail']}")
+    print(f"    - ▶ 종합 판정 ({price_eq_eval['composite_score']}점): {price_eq_eval['regime_verdict']}")
+    print(f"      • 시사점: {price_eq_eval['reference_action_note']}")
 
+    # [v4.3 Pipeline SSOT] Export valuation_metrics.json & auto_tables.md
     if export_json:
         canonical_tag = export_pipeline_ssot(
             export_json,
@@ -3552,6 +4125,7 @@ def run_valuation_backtest(
             step1_2_res=step1_2_res,
             step1_8_res=step1_8_res,
             norm_fcf_eok=norm_fcf,
+            price_eq_eval=price_eq_eval,
         )
     else:
         canonical_tag = (

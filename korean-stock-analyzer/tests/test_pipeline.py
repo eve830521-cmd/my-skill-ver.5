@@ -190,6 +190,34 @@ class ValidatorCatchesBreakage(unittest.TestCase):
             self.assertIn("204,500원", p2)  # historical issue price must stay untouched
             self.assertNotIn("173,600원", p2)
 
+    def test_build_ai_prep_digest_excludes_2d(self):
+        import ksa_orchestrator as ko
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "TEST")
+            os.makedirs(os.path.join(comp, "2_Translated_DB"))
+            os.makedirs(os.path.join(comp, "3_Final_Reports"))
+            os.makedirs(os.path.join(comp, "Weekly_Trend"))
+            auto_path = os.path.join(comp, "2_Translated_DB", "auto_tables.md")
+            sample_auto = (
+                "### 📌 [코드 자동 생성 2] Phase 3 표\n"
+                "| A | B |\n| :--- | :--- |\n| x | y |\n\n"
+                "### 📌 [코드 자동 생성 2-D] (참고용) 3요소 종합 평가\n"
+                "> 참고\n| 축 | 점수 |\n| :--- | :---: |\n| 실적 | 100점 |\n\n"
+                "### 📌 [코드 자동 생성 3] HTML 계산기 직결 태그\n"
+                '<div id="dcf-calculator-root" data-price="10000"></div>\n'
+            )
+            with open(auto_path, "w", encoding="utf-8") as f:
+                f.write(sample_auto)
+            digest_path = ko.build_ai_prep_digest(comp, "TEST")
+            with open(digest_path, encoding="utf-8") as f:
+                digest = f.read()
+            self.assertIn("코드 자동 생성 2]", digest)
+            self.assertIn("코드 자동 생성 3]", digest)
+            self.assertNotIn("코드 자동 생성 2-D", digest)
+            self.assertNotIn("3요소 종합 평가", digest)
+            with open(auto_path, encoding="utf-8") as f:
+                self.assertIn("코드 자동 생성 2-D", f.read())
+
 
 class EngineFunctionsPinned(unittest.TestCase):
     @classmethod
@@ -298,6 +326,151 @@ class EngineFunctionsPinned(unittest.TestCase):
         self.assertLess(s4["buy2"], s4["buy3"])
         self.assertLess(s4["buy3"], 200000)
         self.assertLess(s4["init_stop_pin"], s4["buy1"])
+
+    def test_consistency_fixes_tp1_c_grade_forward_eps_and_rampup_guard(self):
+        import pandas as pd
+        import numpy as np
+        dates_w = pd.date_range("2024-01-05", periods=110, freq="W-FRI")
+        prices_w = np.linspace(30000, 40000, 110)
+        df_w = pd.DataFrame({
+            "date": dates_w, "open": prices_w * 0.99, "high": prices_w * 1.02,
+            "low": prices_w * 0.98, "close": prices_w, "vol": np.full(110, 50000.0)
+        })
+        dates_d = pd.date_range("2026-06-01", periods=65, freq="B")
+        prices_d = np.linspace(38000, 40000, 65)
+        df_d = pd.DataFrame({
+            "date": dates_d, "open": prices_d * 0.99, "high": prices_d * 1.01,
+            "low": prices_d * 0.98, "close": prices_d, "vol": np.full(65, 10000.0)
+        })
+        bench = {"bps": 20000.0, "eps": 3000.0, "pbr": 2.0, "stock_name": "TEST"}
+        sec2 = {
+            "is_type_b": False, "curr_bps_used": 20000.0, "curr_eps_used": 3000.0,
+            "mid_cycle_eps": 2000.0, "mid_cycle_roe": 12.0, "curr_roe": 15.0,
+            "qoq_op_pct": 25.0, "op_yoy_used": 30.0,
+            "per_3y_p20": 7.0, "per_3y_mean": 10.0, "per_3y_p65": 12.0, "per_3y_p90": 16.0,
+            "pbr_3y_p20": 1.1, "pbr_3y_mean": 1.5, "pbr_3y_p65": 1.7, "pbr_3y_p90": 2.5,
+        }
+        sec8 = {"primary_metric": "PBR", "pbr_min": 0.9, "per_min": 5.0, "pbr_dir": 65.0, "per_dir": 65.0}
+
+        # 1) C-grade suspends optimistic forward_eps
+        r_c = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d, sec2, 40000,
+            forward_eps=6000.0, tech_snap={"w_swing_grade": "C", "w_swing_score": 35, "w_mfi14": 40.0, "w_mfi14_12w_max": 50.0},
+            sec8_res=sec8,
+        )
+        self.assertTrue(r_c["forward_eps_suspended"])
+        self.assertEqual(r_c["forward_bps"], 20000.0)
+
+        # 2) Non-overheated ramp-up exemption passes ONLY when ev_g <= 12 and MFI < 75
+        r_ramp_ok = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d, sec2, 40000,
+            tech_snap={"w_swing_grade": "S", "w_swing_score": 82, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0},
+            ev_implied_g=-5.0, sec8_res=sec8,
+        )
+        self.assertTrue(r_ramp_ok["is_non_overheated_rampup"])
+        self.assertFalse(r_ramp_ok["is_peak_trap"])
+        # TP1 must respect Base <= TP1 <= Bull and have zero circularity with inflated curr_price
+        self.assertLessEqual(r_ramp_ok["base_auto"], r_ramp_ok["tp1_price"])
+        self.assertLessEqual(r_ramp_ok["tp1_price"], r_ramp_ok["bull_auto"])
+        self.assertLessEqual(r_ramp_ok["base_auto_a"], r_ramp_ok["tp1_price_a"])
+        self.assertLessEqual(r_ramp_ok["tp1_price_a"], r_ramp_ok["bull_auto_a"])
+
+        # 3) Overheated MFI (>= 80) or high ev_g (> 12%) blocks the ramp-up exemption -> is_peak_trap = True
+        r_ramp_hot_mfi = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d, sec2, 40000,
+            tech_snap={"w_swing_grade": "A", "w_swing_score": 75, "w_mfi14": 81.0, "w_mfi14_12w_max": 85.0},
+            ev_implied_g=-5.0, sec8_res=sec8,
+        )
+        self.assertFalse(r_ramp_hot_mfi["is_non_overheated_rampup"])
+        self.assertTrue(r_ramp_hot_mfi["is_peak_trap"])
+
+        r_ramp_hot_ev = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d, sec2, 40000,
+            tech_snap={"w_swing_grade": "A", "w_swing_score": 75, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0},
+            ev_implied_g=25.0, sec8_res=sec8,
+        )
+        self.assertFalse(r_ramp_hot_ev["is_non_overheated_rampup"])
+        self.assertTrue(r_ramp_hot_ev["is_peak_trap"])
+
+        # 4) Close ev_implied_g=None loophole: stretched PBR (2.0x > 3Y mean 1.5x) MUST NOT pass when ev_implied_g is None
+        r_ramp_none_stretched = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d, sec2, 40000,
+            tech_snap={"w_swing_grade": "A", "w_swing_score": 75, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0},
+            ev_implied_g=None, sec8_res=sec8,
+        )
+        self.assertFalse(r_ramp_none_stretched["is_non_overheated_rampup"])
+        self.assertTrue(r_ramp_none_stretched["is_peak_trap"])
+
+        # When ev_implied_g is None BUT PBR sits strictly in lower-half 3Y band (1.30x <= 1.50x, band <= 50%), exemption is allowed
+        r_ramp_none_cheap = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", dict(bench, pbr=1.3), df_w, df_d, sec2, 26000,
+            tech_snap={"w_swing_grade": "A", "w_swing_score": 75, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0},
+            ev_implied_g=None, sec8_res=sec8,
+        )
+        self.assertTrue(r_ramp_none_cheap["is_non_overheated_rampup"])
+        self.assertFalse(r_ramp_none_cheap["is_peak_trap"])
+
+        # 5) Semiconductor Sobujang Dual-Anchor TP1: when tech_tp1_raw < Base (deeply beaten-down stock),
+        #    TP1 anchors cleanly at Base (no artificial >Base jump) and exposes pre-Base tech_resist_1 separately.
+        dates_d2 = pd.date_range("2026-06-01", periods=65, freq="B")
+        prices_d2 = np.linspace(30000, 32000, 65)
+        df_d_low = pd.DataFrame({
+            "date": dates_d2, "open": prices_d2 * 0.99, "high": prices_d2 * 1.01,
+            "low": prices_d2 * 0.98, "close": prices_d2, "vol": np.full(65, 10000.0)
+        })
+        sec2_hi = dict(sec2, pbr_3y_p65=2.6, pbr_3y_p90=3.4, per_3y_p65=18.0, per_3y_p90=24.0)
+        r_pre = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "TEST", bench, df_w, df_d_low, sec2_hi, 32000,
+            tech_snap={"w_swing_grade": "B", "w_swing_score": 65, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0},
+            ev_implied_g=-5.0, sec8_res=sec8,
+        )
+        self.assertTrue(r_pre["has_pre_base_resist"])
+        self.assertEqual(r_pre["tp1_price"], r_pre["base_auto"])
+        self.assertEqual(r_pre["tp1_price_a"], r_pre["base_auto_a"])
+        self.assertLess(r_pre["tech_resist_1"], r_pre["base_auto"])
+
+    def test_3factor_price_equation_eval_regimes(self):
+        sotp = {"core_roic_pct": 22.0}
+        s12 = {"bottleneck_grade": "A"}
+        s18 = {"treasury_ratio_pct": 3.0, "buyback_cliff_warn": False}
+        s2_good = {"qoq_op_pct": 50.0, "op_yoy_used": 45.0, "curr_roe": 18.0, "is_type_b": False,
+                   "curr_bps_used": 18000.0, "pbr_3y_p20": 1.2, "pbr_3y_p90": 2.8}
+        s3_ok = {"scurve_info": {"is_phase2": False}, "scurve_sell_triggered": False}
+        s4_good = {"w_mfi14": 55.0, "w_mfi14_12w_max": 60.0, "w_vp_status": "매물벽상단순항(+10점)",
+                   "w_close": 40000, "w_ma5": 40000, "w_ma20": 39000, "w_ma60": 37000,
+                   "w_macd_hist": 100.0, "w_swing_score": 80, "w_swing_grade": "S"}
+        ev_low = {"fcf_eok": 600.0, "implied_g_ev_pct": -5.0}
+
+        pe_gem = self.bv.compute_3factor_price_equation_eval(40000, sotp, s12, s18, s2_good, s3_ok, s4_good, ev_low)
+        self.assertGreaterEqual(pe_gem["earnings_score"], 75)
+        self.assertGreaterEqual(pe_gem["supply_demand_score"], 75)
+        self.assertIn("저평가", pe_gem["regime_verdict"])
+
+        # Base-overvalued holder mode (e.g. GST) avoids conflicting "저평가" headline while keeping bullish holder guidance
+        s4_over = dict(s4_good, is_overvalued=True)
+        pe_holder = self.bv.compute_3factor_price_equation_eval(
+            40000, sotp, s12, s18, s2_good, s3_ok, s4_over, ev_low,
+            bench={"investor_flow": {"days": 20, "smart_money_vol_pct": 4.2, "smart_money_net_eok": 120.0,
+                                     "foreign_5d_shares": 10000, "organ_5d_shares": 5000,
+                                     "foreign_hold_ratio_pct": 25.0, "foreign_hold_chg_pctp": 0.6}},
+        )
+        self.assertIn("FCF 거품 0%", pe_holder["regime_verdict"])
+        self.assertIn("KRX 20일 외인·기관", pe_holder["supply_demand_detail"])
+        self.assertGreater(pe_holder["supply_demand_score"], pe_gem["supply_demand_score"])
+
+        s4_hot = dict(s4_good, w_mfi14=83.0, w_mfi14_12w_max=86.0)
+        pe_hot = self.bv.compute_3factor_price_equation_eval(40000, sotp, s12, s18, s2_good, s3_ok, s4_hot, ev_low)
+        self.assertIn("과열", pe_hot["regime_verdict"])
+
+        # Strong earnings + Grade-C chart gets separated into "수급 눌림 vs 실적 우위형" rather than dual-weak "약화"
+        s4_c = dict(s4_good, w_swing_grade="C", w_mfi14=28.0, w_vp_status="매물벽하단저항(-8점)", w_ma5=35000, w_ma60=42000, w_macd_hist=-500.0)
+        pe_c = self.bv.compute_3factor_price_equation_eval(40000, sotp, s12, s18, s2_good, s3_ok, s4_c, ev_low)
+        self.assertIn("역배열", pe_c["regime_verdict"])
+        self.assertIn("실적 우위형", pe_c["regime_verdict"])
+
+        s2_weak = dict(s2_good, qoq_op_pct=-30.0, op_yoy_used=-40.0, curr_roe=5.0)
+        pe_ice = self.bv.compute_3factor_price_equation_eval(40000, {"core_roic_pct": 4.0}, s12, s18, s2_weak, s3_ok, s4_c, ev_low)
+        self.assertIn("약화 대기형", pe_ice["regime_verdict"])
 
 
 class DcfNeverClobbersSilently(unittest.TestCase):
