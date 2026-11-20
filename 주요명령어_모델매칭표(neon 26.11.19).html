@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my-skill 주요 명령어 × 4대 모델 최적 매칭 마스터 정리표 (Neon v5.2)</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <style>
+        :root {
+            --bg-color: #0b0f17;
+            --surface-color: #121824;
+            --surface-hover: #1a2233;
+            --border-color: #232d40;
+            --text-primary: #e6edf3;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-neon: #38bdf8;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-orange: #f97316;
+            --code-bg: #070a10;
+            --table-header-bg: #182234;
+            --table-row-even: #121824;
+            --table-row-odd: #0e131d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 14.5px;
+            padding: 36px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 헤더 영역 */
+        .doc-header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 30px;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 9px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .badge-system {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+
+        .badge-priority {
+            background: rgba(244, 63, 94, 0.14);
+            color: #fda4af;
+            border: 1px solid rgba(244, 63, 94, 0.38);
+        }
+
+        .badge-neon {
+            background: rgba(56, 189, 248, 0.16);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.42);
+        }
+
+        .badge-hydrogen {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.38);
+        }
+
+        .badge-orch {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.38);
+        }
+
+        .badge-redteam {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.38);
+        }
+
+        h1 {
+            font-size: 27px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14.8px;
+            line-height: 1.65;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #23304a;
+            padding: 1px 6px;
+            border-radius: 5px;
+            color: #7dd3fc;
+            font-size: 12.6px;
+        }
+
+        /* 12살 눈높이 셰프 비유 카드 */
+        .metaphor-box {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.92) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
+            padding: 22px 26px;
+            margin-bottom: 24px;
+        }
+
+        .metaphor-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metaphor-desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        .chef-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+            gap: 14px;
+        }
+
+        .chef-card {
+            background: rgba(10, 15, 26, 0.65);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .chef-card:hover {
+            border-color: rgba(255, 255, 255, 0.22);
+            transform: translateY(-2px);
+        }
+
+        .chef-card.card-neon { border-top: 3px solid #38bdf8; }
+        .chef-card.card-hydro { border-top: 3px solid #10b981; }
+        .chef-card.card-orch { border-top: 3px solid #8b5cf6; }
+        .chef-card.card-redteam { border-top: 3px solid #f59e0b; }
+
+        .chef-name {
+            font-size: 14.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .chef-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .tag-neon { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        .tag-hydro { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .tag-orch { background: rgba(139, 92, 246, 0.2); color: #c084fc; }
+        .tag-redteam { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        .chef-role {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        /* 두 종류의 Orchestrator 구분 배너 */
+        .orch-clarify-bar {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px dashed rgba(192, 132, 252, 0.45);
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        /* 툴바 & 필터 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #1a2333;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .filter-btn:hover {
+            color: #ffffff;
+            background: #232f45;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 260px;
+            flex-grow: 1;
+            max-width: 380px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #0d121c;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px 8px 34px;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-neon);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        /* 메인 테이블 */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: #cbd5e1;
+            font-weight: 700;
+            padding: 14px 15px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td { background-color: var(--table-row-even); }
+        tr:nth-child(odd) td { background-color: var(--table-row-odd); }
+        tr:hover td { background-color: var(--surface-hover); }
+
+        .col-id {
+            width: 48px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .col-type {
+            width: 148px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .type-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            margin-top: 4px;
+        }
+
+        .chat-pill {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-top: 5px;
+            white-space: nowrap;
+        }
+
+        .chat-new {
+            background: rgba(249, 115, 22, 0.16);
+            color: #fdba74;
+            border: 1px solid rgba(249, 115, 22, 0.42);
+        }
+
+        .chat-same {
+            background: rgba(16, 185, 129, 0.16);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.42);
+        }
+
+        .col-cmd { min-width: 325px; }
+
+        .cmd-block {
+            background: #090d15;
+            border: 1px solid #1e283b;
+            border-radius: 8px;
+            padding: 10px 12px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .cmd-block:last-child { margin-bottom: 0; }
+
+        .cmd-text {
+            font-family: 'Consolas', monospace;
+            color: #38bdf8;
+            font-size: 12.6px;
+            word-break: break-word;
+            padding-right: 54px;
+            display: block;
+            line-height: 1.55;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            border-radius: 5px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover { color: #ffffff; background: #334155; }
+        .copy-btn.copied { background: #10b981; color: #ffffff; border-color: #10b981; }
+
+        .col-model {
+            width: 175px;
+            white-space: nowrap;
+        }
+
+        .model-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .pill-neon {
+            background: rgba(56, 189, 248, 0.16);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.42);
+        }
+
+        .pill-hydro {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .pill-orch {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .pill-redteam {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fda4af;
+            border: 1px solid rgba(244, 63, 94, 0.42);
+        }
+
+        .pill-argon {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .model-tier {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+            white-space: normal;
+        }
+
+        .col-reason {
+            min-width: 245px;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        .col-tip {
+            min-width: 205px;
+            color: #94a3b8;
+            font-size: 12.5px;
+        }
+
+        .tip-highlight { color: #38bdf8; font-weight: 600; }
+        .warn-highlight { color: #fbbf24; font-weight: 600; }
+        .good-highlight { color: #34d399; font-weight: 600; }
+
+        /* 섹션 박스 (베스트안 & 3대 대안책 / 대화창 개설 기준) */
+        .decision-section {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(17, 24, 39, 0.95) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 30px;
+        }
+
+        .decision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(295px, 1fr));
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .decision-card {
+            background: rgba(10, 15, 26, 0.74);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .decision-card.best-card {
+            border-left: 4px solid #38bdf8;
+            border-color: rgba(56, 189, 248, 0.45);
+            background: linear-gradient(160deg, rgba(14, 116, 144, 0.16) 0%, rgba(10, 15, 26, 0.84) 60%);
+        }
+        .decision-card.alt-a-card { border-left: 4px solid #8b5cf6; }
+        .decision-card.alt-b-card { border-left: 4px solid #f43f5e; }
+        .decision-card.alt-c-card { border-left: 4px solid #f59e0b; }
+
+        .decision-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .decision-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .dbadge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+
+        .dbadge-best { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); }
+        .dbadge-orch { background: rgba(139, 92, 246, 0.16); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+        .dbadge-red { background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .dbadge-amber { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        .decision-list {
+            list-style: none;
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.65;
+            flex-grow: 1;
+        }
+
+        .decision-list li {
+            margin-bottom: 6px;
+            padding-left: 14px;
+            position: relative;
+        }
+
+        .decision-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #64748b;
+        }
+
+        .decision-note {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #232d40;
+            font-size: 12.4px;
+            color: #94a3b8;
+        }
+
+        .score-strip {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .score-chip {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #141d2e;
+            border: 1px solid #26344f;
+            color: #e2e8f0;
+        }
+
+        /* 대화창 개설 기준 박스 */
+        .chat-section {
+            background: linear-gradient(135deg, rgba(24, 18, 14, 0.72) 0%, rgba(15, 23, 42, 0.92) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.35);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 32px;
+        }
+
+        .chat-rule-banner {
+            background: rgba(10, 15, 26, 0.75);
+            border: 1px solid #26344f;
+            border-left: 4px solid #f97316;
+            border-radius: 10px;
+            padding: 13px 16px;
+            font-size: 13.3px;
+            color: #cbd5e1;
+            margin: 12px 0 16px;
+        }
+
+        /* 하단 4대 골든 룰 */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .rule-card {
+            background: #0d131f;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .rule-num {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--accent-neon);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .rule-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .rule-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.62;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .footer a { color: var(--accent-neon); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* 토스트 알림 */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        #toast.show { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .container { padding: 24px 16px; }
+            h1 { font-size: 21px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 헤더 -->
+    <header class="doc-header">
+        <div class="badge-row">
+            <span class="badge badge-system">📁 E:\antigravity-work\my-skill</span>
+            <span class="badge badge-system">v5.2 Step 1.3 BM OP기울기 + Global_Trend Indexer (26.11.20)</span>
+            <span class="badge badge-priority">🥇 1순위: 투자판단 퀄리티 · 🥈 2순위: 토큰 효율</span>
+            <span class="badge badge-neon">👑 4 Neon (High)</span>
+            <span class="badge badge-hydrogen">⚡ 4 Hydrogen (High)</span>
+            <span class="badge badge-orch">🎼 Orchestrator (Neon)</span>
+            <span class="badge badge-redteam">⚔️ 4 Argon · Opus 5.5 (독립 풀)</span>
+        </div>
+        <h1>🧭 my-skill 주요 명령어 × 4대 모델 최적 매칭 정리표 (Neon 체제 · v5.2)</h1>
+        <p class="subtitle">
+            <code>korean-stock-analyzer</code> v5.2(<code>ksa_orchestrator.py</code> + <strong><code>Step 1.3</code> BM 핵심인자·영업레버리지(DOL)·선행 OP 기울기 &amp; 3중 안티-피크아웃</strong> + <code>extract_global_trend.py</code> + <code>model_config.json</code> Neon 동기화 완료) 환경에서
+            <strong>2주 주기 Global_Trend <code>report.md</code></strong>와 <strong>분기·반기·사업보고서 <code>ai_prep_digest.md</code> ➔ <code>Phase 1~3</code></strong>까지 15대 핵심 명령어를
+            <strong>최적 모델 · 새 대화창 여부 · 베스트안 및 3대 대안책</strong>으로 1:1 매칭한 실전 마스터 표입니다.
+        </p>
+    </header>
+
+    <!-- 12살 눈높이 셰프 비유 -->
+    <section class="metaphor-box">
+        <div class="metaphor-title">
+            <span>💡 12살 눈높이로 이해하는 4대 모델 역할 분담 (고급 레스토랑 주방 비유)</span>
+        </div>
+        <p class="metaphor-desc">
+            현재 Antigravity에는 <strong>서로 독립된 쿼터 풀 4개</strong>가 열려 있어요! 역할에 딱 맞춰 나누면 최고급 요리(투자 퀄리티 1순위)를 먹으면서도 체력(토큰 2순위)이 바닥나지 않아요.
+        </p>
+        <div class="chef-grid">
+            <div class="chef-card card-neon">
+                <div class="chef-name">
+                    <span>👑 Gemini 4 Neon (High)</span>
+                    <span class="chef-tag tag-neon">수석 메인 셰프 (Tier-1)</span>
+                </div>
+                <div class="chef-role">
+                    정제된 재료를 보고 복잡한 불 조절을 계산해 최고급 스테이크(<code>Phase 1~3</code> 심층 보고서, <code>Global_Trend report.md</code> 종합, SOTP·병목·<strong><code>Step 1.3</code> 선행 OP 기울기</strong>·Kill-Switch 심판)를 완성하는 천재 요리사예요. <strong>재료 손질 찌꺼기 없이 새 창에서 부를 때 실력이 100%</strong> 나와요!
+                </div>
+            </div>
+            <div class="chef-card card-hydro">
+                <div class="chef-name">
+                    <span>⚡ Gemini 4 Hydrogen (High)</span>
+                    <span class="chef-tag tag-hydro">재료 손질 &amp; 전처리 (Tier-2)</span>
+                </div>
+                <div class="chef-role">
+                    DART 냉장고에서 재료를 꺼내고(<code>비용의 성격별 분류</code>·가동률·변동비 추이 추출 포함), <code>extract_global_trend.py</code>로 40개 PDF를 5초 만에 다듬고, <code>init</code>·일반 <code>prep</code>·단순 SOP 패치를 빠르게 처리하는 지치지 않는 요리사예요. <strong>단기 리셋 독립 풀</strong>이라 마음껏 일시킬 수 있어요!
+                </div>
+            </div>
+            <div class="chef-card card-orch">
+                <div class="chef-name">
+                    <span>🎼 Orchestrator (Neon)</span>
+                    <span class="chef-tag tag-orch">주방 총괄 매니저</span>
+                </div>
+                <div class="chef-role">
+                    내가 중간에 손대기 귀찮을 때 1줄 명령으로 <code>prep ➔ Phase 1~3 ➔ build</code>를 통째로 위임하거나, 파이썬 코드·<code>SKILL.md</code>·테스트를 한꺼번에 대공사할 때 부르는 총책임자예요. (편한 대신 토큰은 <strong>1.5~2배</strong> 더 써요!)
+                </div>
+            </div>
+            <div class="chef-card card-redteam">
+                <div class="chef-name">
+                    <span>⚔️ 4 Argon · Opus 5.5</span>
+                    <span class="chef-tag tag-redteam">백업 셰프 &amp; 미슐랭 감사관</span>
+                </div>
+                <div class="chef-role">
+                    <strong>Neon과 완전 별도 쿼터 풀!</strong> 실적시즌 10개 기업을 한꺼번에 돌릴 땐 <code>Argon</code>이 백업 셰프로 투입되고, 큰돈이 들어가는 코어 종목 매수 직전엔 <code>Claude Opus 5.5 (High)</code>가 공매도 관점으로 레드팀 감사를 해줘요.
+                </div>
+            </div>
+        </div>
+        <div class="orch-clarify-bar">
+            <strong>⚠️ 꼭 구분할 개념 — "두 종류의 Orchestrator":</strong>
+            ① <strong>파이썬 코드 <code>ksa_orchestrator.py</code></strong>(<code>init / prep / build</code>)는 0-토큰 계산·패치 엔진이므로 <u>어떤 모델을 쓰든 항상 실행</u>됩니다.
+            ② <strong>안티그래비티 모델 <code>Orchestrator (Neon)</code></strong>은 상단 모델 드롭다운에서 고르는 멀티에이전트 조율 모델(대안책 A / 파이프라인 대공사 전용)입니다.
+        </div>
+    </section>
+
+    <!-- 툴바 (필터 + 검색) -->
+    <div class="toolbar">
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterTable(this, 'all')">전체 보기 (15개)</button>
+            <button class="filter-btn" onclick="filterTable(this, 'neon')">👑 4 Neon (6개)</button>
+            <button class="filter-btn" onclick="filterTable(this, 'hydro')">⚡ 4 Hydrogen (7개)</button>
+            <button class="filter-btn" onclick="filterTable(this, 'orch')">🎼 Orchestrator (1개)</button>
+            <button class="filter-btn" onclick="filterTable(this, 'redteam')">⚔️ 이종 레드팀 (1개)</button>
+        </div>
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="명령어, 모델, Global_Trend, prep 검색..." onkeyup="searchTable()">
+        </div>
+    </div>
+
+    <!-- 메인 정리표 -->
+    <div class="table-responsive">
+        <table id="commandTable">
+            <thead>
+                <tr>
+                    <th class="col-id">No</th>
+                    <th class="col-type">작업 구분 &amp; 창</th>
+                    <th class="col-cmd">내가 주로 입력하는 대표 명령어 (클릭 복사)</th>
+                    <th class="col-model">가장 이상적인 모델</th>
+                    <th class="col-reason">왜 이 모델이 최적인가요? (선정 이유)</th>
+                    <th class="col-tip">실전 팁 &amp; 대안</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 1 -->
+                <tr data-model="hydro">
+                    <td class="col-id">1</td>
+                    <td class="col-type">
+                        신규 폴더 초기화
+                        <span class="type-badge">init</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명(종목코드)] 기업 폴더 생성해줘 (ksa_orchestrator.py init 실행)</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: Medium / High</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>ksa_orchestrator.py init</code> 1회 실행으로 4대 폴더·6열 가설 로그·초기 백테스트만 세팅하는 100% 정형 작업. 귀한 <code>Neon</code> 쿼터를 <strong>0%</strong> 소모합니다.
+                    </td>
+                    <td class="col-tip">
+                        독립 풀 · 쿼터 소모 <code>~0.1%</code> 미만. 생성 후 <code>1_Raw_Data/</code>에 공시 PDF 배치.
+                    </td>
+                </tr>
+
+                <!-- 2 -->
+                <tr data-model="hydro">
+                    <td class="col-id">2</td>
+                    <td class="col-type">
+                        Global_Trend [1단계]
+                        <span class="type-badge">2주 주기 · 전처리</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">python korean-stock-analyzer/extract_global_trend.py --dir [26.11.16~30] 실행해서 중복 PDF 제외하고 _raw_index.md 생성 결과 요약해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: High (또는 터미널 직접)</span>
+                    </td>
+                    <td class="col-reason">
+                        신규 <code>extract_global_trend.py</code>(PyMuPDF)가 <strong>30~40개 PDF(2,000+쪽)를 ~5초 만에</strong> 3중 중복 제거 + 요약·핵심수치·리스크 3존 무손실 발췌해 <code>_raw_index.md</code>로 만들어 줍니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="good-highlight">신규 전용 스크립트!</span> 40개 PDF 탐색 로그가 <code>Neon</code> 창을 오염시키지 않게 차단. 완료 후 <strong>새 창에서 3번</strong> 실행!
+                    </td>
+                </tr>
+
+                <!-- 3 -->
+                <tr data-model="neon">
+                    <td class="col-id">3</td>
+                    <td class="col-type">
+                        Global_Trend [2단계]
+                        <span class="type-badge">2주 주기 · report.md</span><br>
+                        <span class="chat-pill chat-new">🆕 새 창</span>
+                        <span class="chat-pill chat-same">🔗 타임라인 동시</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">Stock_Research/Global_Trend/[26.11.16~30]/_raw_index.md와 직전 report 양식을 기준으로 [팩트]/[전망] 엄격 구분·증권사 시각차·서프라이즈 표 포함해 report([26.11.16~30]).md 작성하고, 같은 창에서 cycle_timeline.md 하단에 1줄 누적해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: High (최우선)</span>
+                    </td>
+                    <td class="col-reason">
+                        매크로·8대 섹터 병목·증권사 간 찬반 대조(예: 메리츠 Neutral vs 하나 Overweight)는 탑다운 투자 나침반이므로 <strong>최상위 추론 모델 <code>Neon (High)</code></strong>가 정제된 <code>_raw_index.md</code>만 읽고 집필해야 퀄리티가 압도적입니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="tip-highlight">PDF ≤15개</span>인 가벼운 기간만 2번 생략하고 <code>Neon High</code> 원샷 가능. <code>report.md</code> 후 <strong>개별종목은 반드시 새 창(7번)</strong>!
+                    </td>
+                </tr>
+
+                <!-- 4 -->
+                <tr data-model="hydro">
+                    <td class="col-id">4</td>
+                    <td class="col-type">
+                        2-Step 분업 [1단계]
+                        <span class="type-badge">정기공시 prep</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명(종목코드)] 1_Raw_Data 최신 [분기/반기/사업]보고서 PDF와 DART 공시·신뢰 리포트 스캔해서 변경된 SSOT 파라미터(유통주식수·FCF·오너FCF·순차입금·비영업자산·가동률·배당/TSR·메자닌·내부거래·병목/매도시그널) 및 Step 1.3 BM 핵심인자(비용의 성격별 분류 고정비율·변동비율·가동률/변동비 추이·선행 OP 기울기·신뢰도·신규증설/ASP인상) 덮어써 `prep --include-raw-pdfs` 실행해줘. 보고서 작성은 멈추고 [직전 vs 신규 SSOT 비교표]만 출력해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">일반 분기·반기: High<br>복잡·사업보고서: Neon Med</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>ksa_orchestrator.py prep</code>은 미입력 옵션을 자동 계승하고 <code>parse_pdf.py</code>가 DART <code>비용의 성격별 분류</code>·가동률 페이지를 20% 쿼터로 자동 발췌합니다. 실행 직후 <strong>코드가 <code>[직전 vs 신규 SSOT 비교표]</code>(DOL·선행 OP 기울기·대안 B vs A 포함)</strong>를 자동 출력해 <strong>10초 육안 검수</strong>로 GIGO를 0% 차단합니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="warn-highlight">사전 40초 루틴 필수:</span> <code>my-stock</code> 1회 갱신 + PDF 1개 배치. SOTP 20%·CB·고정비 주석 복잡 공시는 <code>Neon (Medium)</code>으로 격상!
+                    </td>
+                </tr>
+
+                <!-- 5 -->
+                <tr data-model="neon">
+                    <td class="col-id">5</td>
+                    <td class="col-type">
+                        2-Step 분업 [2단계]
+                        <span class="type-badge">Track A Phase 1~3</span><br>
+                        <span class="chat-pill chat-new">🆕 반드시 새 창</span>
+                        <span class="chat-pill chat-same">🔗 P1~3 같은 창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] 준비된 2_Translated_DB/ai_prep_digest.md 단 1개만 읽고, SKILL.md v5.2 표준 양식(분석완료일·Mermaid v10.9.8·Step 1.2~3.5[Step 1.3 BM 핵심인자·선행 OP 기울기 대안A 단독반영 포함]·레드팀·6열 Kill-Switch·SOP) 100% 준수해 Phase 1~3 Track A 전면 리빌드하고 `build --patch-ssot` [PASS]까지 완료해줘 (SSOT 명백 오류 시 1회 보정)</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: High (코어주 XHigh)</span>
+                    </td>
+                    <td class="col-reason">
+                        <strong>🏆 베스트안의 핵심!</strong> 1단계 탐색 찌꺼기 없이 정제된 <code>ai_prep_digest.md</code>(93KB) 1개만 읽고, <strong>같은 창에서 Phase 1➔2➔3➔build</strong>를 연속 집필해 <em>논리 일관성 100% + 정적 프리픽스 95% 캐시 히트</em>를 동시에 달성합니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="tip-highlight">Phase 1·2·3 절대 새 창으로 쪼개지 말 것!</span> 1단계➔2단계 전환 시에만 새 창! 실적시즌 분산 시 일반 보유주는 <code>4 Argon (Med/High)</code> 활용.
+                    </td>
+                </tr>
+
+                <!-- 6 -->
+                <tr data-model="neon">
+                    <td class="col-id">6</td>
+                    <td class="col-type">
+                        신규·잠정실적 원샷
+                        <span class="type-badge">Track A 단일실행</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명(종목코드)] SKILL.md v5.2 표준 양식(Step 1.3 BM 핵심인자·선행 OP 기울기 포함) 준수해서 최신 공시 반영해 Track A로 Phase 1~3 작성하고 build --patch-ssot 해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] DART 최신 잠정실적 공시 반영해서 업데이트해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: High</span>
+                    </td>
+                    <td class="col-reason">
+                        잠정실적(PDF 없음)처럼 조회가 가볍거나, SOTP 분리·CB·영문 스펙 등 <strong>수치 산정 자체가 고난도</strong>여서 1·2단계를 한 번에 추론해야 하는 예외 분기에 적합합니다.
+                    </td>
+                    <td class="col-tip">
+                        평소 정기보고서는 <strong>4번 ➔ 5번 2-Step 분업</strong>이 더 안전하고 경제적! 완전 위임 원샷은 14번(<code>Orchestrator Neon</code>) 대안 A 활용.
+                    </td>
+                </tr>
+
+                <!-- 7 -->
+                <tr data-model="neon">
+                    <td class="col-id">7</td>
+                    <td class="col-type">
+                        Global Trend 점검
+                        <span class="type-badge">Track B 격주점검</span><br>
+                        <span class="chat-pill chat-new">🆕 종목별 새 창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] 최신 Global_Trend 및 최근 2주 수시공시·주가 반영해서 prep 돌리고, Track B 기준으로 thesis_log/company_timeline만 핀셋 델타 업데이트 후 build --patch-ssot까지 해줘 (S-Curve 3대 매도 시그널 &amp; Step 1.3 OP 기울기 변화 점검 필수)</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: High (다종목 Med)</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>prep</code>이 기존 SSOT 자동 계승 + 최신 <code>Global_Trend</code> PDF 원본 18쪽 무손실 발췌를 코드로 끝내므로 <strong>1단계 분업 실익이 없습니다</strong>. <code>Neon</code> 원샷으로 가설·매도 시그널만 예리하게 핀셋 심판합니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="good-highlight">Neon 원샷 강력 추천!</span> <code>Phase 1·3</code> 전체 재작성 금지(숫자·SOP·HTML은 파이썬 자동 패치).
+                    </td>
+                </tr>
+
+                <!-- 8 -->
+                <tr data-model="neon">
+                    <td class="col-id">8</td>
+                    <td class="col-type">
+                        Weekly Trend 점검
+                        <span class="type-badge">Track B 수시점검</span><br>
+                        <span class="chat-pill chat-new">🆕 종목별 새 창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] Weekly_Trend 새 IR/리포트와 최근 수주·증설 공시 반영해서 Track B 델타 업데이트하고 build --patch-ssot 해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: High / Medium</span>
+                    </td>
+                    <td class="col-reason">
+                        개별 기업 IR·수주 공시가 기존 6열 <code>thesis_log.md</code>의 Kill-Switch와 병목 리드타임 가정을 강화/약화하는지 정밀 판독하고 핀셋 갱신합니다.
+                    </td>
+                    <td class="col-tip">
+                        주가·역DCF·목표가·3분할 매수가는 <code>build --patch-ssot</code>가 0.1초 만에 자동 동기화.
+                    </td>
+                </tr>
+
+                <!-- 9 -->
+                <tr data-model="hydro">
+                    <td class="col-id">9</td>
+                    <td class="col-type">
+                        단순 주가 타점 갱신
+                        <span class="type-badge">SOP 10초 패치</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] 최신 주가 기준으로 prep --skip-pdf 및 build --patch-ssot만 실행해서 Phase 3 매수가·안전핀 타점 자동 패치해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: Low / Medium</span>
+                    </td>
+                    <td class="col-reason">
+                        AI 글쓰기가 전혀 없이 파이썬 2줄만 실행하면 10초 만에 최신 종가 기준 3분할 매수가·안전핀·HTML 계산기가 갱신됩니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="warn-highlight">Neon 절대 사용 금지(쿼터 낭비)!</span> 장중 급등락 시 타점 리프레시 전용.
+                    </td>
+                </tr>
+
+                <!-- 10 -->
+                <tr data-model="hydro">
+                    <td class="col-id">10</td>
+                    <td class="col-type">
+                        과거 데이터 역추적
+                        <span class="type-badge">(수급+실적)×기대감</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] 주가=(수급+실적)*기대감 관점으로 과거 데이터 분석해서 company_timeline.md 심층 부록과 thesis_log.md에 반영해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: High (고난도 Neon Med)</span>
+                    </td>
+                    <td class="col-reason">
+                        정해진 3요소 분해표 + 기대감 4등급 테마(1순위 핵심/2순위 차세대/3순위 콜옵션/4순위 가짜) 고정 마크다운 스키마에 맞춰 시계열을 구조화하는 데 최적화되어 있습니다.
+                    </td>
+                    <td class="col-tip">
+                        <code>model_config.json</code> 지정 Tier-2 최적 작업. 타임라인·가설장에 영구 기록.
+                    </td>
+                </tr>
+
+                <!-- 11 -->
+                <tr data-model="hydro">
+                    <td class="col-id">11</td>
+                    <td class="col-type">
+                        모바일 요약본 동기화
+                        <span class="type-badge">holding 일괄</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">보유 종목 모바일 요약본 동기화해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: Low / Medium</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>generate_mobile_summary.py</code> 실행으로 <code>portfolio_status.json</code> 내 <code>holding</code> 종목만 필터링해 HTML 및 구글 드라이브에 동기화하는 정형 작업입니다.
+                    </td>
+                    <td class="col-tip">
+                        개별 종목마다 하지 말고, 모든 점검이 끝난 뒤 <strong>마지막에 1회만 일괄 실행</strong>!
+                    </td>
+                </tr>
+
+                <!-- 12 -->
+                <tr data-model="neon">
+                    <td class="col-id">12</td>
+                    <td class="col-type">
+                        고난도 엔지니어링
+                        <span class="type-badge">특수 심층해독</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">이 영문 공정/장비 스펙(LNG 치환·퍼징, 극저온 식각·스크러버, 첨단 패키징 등)을 [공정 물리 ➔ 병목·Qual 장벽 ➔ 발주 시차 ➔ DART OPM] 4단계 인과 사슬로 심층 해독해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-neon">👑 4 Neon</div>
+                        <span class="model-tier">권장: XHigh (또는 Argon High)</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>static_cache_prefix.md</code> PART C의 4단계 물리·재무 인과 사슬을 끝까지 추론해 기술 해자와 벤더 인증 리드타임을 정밀 판독해야 하는 최고 난이도 영역입니다.
+                    </td>
+                    <td class="col-tip">
+                        필요 시 <code>/boost</code> 슬래시 커맨드 결합 또는 <code>4 Argon (High)</code> 교차 확인.
+                    </td>
+                </tr>
+
+                <!-- 13 -->
+                <tr data-model="redteam">
+                    <td class="col-id">13</td>
+                    <td class="col-type">
+                        코어주 이종 레드팀
+                        <span class="type-badge">매수직전 2차감사</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[기업명] 3_Final_Reports/Phase1~3.md와 thesis_log.md를 냉혹한 공매도 펀드매니저 관점에서 교차 감사해줘. ① 회계/지배주주/SOTP 누락, ② 낙관적 병목·리드타임 가정, ③ Kill-Switch 허점 3가지만 팩트 기반으로 공격해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-redteam">⚔️ Opus 5.5</div>
+                        <span class="model-tier">권장: High (또는 4 Argon High)</span>
+                    </td>
+                    <td class="col-reason">
+                        <strong>대안책 B 전용!</strong> <code>Neon</code>이 작성한 보고서를 학습·추론 편향이 전혀 다른 <code>Claude Opus 5.5 (High)</code>가 공격해 확증편향을 제거합니다. <strong>완전 별도 쿼터 풀</strong>이라 Neon 소모 0%!
+                    </td>
+                    <td class="col-tip">
+                        비중 15~30% 이상 들어가는 <strong>핵심 코어 종목 매수 직전</strong>에만 선별 적용. <code>/grill-me</code> 인터뷰도 강력 추천!
+                    </td>
+                </tr>
+
+                <!-- 14 -->
+                <tr data-model="orch">
+                    <td class="col-id">14</td>
+                    <td class="col-type">
+                        원샷 위임 · 대공사
+                        <span class="type-badge">시스템/일괄조율</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">[대공사] ksa_orchestrator.py, backtest_valuation.py, validate_report.py, SKILL.md, 단위 테스트까지 한 번에 수정하고 테스트 통과시켜줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                        <div class="cmd-block">
+                            <span class="cmd-text">[원샷 위임] [기업명] 1_Raw_Data 최신 공시로 Step 1.3 비용구조·BM 핵심인자 반영해 prep --include-raw-pdfs 실행 후 SSOT 자가검증 거쳐 Phase 1~3 Track A (v5.2) 작성 및 build --patch-ssot [PASS]까지 원스톱 완결해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-orch">🎼 Orchestrator</div>
+                        <span class="model-tier">Neon 베이스 (멀티에이전트)</span>
+                    </td>
+                    <td class="col-reason">
+                        다중 파이썬 스크립트·규칙·테스트의 의존성을 동시에 조율하거나, 사용자가 중간 검수 없이 1줄만 던지고 자리를 비워야 할 때 내부 서브에이전트 분배로 원스톱 완결합니다.
+                    </td>
+                    <td class="col-tip">
+                        <span class="warn-highlight">토큰 1.5~2배 소모</span> + 중간 육안 검수 생략. 평소 정기공시는 4➔5번 베스트안 권장!
+                    </td>
+                </tr>
+
+                <!-- 15 -->
+                <tr data-model="hydro">
+                    <td class="col-id">15</td>
+                    <td class="col-type">
+                        모델 설정 &amp; Git 푸시
+                        <span class="type-badge">유지보수 루틴</span><br>
+                        <span class="chat-pill chat-new">🆕 새 대화창</span>
+                    </td>
+                    <td class="col-cmd">
+                        <div class="cmd-block">
+                            <span class="cmd-text">히스토리.md 최신 내역 동기화하고 GitHub(my-skill-ver.5)에 커밋 후 푸시해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                        <div class="cmd-block">
+                            <span class="cmd-text">1순위 모델을 "[신규1순위]"로, 2순위 모델을 "[신규2순위]"로 변경하고 이용방법 HTML 업데이트해줘</span>
+                            <button class="copy-btn" onclick="copyText(this)">📋 복사</button>
+                        </div>
+                    </td>
+                    <td class="col-model">
+                        <div class="model-pill pill-hydro">⚡ 4 Hydrogen</div>
+                        <span class="model-tier">권장: Medium</span>
+                    </td>
+                    <td class="col-reason">
+                        <code>히스토리.md</code> 기록, <code>sync_history.py</code> 실행, <code>set-models</code>, Git 커밋·푸시 등 정형 절차를 가장 빠르고 저렴하게 처리합니다.
+                    </td>
+                    <td class="col-tip">
+                        정해진 절차를 따르는 모든 유지보수 루틴은 언제나 <code>Hydrogen</code> 전담.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 베스트안 vs 3대 대안책 선택 가이드 -->
+    <section class="decision-section">
+        <div class="metaphor-title" style="margin-bottom: 4px;">
+            <span>🏆 베스트안 vs 3대 대안책 실전 선택 가이드 (1순위: 투자판단 퀄리티 · 2순위: 토큰 효율)</span>
+        </div>
+        <p class="metaphor-desc" style="margin-bottom: 6px;">
+            평소에는 <strong>🏆 베스트안(2-Step 하이브리드 + 10초 검수 + 새 창 전환)</strong>을 기본 표준으로 쓰시고, 일정·투자 비중·실적시즌 물량에 따라 <strong>대안책 A · B · C</strong>를 탄력적으로 고르세요.
+        </p>
+        <div class="decision-grid">
+            <!-- 베스트안 -->
+            <div class="decision-card best-card">
+                <div class="decision-head">
+                    <div class="decision-title">🏆 베스트안: 하이브리드 2-Step + 10초 검수</div>
+                    <span class="dbadge dbadge-best">⭐ 기본 표준 (추천 1순위)</span>
+                </div>
+                <ul class="decision-list">
+                    <li><strong>Global_Trend (2주):</strong> <code>extract_global_trend.py</code>(<code>Hydrogen High</code>, 새 창) ➔ <code>report.md</code> + <code>cycle_timeline.md</code>(<code>Neon High</code>, 새 창) ➔ 개별 종목 <code>Track B</code>(<code>Neon High</code> 원샷, 종목별 새 창).</li>
+                    <li><strong>정기공시 (2분기/분기):</strong> <code>Hydrogen High</code>(고정비 주석·사업보고서는 <code>Neon Med</code>)로 <code>Step 1.3</code>(비용구조·가동률·OP 기울기) 포함 <code>prep --include-raw-pdfs</code> + <code>[직전 vs 신규 SSOT 비교표]</code> 출력 ➔ <strong>10초 육안 확인</strong>(<code>🛡️대안B</code> 방어 + <code>🚀대안A</code> 기울기·가드레일 검증) ➔ <strong>새 창 <code>Neon High</code></strong>로 <code>Phase 1~3 + build</code> 연속 완결!</li>
+                    <li><strong>최강 이유:</strong> 10초 검수로 GIGO(오염 SSOT) 0% 차단 + 탐색 노이즈 없는 <code>ai_prep_digest.md</code> 1회 로드 + <code>Phase 1~3</code> 같은 창 <strong>95% 프롬프트 캐시 히트</strong>.</li>
+                </ul>
+                <div class="score-strip">
+                    <span class="score-chip">🥇 퀄리티 97/100</span>
+                    <span class="score-chip">🥈 토큰효율 92/100</span>
+                    <span class="score-chip">⚙️ 편의성 82/100</span>
+                </div>
+                <div class="decision-note">
+                    <strong>적용:</strong> 평상시 2주 Global_Trend 및 분기·반기·사업보고서 업데이트 전 구간.
+                </div>
+            </div>
+
+            <!-- 대안책 A -->
+            <div class="decision-card alt-a-card">
+                <div class="decision-head">
+                    <div class="decision-title">🎼 대안책 A: Orchestrator (Neon) 원샷</div>
+                    <span class="dbadge dbadge-orch">편의성 최강 · 토큰 1.5~2x</span>
+                </div>
+                <ul class="decision-list">
+                    <li><strong>실행 방식:</strong> 새 창 1개에서 <code>Orchestrator (Neon)</code> 선택 ➔ <code>prep</code>부터 <code>Phase 1~3</code>·<code>build --patch-ssot</code>까지 1줄 명령으로 완전 위임.</li>
+                    <li><strong>장점:</strong> 모델 전환·새 창 개설 번거로움 0%. 내부 서브에이전트가 탐색 찌꺼기를 자동 격리. 파이프라인 코드·규칙·테스트 동시 대공사에는 압도적 1위.</li>
+                    <li><strong>주의점:</strong> 내부 조율 왕복으로 토큰 <strong>1.4~2.0배</strong> 소모 + 중간 육안 검수 생략 ➔ 프롬프트에 <em>"prep 직후 SSOT 자가검증 후 집필"</em> 명시 필수.</li>
+                </ul>
+                <div class="score-strip">
+                    <span class="score-chip">🥇 퀄리티 93/100</span>
+                    <span class="score-chip">🥈 토큰효율 65/100</span>
+                    <span class="score-chip">⚙️ 편의성 98/100</span>
+                </div>
+                <div class="decision-note">
+                    <strong>적용:</strong> 바쁜 날 원샷 위임 · 신규 기업 최초분석 · <code>my-skill</code> 파이프라인 코드 리팩토링.
+                </div>
+            </div>
+
+            <!-- 대안책 B -->
+            <div class="decision-card alt-b-card">
+                <div class="decision-head">
+                    <div class="decision-title">⚔️ 대안책 B: 코어주 초정밀 3-Step 감사</div>
+                    <span class="dbadge dbadge-red">퀄리티 극한 (100점)</span>
+                </div>
+                <ul class="decision-list">
+                    <li><strong>실행 방식:</strong> ① <code>Neon (Medium)</code>으로 주석·SOTP·Owner FCF 무결점 <code>prep</code> ➔ ② 새 창 <code>Neon (High / XHigh)</code>으로 <code>Phase 1~3</code> 집필 ➔ ③ 새 창 <strong><code>Claude Opus 5.5 (High)</code></strong>(또는 <code>Argon High</code>)로 공매도 관점 레드팀 교차 감사!</li>
+                    <li><strong>장점:</strong> 이종(異種) AI 모델이 <code>Neon</code>의 확증편향·낙관적 리드타임·회계 사각지대를 정면 공격. <strong>별도 쿼터 풀</strong> 사용으로 Neon 추가 소모 0%.</li>
+                </ul>
+                <div class="score-strip">
+                    <span class="score-chip">🥇 퀄리티 100/100</span>
+                    <span class="score-chip">🥈 토큰효율 74/100</span>
+                    <span class="score-chip">⚙️ 편의성 68/100</span>
+                </div>
+                <div class="decision-note">
+                    <strong>적용:</strong> 포트폴리오 비중 15~30% 진입 직전 핵심 코어 종목(2~3선) 최종 의사결정.
+                </div>
+            </div>
+
+            <!-- 대안책 C -->
+            <div class="decision-card alt-c-card">
+                <div class="decision-head">
+                    <div class="decision-title">⚡ 대안책 C: 실적시즌 3풀 분산 배치</div>
+                    <span class="dbadge dbadge-amber">한도 고갈 0% 전략</span>
+                </div>
+                <ul class="decision-list">
+                    <li><strong>1단계 일괄 준비:</strong> <code>Hydrogen (High)</code> 독립 풀로 보유·관심 10~15개 종목 <code>prep --include-raw-pdfs</code>를 종목별 새 창에서 먼저 전부 완료.</li>
+                    <li><strong>2단계 중요도별 3풀 분산:</strong>
+                        <br>• 코어 보유주(4~6개) ➔ <code>Neon (High)</code> (풀 A)
+                        <br>• 일반 보유주(3~4개) ➔ <code>Argon (Med/High)</code> (별도 주간 풀 C)
+                        <br>• 관심·변동 적은 종목 ➔ <code>Neon (Med)</code> 또는 <code>Track B</code></li>
+                </ul>
+                <div class="score-strip">
+                    <span class="score-chip">🥇 퀄리티 92/100</span>
+                    <span class="score-chip">🥈 토큰효율 98/100</span>
+                    <span class="score-chip">⚙️ 편의성 78/100</span>
+                </div>
+                <div class="decision-note">
+                    <strong>적용:</strong> 3월·5월·8월·11월 정기보고서가 한꺼번에 쏟아지는 실적 시즌 몰아치기.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 명령 분리 시 새 대화창 vs 같은 대화창 개설 기준표 -->
+    <section class="chat-section">
+        <div class="metaphor-title" style="color: #fdba74; margin-bottom: 4px;">
+            <span>💬 명령을 분리할 때 대화창을 새로 만들어야 할까? (🆕 새 대화창 vs 🔗 같은 대화창 절대 기준표)</span>
+        </div>
+        <div class="chat-rule-banner">
+            <strong>🧠 황금 원리 1줄 요약:</strong>
+            대화창을 새로 열지 유지할지는 <strong>① 탐색 노이즈(컨텍스트 오염) 제거</strong>와 <strong>② 프롬프트 캐시(<code>static_cache_prefix.md</code> 95% 할인) 유지</strong>로 결정됩니다.
+            <strong>모델을 바꾸는 순간(예: <code>Hydrogen ➔ Neon</code>) 기존 대화의 KV 캐시는 어차피 깨지므로, "모델 전환 = 무조건 새 대화창"</strong>이 정답입니다!
+        </div>
+        <div class="table-responsive" style="margin-bottom: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 245px;">작업 전환 경계</th>
+                        <th style="width: 145px;">대화창 판정</th>
+                        <th>이유 (퀄리티 1순위 · 토큰 2순위 근거)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>A종목 ➔ B종목 전환</strong></td>
+                        <td><span class="chat-pill chat-new">🆕 무조건 새 창</span></td>
+                        <td>A종목의 10만+ 토큰 기록이 B종목 매 턴마다 중복 과금되며, A종목 수치가 B종목 보고서에 섞이는 치명적 오염(Cross-Contamination) 발생.</td>
+                    </tr>
+                    <tr>
+                        <td><strong><code>1단계(prep)</code> ➔ <code>2단계(Phase 1~3)</code></strong></td>
+                        <td><span class="chat-pill chat-new">🆕 무조건 새 창</span></td>
+                        <td>1단계 창에는 DART API 원본 JSON·PDF 탐색 로그가 가득하고 모델도 <code>Hydrogen ➔ Neon</code>으로 바뀜. 새 창에서 완성된 <code>ai_prep_digest.md</code> 1개만 로드해야 <strong>퀄리티 최고 + 토큰 최소</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td><strong><code>Global_Trend</code> 전처리 ➔ <code>report.md</code></strong></td>
+                        <td><span class="chat-pill chat-new">🆕 새 창 권장</span></td>
+                        <td>Step 1(<code>extract_global_trend.py</code>) 로그와 중복 파일 출력을 버리고, Step 2 <code>Neon (High)</code>가 깔끔한 <code>_raw_index.md</code>만 로드해 최고 밀도로 종합 집필.</td>
+                    </tr>
+                    <tr>
+                        <td><strong><code>Global_Trend report.md</code> ➔ 개별종목 <code>Track B</code></strong></td>
+                        <td><span class="chat-pill chat-new">🆕 무조건 새 창</span></td>
+                        <td><code>report.md</code> 창에는 타 업종(은행·철강·유통 등) 맥락이 가득함. 종목별 새 창에서 <code>prep</code>이 해당 종목 관련 18쪽만 발췌해야 노이즈 0%.</td>
+                    </tr>
+                    <tr>
+                        <td><strong><code>Phase 1</code> ➔ <code>Phase 2</code> ➔ <code>Phase 3</code> ➔ <code>build</code></strong></td>
+                        <td><span class="chat-pill chat-same">🔗 반드시 같은 창!</span></td>
+                        <td><strong>절대 Phase마다 새 창을 쪼개지 마세요!</strong> ① Phase 1에서 해부한 BM·병목·SOTP·레짐 논리가 Phase 2(가설)·Phase 3(DCF·Pre-mortem)까지 일관되게 이어져야 최고 퀄리티. ② 같은 모델(<code>Neon High</code>) 안에서 <code>ai_prep_digest.md</code>(93KB)가 KV 캐시에 유지되어 <strong>입력 비용 95% 할인</strong> 극대화!</td>
+                    </tr>
+                    <tr>
+                        <td><strong><code>report.md</code> ➔ <code>cycle_timeline.md</code> 1줄 추가</strong></td>
+                        <td><span class="chat-pill chat-same">🔗 같은 창 (동시 지시)</span></td>
+                        <td>방금 종합한 매크로·8대 테마 수치가 컨텍스트에 그대로 살아 있으므로 같은 창에서 한 번에 1줄 누적하는 것이 가장 정확하고 저렴.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>방금 쓴 보고서 핀셋 오류 수정 (1~2턴)</strong></td>
+                        <td><span class="chat-pill chat-same">🔗 같은 창 유지</span></td>
+                        <td>캐시와 맥락이 살아 있어 1~2턴 내 수정 + <code>build --patch-ssot</code> 재실행이 최적. 단, 수정이 4턴 이상 길어지면 <code>/compact</code>로 컨텍스트 압축.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 4대 골든 룰 -->
+    <h3 style="font-size: 18px; margin-bottom: 14px; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+        <span>🛡️ 보고서 퀄리티는 100% 사수하고 토큰을 90% 아끼는 4대 실전 운용 수칙</span>
+    </h3>
+    <div class="rules-grid">
+        <div class="rule-card">
+            <div class="rule-num">Rule 01 ⭐</div>
+            <div class="rule-title">종목·모델 바뀔 땐 새 창 · P1~3은 같은 창</div>
+            <div class="rule-desc">
+                종목 변경과 <code>prep ➔ Phase1~3</code> 전환 시에는 무조건 <strong>🆕 새 창</strong>을 열고, 반대로 <code>Phase 1 ➔ 2 ➔ 3 ➔ build</code>는 <strong>🔗 같은 창</strong>을 유지해 서사 일관성과 95% 캐시 히트를 모두 챙기세요.
+            </div>
+        </div>
+        <div class="rule-card">
+            <div class="rule-num">Rule 02 ⭐</div>
+            <div class="rule-title">정기공시 10초 SSOT 체크포인트 (v5.2)</div>
+            <div class="rule-desc">
+                <code>1단계(prep --include-raw-pdfs)</code> 완료 직후 자동 출력되는 <strong>[직전 vs 신규 SSOT 비교표]</strong>에서 FCF·순차입금·가동률·매도시그널과 함께 <strong>Step 1.3 고정비(DOL)·선행 OP 기울기(<code>🚀대안 A</code> 단독 반영 · <code>🛡️대안 B</code> 불변)</strong>만 10초 확인하세요.
+            </div>
+        </div>
+        <div class="rule-card">
+            <div class="rule-num">Rule 03 ⭐</div>
+            <div class="rule-title">40개 PDF는 코드로 · 해석은 Neon으로</div>
+            <div class="rule-desc">
+                2주 <code>Global_Trend</code> 폴더는 <code>extract_global_trend.py</code>가 5초 만에 중복 제거·3존 무손실 발췌(<code>_raw_index.md</code>)를 끝내고, <code>Neon (High)</code>는 오직 <code>report.md</code> 통찰 집필에만 집중하게 하세요.
+            </div>
+        </div>
+        <div class="rule-card">
+            <div class="rule-num">Rule 04 ⭐</div>
+            <div class="rule-title">정형 루틴은 Hydrogen · 요약본은 마지막 1회</div>
+            <div class="rule-desc">
+                폴더 초기화, 단순 주가 SOP 패치, <code>(수급+실적)×기대감</code> 역추적, 모바일 요약본 동기화, Git 푸시는 전부 <code>Hydrogen</code> 독립 풀에 맡겨 <code>Neon</code> 체력을 100% 투자판단에 쓰세요.
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <p>Antigravity 한국 주식 분석 시스템 v5.2 마스터 가이드 (Gemini 4 Neon + Hydrogen 체제 · 2026-11-20)</p>
+        <p style="margin-top: 4px;">
+            관련 문서:
+            <a href="file:///E:/antigravity-work/my-skill/이용방법.html">이용방법.html</a> |
+            <a href="file:///E:/antigravity-work/my-skill/GEMINI.md">GEMINI.md</a> |
+            <a href="file:///E:/antigravity-work/my-skill/korean-stock-analyzer/model_config.json">model_config.json</a> |
+            <a href="file:///E:/antigravity-work/my-skill/korean-stock-analyzer/extract_global_trend.py">extract_global_trend.py</a> |
+            <a href="file:///E:/antigravity-work/my-skill/주요명령어_모델매칭표(argon 26.11.13).html">구버전(Argon 26.11.13)</a>
+        </p>
+    </footer>
+</div>
+
+<div id="toast">✅ 명령어가 클립보드에 복사되었습니다!</div>
+
+<script>
+    // 필터링 기능
+    function filterTable(clickedBtn, modelType) {
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+
+        const rows = document.querySelectorAll('#commandTable tbody tr');
+        rows.forEach(row => {
+            const rowModel = row.getAttribute('data-model');
+            row.style.display = (modelType === 'all' || rowModel === modelType) ? '' : 'none';
+        });
+    }
+
+    // 실시간 검색 기능
+    function searchTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('#commandTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    }
+
+    // 명령어 복사 기능
+    function copyText(button) {
+        const cmdBlock = button.closest('.cmd-block');
+        const cmdText = cmdBlock.querySelector('.cmd-text').innerText.trim();
+
+        const onCopied = () => {
+            const originalText = button.innerText;
+            button.innerText = '✓ 복사됨';
+            button.classList.add('copied');
+            showToast();
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.classList.remove('copied');
+            }, 1800);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cmdText).then(onCopied).catch(() => {
+                fallbackCopy(cmdText, onCopied);
+            });
+        } else {
+            fallbackCopy(cmdText, onCopied);
+        }
+    }
+
+    function fallbackCopy(text, cb) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        cb();
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+</script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 """
-Portfolio Manager & Batch Update Pipeline for Korean Stock Analyzer (v4.2.3)
+Portfolio Manager & Batch Update Pipeline for Korean Stock Analyzer (v5.0)
 - Manages holding vs watchlist classification in portfolio_status.json.
 - Prioritizes stocks newly upgraded from watchlist to holding.
 - Automatically re-generates mobile 1-page summary upon completion.

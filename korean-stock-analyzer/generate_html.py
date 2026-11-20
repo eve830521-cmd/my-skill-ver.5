@@ -1,5 +1,5 @@
 """
-HTML Report Builder & Pipeline SSOT Verifier for Korean Stock Analyzer (v4.2)
+HTML Report Builder & Pipeline SSOT Verifier for Korean Stock Analyzer (v5.0)
 - Converts Phase 1~3 Markdown reports to styled HTML with Mermaid diagrams and Fact/Narrative badges.
 - Automatically binds to 2_Translated_DB/valuation_metrics.json (Single Source of Truth) if present,
   preventing AI manual transcription discrepancies between code output, Markdown tables, and HTML calculators.
@@ -10,97 +10,236 @@ import sys
 import os
 import re
 import json
+import html as html_lib
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-if len(sys.argv) < 3:
-    print("Usage: python generate_html.py <input.md> <output.html> [optional_ssot.json]")
-    sys.exit(1)
+_FLOWCHART_DIRECTIVE_RE = re.compile(
+    r"^\s*(?:%%|graph\b|flowchart\b|direction\b|classDef\b|class\b|style\b|linkStyle\b|click\b|end\s*$)",
+    re.IGNORECASE,
+)
+_MERMAID_OPENERS = [
+    ("[[", "]]"),
+    ("[(", ")]"),
+    ("([", "])"),
+    ("((", "))"),
+    ("{{", "}}"),
+    ("[", "]"),
+    ("(", ")"),
+    ("{", "}"),
+]
+_MERMAID_UNSAFE_CHARS = set("():/%,\'<>[]{}\"\\|;#&·")
+_EDGE_BOUNDARY_RE = re.compile(
+    r"^\s*(?:$|-->|-.->|==>|---|<-->|--o|--x|--|\.\.|&|;|:::)"
+)
 
-md_file = sys.argv[1]
-out_file = sys.argv[2]
-explicit_ssot = sys.argv[3] if len(sys.argv) >= 4 else None
 
-css_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "report_style.css")
-if not os.path.exists(css_file):
-    css_file = os.environ.get("KSA_REPORT_CSS", os.path.join(os.path.dirname(os.path.abspath(__file__)), "report_style.css"))
+def _replace_bare_end_node_outside_quotes(line: str) -> str:
+    """Replaces lowercase `end` used as a node ID (not standalone subgraph `end`) outside quotes."""
+    if re.match(r"^\s*end\s*$", line):
+        return line
+    out = []
+    i = 0
+    in_dq = False
+    in_sq = False
+    n = len(line)
+    while i < n:
+        ch = line[i]
+        if ch == '"' and not in_sq:
+            in_dq = not in_dq
+            out.append(ch)
+            i += 1
+        elif ch == "'" and not in_dq:
+            in_sq = not in_sq
+            out.append(ch)
+            i += 1
+        elif not in_dq and not in_sq and line[i : i + 3] == "end":
+            prev_ok = i == 0 or not (line[i - 1].isalnum() or line[i - 1] in "_-")
+            next_ok = i + 3 >= n or not (line[i + 3].isalnum() or line[i + 3] in "_-")
+            if prev_ok and next_ok:
+                out.append("end_node")
+                i += 3
+                continue
+            out.append(ch)
+            i += 1
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)
 
-try:
-    with open(md_file, "r", encoding="utf-8") as f:
-        md_text = f.read()
-except Exception as e:
-    print(f"Error reading {md_file}: {e}")
-    sys.exit(1)
 
-try:
-    if os.path.exists(css_file):
-        with open(css_file, "r", encoding="utf-8") as f:
-            css_text = f.read()
-    else:
-        css_text = ""
-except Exception as e:
-    print(f"Error reading CSS {css_file}: {e}")
-    css_text = ""
+def _find_node_close(line: str, k: int, open_d: str, close_d: str) -> int:
+    """Finds the matching closing delimiter index for a Mermaid node label starting at k."""
+    n = len(line)
+    if k < n and line[k] in ('"', "'"):
+        q = line[k]
+        candidates = []
+        pos = k + 1
+        while pos <= n - len(close_d):
+            if line[pos] == q and line.startswith(close_d, pos + 1):
+                after = line[pos + 1 + len(close_d) :]
+                if _EDGE_BOUNDARY_RE.match(after):
+                    return pos + 1
+                candidates.append(pos + 1)
+            pos += 1
+        if candidates:
+            return candidates[-1]
+
+    sq = open_d.count("[")
+    par = open_d.count("(")
+    brc = open_d.count("{")
+    need_sq = "]" in close_d
+    need_par = ")" in close_d
+    need_brc = "}" in close_d
+
+    pos = k
+    while pos <= n - len(close_d):
+        if line.startswith(close_d, pos):
+            rem_sq = sq - close_d.count("]")
+            rem_par = par - close_d.count(")")
+            rem_brc = brc - close_d.count("}")
+            if (not need_sq or rem_sq <= 0) and (not need_par or rem_par <= 0) and (not need_brc or rem_brc <= 0):
+                return pos
+        ch = line[pos]
+        if ch == "[":
+            sq += 1
+        elif ch == "]":
+            sq = max(0, sq - 1)
+        elif ch == "(":
+            par += 1
+        elif ch == ")":
+            par = max(0, par - 1)
+        elif ch == "{":
+            brc += 1
+        elif ch == "}":
+            brc = max(0, brc - 1)
+        pos += 1
+    return -1
+
+
+def _sanitize_flowchart_nodes_line(line: str) -> str:
+    """Scans a flowchart line and safely normalizes/quotes node labels without breaking nested [] or () inside quotes."""
+    if _FLOWCHART_DIRECTIVE_RE.match(line):
+        return line
+
+    out = []
+    i = 0
+    n = len(line)
+    while i < n:
+        # Skip pipe edge labels |...| cleanly
+        if line[i] == "|":
+            end_pipe = line.find("|", i + 1)
+            if end_pipe != -1:
+                out.append(line[i : end_pipe + 1])
+                i = end_pipe + 1
+                continue
+
+        prev_ok = i == 0 or not (line[i - 1].isalnum() or line[i - 1] in "_-")
+        if prev_ok and line[i].isalnum():
+            m_id = re.match(r"([A-Za-z0-9][A-Za-z0-9_-]*)\s*", line[i:])
+            if m_id:
+                node_id = m_id.group(1)
+                j = i + len(m_id.group(0))
+                matched_delim = None
+                for open_d, close_d in _MERMAID_OPENERS:
+                    if line.startswith(open_d, j):
+                        matched_delim = (open_d, close_d)
+                        break
+                if matched_delim:
+                    open_d, close_d = matched_delim
+                    k = j + len(open_d)
+                    close_pos = _find_node_close(line, k, open_d, close_d)
+                    if close_pos != -1:
+                        raw_inner = line[k:close_pos]
+                        raw_inner = re.sub(r"<br\s*/?>", "<br/>", raw_inner, flags=re.IGNORECASE)
+                        if len(raw_inner) >= 2 and raw_inner[0] == '"' and raw_inner[-1] == '"':
+                            inner_txt = raw_inner[1:-1].replace('"', "'")
+                            formatted = f'"{inner_txt}"'
+                        elif len(raw_inner) >= 2 and raw_inner[0] == "'" and raw_inner[-1] == "'":
+                            inner_txt = raw_inner[1:-1].replace('"', "'")
+                            formatted = f'"{inner_txt}"'
+                        elif any(c in _MERMAID_UNSAFE_CHARS for c in raw_inner):
+                            inner_txt = raw_inner.replace('"', "'")
+                            formatted = f'"{inner_txt}"'
+                        else:
+                            formatted = raw_inner
+                        out.append(f"{node_id}{open_d}{formatted}{close_d}")
+                        i = close_pos + len(close_d)
+                        continue
+
+        out.append(line[i])
+        i += 1
+    return "".join(out)
+
 
 def sanitize_mermaid_code(code: str) -> str:
     """Sanitize Mermaid code to comply strictly with Mermaid v10.9.8+ syntax rules."""
+    code = code.replace("\r\n", "\n")
     lines = code.split("\n")
+    first_nonempty = next((ln.strip() for ln in lines if ln.strip()), "")
+    is_flowchart = (not first_nonempty) or bool(re.match(r"^(?:graph|flowchart)\b", first_nonempty, re.IGNORECASE))
+
+    if not is_flowchart:
+        return "\n".join(re.sub(r"<br\s*/?>", "<br/>", ln, flags=re.IGNORECASE) for ln in lines)
+
     sanitized_lines = []
     subgraph_idx = 1
 
     for line in lines:
-        # 1. Dotted arrow legacy syntax: A -. "Label" .-> B or A -. Label .-> B  ==>  A -.->|"Label"| B
+        line = re.sub(r"<br\s*/?>", "<br/>", line, flags=re.IGNORECASE)
+
+        # 1. Subgraph syntax cleanup (processed before node scanner so subgraph titles are never treated as nodes):
+        m_sub_id = re.match(r"^(\s*subgraph)\s+([a-zA-Z0-9_-]+)\s*\[(.*)\]\s*$", line)
+        if m_sub_id:
+            indent, sub_id, raw_title = m_sub_id.group(1), m_sub_id.group(2), m_sub_id.group(3).strip()
+            if len(raw_title) >= 2 and raw_title[0] == raw_title[-1] and raw_title[0] in ('"', "'"):
+                raw_title = raw_title[1:-1]
+            clean_title = raw_title.replace('"', "'")
+            sanitized_lines.append(f'{indent} {sub_id}["{clean_title}"]')
+            continue
+
+        m_sub_bare = re.match(r"^(\s*subgraph)\s+(.+?)\s*$", line)
+        if m_sub_bare:
+            indent, raw_title = m_sub_bare.group(1), m_sub_bare.group(2).strip()
+            if re.match(r"^[a-zA-Z0-9_-]+$", raw_title):
+                sanitized_lines.append(line)
+            else:
+                if len(raw_title) >= 2 and raw_title[0] == raw_title[-1] and raw_title[0] in ('"', "'"):
+                    raw_title = raw_title[1:-1]
+                clean_title = raw_title.replace('"', "'")
+                sanitized_lines.append(f'{indent} SG_{subgraph_idx}["{clean_title}"]')
+                subgraph_idx += 1
+            continue
+
+        # 2. Dotted arrow legacy syntax: A -. "Label" .-> B or A -. Label .-> B  ==>  A -.->|"Label"| B
         line = re.sub(
-            r'(-\.)\s*(".*?"|\'.*?\'|[^\-\.\n]+?)\s*(\.->)',
-            lambda m: f'-.->|"{m.group(2).strip("\'\"")}"|',
-            line
+            r'(-\.)(?!->)\s*("[^"\n]*"|\'[^\'\n]*\'|(?:(?!\.->)[^\n])+?)\s*(\.->)',
+            lambda m: '-.->|"' + m.group(2).strip().strip("'\"").replace('"', "'") + '"|',
+            line,
         )
 
-        # 2. Pipe labels: quote if contains special chars and not yet quoted
+        # 3. Pipe labels on edges: quote safely without corrupting inner brackets/parens
         def quote_pipe_label(m):
             arrow = m.group(1)
             content = m.group(2).strip()
-            if (content.startswith('"') and content.endswith('"')) or (content.startswith("'") and content.endswith("'")):
-                return f'{arrow}|{content}|'
+            if len(content) >= 2 and content[0] == content[-1] and content[0] in ('"', "'"):
+                content = content[1:-1]
             clean_c = content.replace('"', "'")
             return f'{arrow}|"{clean_c}"|'
 
-        line = re.sub(r'(-->|-\.->)\s*\|([^\|\n]+)\|', quote_pipe_label, line)
+        line = re.sub(r"(-->|-.->|==>|<-->|---)\s*\|([^\|\n]+)\|", quote_pipe_label, line)
 
-        # 3. Subgraph syntax cleanup:
-        # 3-1: Remove space between ID and [ : subgraph Macro ["..."] -> subgraph Macro["..."]
-        line = re.sub(r'subgraph\s+([a-zA-Z0-9_-]+)\s+\[', r'subgraph \1[', line)
+        # 4. Prevent reserved keyword `end` as node ID (while keeping standalone `end`)
+        line = _replace_bare_end_node_outside_quotes(line)
 
-        # 3-2: Subgraph without valid English ID (starts with Korean/number/quote/space)
-        m_sub = re.match(r'^(\s*subgraph)\s+([^\[\n]+)$', line)
-        if m_sub:
-            indent = m_sub.group(1)[:len(m_sub.group(1)) - len('subgraph')]
-            raw_title = m_sub.group(2).strip()
-            if not re.match(r'^[a-zA-Z0-9_-]+$', raw_title):
-                clean_title = raw_title.strip('"\'')
-                line = f'{indent}subgraph SG_{subgraph_idx}["{clean_title}"]'
-                subgraph_idx += 1
-
-        # 4. Node labels: Auto-quote if parentheses, colons, slashes, or % are present without quotes
-        def fix_node_label(match):
-            node_id = match.group(1)
-            inner = match.group(2)
-            if (inner.startswith('"') and inner.endswith('"')) or (inner.startswith("'") and inner.endswith("'")):
-                return f'{node_id}[{inner}]'
-            if any(c in inner for c in '():/%,\''):
-                clean_inner = inner.replace('"', "'")
-                return f'{node_id}["{clean_inner}"]'
-            return f'{node_id}[{inner}]'
-
-        line = re.sub(r'(\b[a-zA-Z0-9_-]+)\s*\[([^\]\n]+)\]', fix_node_label, line)
-
-        # 5. Standardize line breaks: <br> -> <br/>
-        line = re.sub(r'<br\s*>', '<br/>', line, flags=re.IGNORECASE)
+        # 5. Balanced node label sanitization
+        line = _sanitize_flowchart_nodes_line(line)
 
         sanitized_lines.append(line)
 
     return "\n".join(sanitized_lines)
+
 
 def sanitize_mermaid_in_markdown(md: str) -> str:
     """Pre-process all mermaid blocks in markdown before HTML conversion."""
@@ -110,86 +249,129 @@ def sanitize_mermaid_in_markdown(md: str) -> str:
         return f"```mermaid\n{fixed_code}\n```"
     return re.sub(r'```mermaid\s*\n(.*?)\n```', replacer, md, flags=re.DOTALL)
 
-# Locate Single Source of Truth JSON (valuation_metrics.json) if available
-ssot_data = {}
-candidate_ssot_paths = []
-if explicit_ssot:
-    candidate_ssot_paths.append(explicit_ssot)
-md_dir = os.path.dirname(os.path.abspath(md_file))
-comp_root = os.path.dirname(md_dir)
-candidate_ssot_paths.extend([
-    os.path.join(comp_root, "2_Translated_DB", "valuation_metrics.json"),
-    os.path.join(md_dir, "valuation_metrics.json"),
-])
 
-ssot_loaded_path = None
-for sp in candidate_ssot_paths:
-    if sp and os.path.exists(sp):
-        try:
-            with open(sp, "r", encoding="utf-8") as sf:
-                ssot_data = json.load(sf)
-            ssot_loaded_path = sp
+def _resolve_html_title(md_file: str, md_text: str, ssot_data: dict) -> str:
+    """Builds a unified v5.0 HTML <title> aligned with the report version, company, and phase."""
+    corp_name = (ssot_data or {}).get("corp_name") or ""
+    base = os.path.basename(md_file or "")
+    phase_label = ""
+    if "Phase1" in base or "phase1" in base:
+        phase_label = "Phase 1"
+    elif "Phase2" in base or "phase2" in base:
+        phase_label = "Phase 2"
+    elif "Phase3" in base or "phase3" in base:
+        phase_label = "Phase 3"
+
+    first_h1 = ""
+    for ln in (md_text or "").splitlines():
+        s = ln.strip()
+        if s.startswith("# "):
+            first_h1 = s[2:].strip()
             break
-        except Exception as _exc:
-            print(f"[WARN] SSOT json unreadable, falling back to markdown numbers: {_exc}", file=sys.stderr)
 
-# Pipeline Integrity Audit: Check if Markdown numbers match SSOT JSON (v4.3 Full 7-Point Verification)
-pipeline_audit_warnings = []
-if ssot_data:
-    anchor_price = ssot_data.get("anchor_price") or ssot_data.get("reverse_dcf", {}).get("price")
-    s3 = ssot_data.get("section3", {})
-    s4 = ssot_data.get("section4", {})
-    if anchor_price:
-        m_root_price = re.search(r'data-price="([0-9.,]+)"', md_text)
-        if m_root_price:
-            md_p = float(m_root_price.group(1).replace(",", ""))
-            if abs(md_p - float(anchor_price)) >= 1.0:
-                pipeline_audit_warnings.append(
-                    f"[주가 불일치 자동교정] 마크다운 data-price({md_p:,.0f}원) != 코드 SSOT 원본({float(anchor_price):,.0f}원)"
+    m_ver = re.search(r"\bv(5\.\d+)\b", first_h1, re.IGNORECASE)
+    ver_str = f"v{m_ver.group(1)}" if m_ver else "v5.0"
+
+    parts = [p for p in (corp_name, phase_label) if p]
+    prefix = f"{' '.join(parts)} — " if parts else ""
+    return html_lib.escape(f"{prefix}Stock Analyzer Report ({ver_str})")
+
+
+def build_html(md_file: str, out_file: str, explicit_ssot: str = None):
+    css_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "report_style.css")
+    if not os.path.exists(css_file):
+        css_file = os.environ.get("KSA_REPORT_CSS", os.path.join(os.path.dirname(os.path.abspath(__file__)), "report_style.css"))
+
+    with open(md_file, "r", encoding="utf-8") as f:
+        md_text = f.read()
+
+    if os.path.exists(css_file):
+        with open(css_file, "r", encoding="utf-8") as f:
+            css_text = f.read()
+    else:
+        css_text = ""
+
+    # Locate Single Source of Truth JSON (valuation_metrics.json) if available
+    ssot_data = {}
+    candidate_ssot_paths = []
+    if explicit_ssot:
+        candidate_ssot_paths.append(explicit_ssot)
+    md_dir = os.path.dirname(os.path.abspath(md_file))
+    comp_root = os.path.dirname(md_dir)
+    candidate_ssot_paths.extend([
+        os.path.join(comp_root, "2_Translated_DB", "valuation_metrics.json"),
+        os.path.join(md_dir, "valuation_metrics.json"),
+    ])
+
+    ssot_loaded_path = None
+    for sp in candidate_ssot_paths:
+        if sp and os.path.exists(sp):
+            try:
+                with open(sp, "r", encoding="utf-8") as sf:
+                    ssot_data = json.load(sf)
+                ssot_loaded_path = sp
+                break
+            except Exception as _exc:
+                print(f"[WARN] SSOT json unreadable, falling back to markdown numbers: {_exc}", file=sys.stderr)
+
+    # Pipeline Integrity Audit: Check if Markdown numbers match SSOT JSON (v5.0 Full Verification)
+    pipeline_audit_warnings = []
+    if ssot_data:
+        anchor_price = ssot_data.get("anchor_price") or ssot_data.get("reverse_dcf", {}).get("price")
+        s3 = ssot_data.get("section3", {})
+        s4 = ssot_data.get("section4", {})
+        if anchor_price:
+            m_root_price = re.search(r'data-price="([0-9.,]+)"', md_text)
+            if m_root_price:
+                md_p = float(m_root_price.group(1).replace(",", ""))
+                if abs(md_p - float(anchor_price)) >= 1.0:
+                    pipeline_audit_warnings.append(
+                        f"[주가 불일치 자동교정] 마크다운 data-price({md_p:,.0f}원) != 코드 SSOT 원본({float(anchor_price):,.0f}원)"
+                    )
+            for attr_name, ssot_val in [
+                ("data-base", s3.get("base_auto")),
+                ("data-base-a", s3.get("base_auto_a")),
+                ("data-bull", s3.get("bull_auto")),
+                ("data-bull-a", s3.get("bull_auto_a")),
+                ("data-bear", s3.get("bear_auto")),
+                ("data-buy1", s4.get("buy1")),
+                ("data-stop-pin", s4.get("init_stop_pin")),
+            ]:
+                if ssot_val:
+                    m_attr = re.search(rf'{attr_name}="([0-9.,]+)"', md_text)
+                    if m_attr:
+                        md_v = float(m_attr.group(1).replace(",", ""))
+                        if abs(md_v - float(ssot_val)) >= 1.0:
+                            pipeline_audit_warnings.append(
+                                f"[{attr_name} 불일치 자동교정] 마크다운({md_v:,.0f}원) != 코드 SSOT 원본({float(ssot_val):,.0f}원)"
+                            )
+            # Auto-replace canonical dcf-calculator-root tag if canonical_html_tag is in SSOT
+            canonical_tag = ssot_data.get("canonical_html_tag")
+            if canonical_tag and 'id="dcf-calculator-root"' in md_text:
+                md_text = re.sub(
+                    r'<div\s+id="dcf-calculator-root"[^>]*>\s*</div>',
+                    canonical_tag,
+                    md_text,
                 )
-        for attr_name, ssot_val in [
-            ("data-base", s3.get("base_auto")),
-            ("data-base-a", s3.get("base_auto_a")),
-            ("data-bull", s3.get("bull_auto")),
-            ("data-bull-a", s3.get("bull_auto_a")),
-            ("data-bear", s3.get("bear_auto")),
-            ("data-buy1", s4.get("buy1")),
-            ("data-stop-pin", s4.get("init_stop_pin")),
-        ]:
-            if ssot_val:
-                m_attr = re.search(rf'{attr_name}="([0-9.,]+)"', md_text)
-                if m_attr:
-                    md_v = float(m_attr.group(1).replace(",", ""))
-                    if abs(md_v - float(ssot_val)) >= 1.0:
-                        pipeline_audit_warnings.append(
-                            f"[{attr_name} 불일치 자동교정] 마크다운({md_v:,.0f}원) != 코드 SSOT 원본({float(ssot_val):,.0f}원)"
-                        )
-        # Auto-replace canonical dcf-calculator-root tag if canonical_html_tag is in SSOT
-        canonical_tag = ssot_data.get("canonical_html_tag")
-        if canonical_tag and 'id="dcf-calculator-root"' in md_text:
-            md_text = re.sub(
-                r'<div\s+id="dcf-calculator-root"[^>]*>\s*</div>',
-                canonical_tag,
-                md_text,
-            )
 
-if pipeline_audit_warnings:
-    for w in pipeline_audit_warnings:
-        print(f"⚠️ {w}")
-elif ssot_data:
-    print(f"✅ [SSOT 무결성 검증 통과] {os.path.basename(md_file)} ↔ valuation_metrics.json (기준가 {ssot_data.get('anchor_price', 0):,}원)")
+    if pipeline_audit_warnings:
+        for w in pipeline_audit_warnings:
+            print(f"⚠️ {w}")
+    elif ssot_data:
+        print(f"✅ [SSOT 무결성 검증 통과] {os.path.basename(md_file)} ↔ valuation_metrics.json (기준가 {ssot_data.get('anchor_price', 0):,}원)")
 
-# Pre-process Mermaid diagrams to ensure strict Mermaid v10.9.8+ syntax compliance
-md_text = sanitize_mermaid_in_markdown(md_text)
+    # Pre-process Mermaid diagrams to ensure strict Mermaid v10.9.8+ syntax compliance
+    md_text = sanitize_mermaid_in_markdown(md_text)
 
-html_body = markdown.markdown(md_text, extensions=["tables", "fenced_code"])
-ssot_json_inline = json.dumps(ssot_data, ensure_ascii=False) if ssot_data else "null"
+    html_body = markdown.markdown(md_text, extensions=["tables", "fenced_code"])
+    ssot_json_inline = json.dumps(ssot_data, ensure_ascii=False) if ssot_data else "null"
+    doc_title = _resolve_html_title(md_file, md_text, ssot_data)
 
-html_template = f"""<!DOCTYPE html>
+    html_template = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Stock Analyzer Report (v4.2)</title>
+    <title>{doc_title}</title>
     <style>
     {css_text}
     .sop-calc-container {{
@@ -805,10 +987,19 @@ html_template = f"""<!DOCTYPE html>
 </html>
 """
 
-try:
+    os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
     with open(out_file, "w", encoding="utf-8") as f:
         f.write(html_template)
     print(f"Generated HTML successfully: {out_file}" + (f" [SSOT Bound: {ssot_loaded_path}]" if ssot_loaded_path else ""))
-except Exception as e:
-    print(f"Error writing {out_file}: {e}")
-    sys.exit(1)
+    return out_file
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: python generate_html.py <input.md> <output.html> [optional_ssot.json]")
+        sys.exit(1)
+    try:
+        build_html(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) >= 4 else None)
+    except Exception as e:
+        print(f"Error building HTML for {sys.argv[1]}: {e}")
+        sys.exit(1)

@@ -232,6 +232,91 @@ def append_extended_ssot_tables(ssot_json_path):
             f.write(auto_md)
 
 
+def format_ssot_comparison_table(old_ssot, new_ssot, corp_name):
+    """
+    [NEW v5.2] Generates a deterministic Markdown `[직전 vs 신규 SSOT 비교표]`
+    showing financial parameters, Step 1.2/1.8, Step 1.3 BM Core Driver & Forward OP Slope
+    (with 3-Layer Anti-Peak-Out Guardrails), and 🛡️ 대안 B vs 🚀 대안 A target price shifts.
+    """
+    o = old_ssot or {}
+    n = new_ssot or {}
+    o_dcf, n_dcf = o.get("reverse_dcf") or {}, n.get("reverse_dcf") or {}
+    o_sotp, n_sotp = o.get("sotp") or {}, n.get("sotp") or {}
+    o_s12, n_s12 = o.get("step1_2_bottleneck") or {}, n.get("step1_2_bottleneck") or {}
+    o_s13, n_s13 = o.get("step1_3_bm_slope") or {}, n.get("step1_3_bm_slope") or {}
+    o_s18, n_s18 = o.get("step1_8_k_return") or {}, n.get("step1_8_k_return") or {}
+    o_s3, n_s3 = o.get("section3") or {}, n.get("section3") or {}
+    o_s4, n_s4 = o.get("section4") or {}, n.get("section4") or {}
+
+    def _fnum(v, unit="", dec=0, signed=False):
+        if v is None or v == "":
+            return "N/A"
+        try:
+            fv = float(v)
+            if dec == 0:
+                return f"{int(round(fv)):+,}{unit}" if signed else f"{int(round(fv)):,}{unit}"
+            return f"{fv:+,.{dec}f}{unit}" if signed else f"{fv:,.{dec}f}{unit}"
+        except Exception:
+            return str(v)
+
+    def _fdelta(ov, nv, unit="", dec=0):
+        try:
+            if ov is None or nv is None:
+                return "신규 반영" if nv is not None else "-"
+            d = float(nv) - float(ov)
+            if abs(d) < 1e-6:
+                return "유지 (0)"
+            if dec == 0:
+                return f"`{int(round(d)):+,}{unit}`"
+            return f"`{d:+,.{dec}f}{unit}`"
+        except Exception:
+            return "변경" if ov != nv else "유지"
+
+    def _s13_cost(b):
+        if not b:
+            return "N/A (v5.1 이전)"
+        fx, vr, dl = b.get("fixed_cost_ratio_pct"), b.get("var_cost_ratio_pct"), b.get("dol")
+        if fx is not None and vr is not None and dl is not None:
+            return f"고정 {fx:.1f}% / 변동 {vr:.1f}% (DOL {dl:.2f}x)"
+        if dl is not None:
+            return f"실측 DOL {dl:.2f}x"
+        return "미입력"
+
+    def _s13_slope(b):
+        if not b:
+            return "N/A (후행 op_mult)"
+        return f"{b.get('final_grade', 'neutral')} (`×{float(b.get('op_slope_base_mult', 1.0)):.4f}` / `×{float(b.get('op_slope_bull_mult', 1.0)):.4f}`)"
+
+    rows = [
+        ("단일 기준 주가 (Anchor)", _fnum(o.get("anchor_price"), "원"), _fnum(n.get("anchor_price"), "원"), _fdelta(o.get("anchor_price"), n.get("anchor_price"), "원")),
+        ("유통주식수 / 총주식수", f"{_fnum(o_dcf.get('distb_shares'), '주')} / {_fnum(o_dcf.get('total_shares'), '주')}", f"{_fnum(n_dcf.get('distb_shares'), '주')} / {_fnum(n_dcf.get('total_shares'), '주')}", _fdelta(o_dcf.get("distb_shares"), n_dcf.get("distb_shares"), "주")),
+        ("보고 FCF / 오너 정규화 FCF", f"{_fnum(o_dcf.get('fcf_eok'), '억', 1)} / {_fnum(o_dcf.get('norm_fcf_eok'), '억', 1)}", f"{_fnum(n_dcf.get('fcf_eok'), '억', 1)} / {_fnum(n_dcf.get('norm_fcf_eok'), '억', 1)}", _fdelta(o_dcf.get("fcf_eok"), n_dcf.get("fcf_eok"), "억", 1)),
+        ("순차입금 (`-` 순현금)", _fnum(o_dcf.get("net_debt_eok"), "억", 1, True), _fnum(n_dcf.get("net_debt_eok"), "억", 1, True), _fdelta(o_dcf.get("net_debt_eok"), n_dcf.get("net_debt_eok"), "억", 1)),
+        ("비영업자산 (SOTP 20% 룰)", f"{_fnum(o_sotp.get('non_op_assets_eok'), '억', 1)} ({'발동' if o_sotp.get('sotp_triggered') else '미발동'})", f"{_fnum(n_sotp.get('non_op_assets_eok'), '억', 1)} ({'발동' if n_sotp.get('sotp_triggered') else '미발동'})", _fdelta(o_sotp.get("non_op_assets_eok"), n_sotp.get("non_op_assets_eok"), "억", 1)),
+        ("가동률 / 병목등급·리드타임", f"{_fnum(o_s12.get('capa_util_pct'), '%', 1)} / {o_s12.get('bottleneck_grade', 'N/A')}({o_s12.get('bottleneck_lead_time_months', 0)}M)", f"{_fnum(n_s12.get('capa_util_pct'), '%', 1)} / {n_s12.get('bottleneck_grade', 'N/A')}({n_s12.get('bottleneck_lead_time_months', 0)}M)", _fdelta(o_s12.get("capa_util_pct"), n_s12.get("capa_util_pct"), "%p", 1)),
+        ("배당성향 / TSR / kgov", f"{_fnum(o_s18.get('payout_ratio_pct'), '%', 1)} / {_fnum(o_s18.get('tsr_pct'), '%', 1)} / ×{_fnum(o_s18.get('kgov_mult'), '', 2)}", f"{_fnum(n_s18.get('payout_ratio_pct'), '%', 1)} / {_fnum(n_s18.get('tsr_pct'), '%', 1)} / ×{_fnum(n_s18.get('kgov_mult'), '', 2)}", _fdelta(o_s18.get("kgov_mult"), n_s18.get("kgov_mult"), "", 4)),
+        ("메자닌(억·희석%) / 내부거래", f"{_fnum(o_s18.get('mezzanine_eok'), '억', 1)}({_fnum(o_s18.get('mezzanine_pct'), '%', 1)}) / {_fnum(o_s18.get('related_party_eok'), '억', 1)}", f"{_fnum(n_s18.get('mezzanine_eok'), '억', 1)}({_fnum(n_s18.get('mezzanine_pct'), '%', 1)}) / {_fnum(n_s18.get('related_party_eok'), '억', 1)}", _fdelta(o_s18.get("mezzanine_eok"), n_s18.get("mezzanine_eok"), "억", 1)),
+        ("**⚙️ Step 1.3 비용구조 · DOL**", _s13_cost(o_s13), _s13_cost(n_s13), "🔥 고고정비" if n_s13.get("is_high_fixed_cost") else "표준"),
+        ("**⚙️ Step 1.3 선행 OP 기울기 (`🚀A단독`)**", _s13_slope(o_s13), _s13_slope(n_s13), str(n_s13.get("guardrail_summary", "정상"))[:42]),
+        ("**🛡️ 대안 B 적정가 (Base / Bull)**", f"{_fnum(o_s3.get('base_auto'), '원')} / {_fnum(o_s3.get('bull_auto'), '원')}", f"{_fnum(n_s3.get('base_auto'), '원')} / {_fnum(n_s3.get('bull_auto'), '원')}", f"Base {_fdelta(o_s3.get('base_auto'), n_s3.get('base_auto'), '원')} (순수 DART 닻)"),
+        ("**🚀 대안 A 적정가 (Base / Bull)**", f"{_fnum(o_s3.get('base_auto_a'), '원')} / {_fnum(o_s3.get('bull_auto_a'), '원')}", f"{_fnum(n_s3.get('base_auto_a'), '원')} / {_fnum(n_s3.get('bull_auto_a'), '원')}", f"Base {_fdelta(o_s3.get('base_auto_a'), n_s3.get('base_auto_a'), '원')}"),
+        ("Bear 하방 / 1단계 안전핀", f"{_fnum(o_s3.get('bear_auto'), '원')} / {_fnum(o_s4.get('init_stop_pin'), '원')}", f"{_fnum(n_s3.get('bear_auto'), '원')} / {_fnum(n_s4.get('init_stop_pin'), '원')}", _fdelta(o_s3.get("bear_auto"), n_s3.get("bear_auto"), "원")),
+        ("3분할 매수가 (1차/2차/3차)", f"{_fnum(o_s4.get('buy1'))} / {_fnum(o_s4.get('buy2'))} / {_fnum(o_s4.get('buy3'))}", f"{_fnum(n_s4.get('buy1'))} / {_fnum(n_s4.get('buy2'))} / {_fnum(n_s4.get('buy3'))}", f"Track2: {'허용' if n_s4.get('is_track2') else '차단/대기'}"),
+    ]
+
+    lines = [
+        f"## 📊 [{corp_name}] 직전 vs 신규 SSOT 비교표 (v5.2 — Step 1 승인 검증용)",
+        f"> **BM 영업이익 핵심인자 (Step 1.3)**: {n_s13.get('bm_core_driver', 'N/A')}  ",
+        f"> **안티-피크아웃 가드레일**: {n_s13.get('guardrail_summary', 'N/A')}",
+        "",
+        "| 핵심 SSOT 항목 | 직전 SSOT (`prev`) | 신규 SSOT (`v5.2`) | 변동폭 / 판정 메모 |",
+        "| :--- | :--- | :--- | :--- |",
+    ]
+    for lbl, ov, nv, dv in rows:
+        lines.append(f"| {lbl} | {ov} | {nv} | {dv} |")
+    return "\n".join(lines) + "\n"
+
+
 def cmd_prep(args):
     comp_dir = ensure_company_structure(args.corp_name, args.code)
     ssot_path = os.path.join(comp_dir, "2_Translated_DB", "valuation_metrics.json")
@@ -253,6 +338,7 @@ def cmd_prep(args):
     old_dcf = old_ssot.get("reverse_dcf", {}) or {}
     old_sotp = old_ssot.get("sotp", {}) or {}
     old_s12 = old_ssot.get("step1_2_bottleneck", {}) or {}
+    old_s13 = old_ssot.get("step1_3_bm_slope", {}) or {}
     old_s18 = old_ssot.get("step1_8_k_return", {}) or {}
 
     code = args.code or old_ssot.get("stock_code") or saved_params.get("code")
@@ -282,9 +368,26 @@ def cmd_prep(args):
     bottleneck_months = args.bottleneck_months if args.bottleneck_months is not None else old_s12.get("bottleneck_lead_time_months")
     capa_util_pct = args.capa_util_pct if args.capa_util_pct is not None else old_s12.get("capa_util_pct")
     payout_ratio = args.payout_ratio if args.payout_ratio is not None else old_s18.get("payout_ratio_pct")
-    buyback_cliff = True if args.buyback_cliff else old_s18.get("buyback_cliff_risk")
+    tsr_pct = args.tsr_pct if getattr(args, "tsr_pct", None) is not None else old_s18.get("tsr_pct")
+    buyback_cliff = (
+        True
+        if args.buyback_cliff
+        else (old_s18.get("buyback_cliff_warn") if old_s18.get("buyback_cliff_warn") is not None else old_s18.get("buyback_cliff_risk"))
+    )
+    mezzanine_eok = args.mezzanine_eok if getattr(args, "mezzanine_eok", None) is not None else old_s18.get("mezzanine_eok")
+    mezzanine_pct = args.mezzanine_pct if getattr(args, "mezzanine_pct", None) is not None else old_s18.get("mezzanine_pct")
     related_party_eok = args.related_party_eok if args.related_party_eok is not None else old_s18.get("related_party_eok")
+    listed_parent_sales = (
+        True
+        if getattr(args, "listed_parent_sales", False)
+        else old_s18.get("is_listed_parent_sales")
+    )
     governance_discount = args.governance_discount if args.governance_discount is not None else old_s18.get("gov_discount_pct")
+    _default_gov_note = "DART 특수관계자 주석 및 메자닌(CB/BW) 리픽싱 잔액 0건 여부 확인 필수"
+    _old_gov_note = old_s18.get("k_gov_note")
+    gov_note = getattr(args, "gov_note", None) or (
+        _old_gov_note if (_old_gov_note and _old_gov_note != _default_gov_note) else None
+    )
     sc_override = True if args.s_curve_phase2 else (False if args.no_s_curve else saved_params.get("sc_override"))
     early_ignition = True if args.early_ignition else bool(saved_params.get("early_ignition", False))
     if getattr(args, "clear_sell_signals", False):
@@ -295,6 +398,47 @@ def cmd_prep(args):
         shortage_easing = True if getattr(args, "shortage_easing", False) else bool(old_s12.get("shortage_easing", False))
         slope_decel = True if getattr(args, "slope_decel", False) else bool(old_s12.get("slope_decel", False))
         policy_headwind = True if getattr(args, "policy_headwind", False) else bool(old_s12.get("policy_headwind", False))
+
+    if getattr(args, "clear_bm_slope", False):
+        bm_core_driver = None
+        fixed_cost_ratio = None
+        var_cost_ratio = None
+        util_trend = None
+        var_cost_trend = None
+        op_slope = None
+        slope_evidence = None
+        capa_expand = False
+        asp_up = False
+    else:
+        bm_core_driver = (
+            getattr(args, "bm_core_driver", None)
+            or saved_params.get("bm_core_driver")
+            or (old_s13.get("bm_core_driver") if old_s13.get("has_explicit_inputs") else None)
+        )
+        fixed_cost_ratio = (
+            args.fixed_cost_ratio
+            if getattr(args, "fixed_cost_ratio", None) is not None
+            else (saved_params.get("fixed_cost_ratio") if saved_params.get("fixed_cost_ratio") is not None else old_s13.get("fixed_cost_ratio_pct"))
+        )
+        var_cost_ratio = (
+            args.var_cost_ratio
+            if getattr(args, "var_cost_ratio", None) is not None
+            else (saved_params.get("var_cost_ratio") if saved_params.get("var_cost_ratio") is not None else old_s13.get("var_cost_ratio_pct"))
+        )
+        util_trend = getattr(args, "util_trend", None) or saved_params.get("util_trend") or old_s13.get("util_trend")
+        var_cost_trend = getattr(args, "var_cost_trend", None) or saved_params.get("var_cost_trend") or old_s13.get("var_cost_trend")
+        op_slope = (
+            getattr(args, "op_slope", None)
+            or saved_params.get("op_slope")
+            or (old_s13.get("raw_grade") if old_s13.get("input_mode") == "explicit_op_slope" else None)
+        )
+        slope_evidence = (
+            getattr(args, "slope_evidence", None)
+            or saved_params.get("slope_evidence")
+            or (old_s13.get("slope_evidence") if old_s13.get("slope_evidence") not in (None, "auto") else None)
+        )
+        capa_expand = True if getattr(args, "capa_expand", False) else bool(saved_params.get("capa_expand", old_s13.get("capa_expand", False)))
+        asp_up = True if getattr(args, "asp_up", False) else bool(saved_params.get("asp_up", old_s13.get("asp_up", False)))
 
     # 2. Run backtest_valuation
     run_valuation_backtest(
@@ -331,6 +475,20 @@ def cmd_prep(args):
         shortage_easing=shortage_easing,
         slope_decel=slope_decel,
         policy_headwind=policy_headwind,
+        tsr_pct=tsr_pct,
+        mezzanine_eok=mezzanine_eok,
+        mezzanine_pct=mezzanine_pct,
+        listed_parent_sales=listed_parent_sales,
+        gov_note=gov_note,
+        bm_core_driver=bm_core_driver,
+        fixed_cost_ratio=fixed_cost_ratio,
+        var_cost_ratio=var_cost_ratio,
+        util_trend=util_trend,
+        var_cost_trend=var_cost_trend,
+        op_slope=op_slope,
+        slope_evidence=slope_evidence,
+        capa_expand=capa_expand,
+        asp_up=asp_up,
     )
 
     # 3. Run calc_reverse_dcf and merge into valuation_metrics.json
@@ -382,11 +540,32 @@ def cmd_prep(args):
             "expected_dps": expected_dps,
             "sc_override": sc_override,
             "early_ignition": early_ignition,
+            "tsr_pct": tsr_pct,
+            "mezzanine_eok": mezzanine_eok,
+            "mezzanine_pct": mezzanine_pct,
+            "listed_parent_sales": listed_parent_sales,
+            "governance_discount": governance_discount,
+            "gov_note": gov_note,
+            "bm_core_driver": bm_core_driver,
+            "fixed_cost_ratio": fixed_cost_ratio,
+            "var_cost_ratio": var_cost_ratio,
+            "util_trend": util_trend,
+            "var_cost_trend": var_cost_trend,
+            "op_slope": op_slope,
+            "slope_evidence": slope_evidence,
+            "capa_expand": capa_expand,
+            "asp_up": asp_up,
         }
         with open(ssot_path, "w", encoding="utf-8") as f:
             json.dump(final_ssot, f, ensure_ascii=False, indent=2)
 
         append_extended_ssot_tables(ssot_path)
+
+        diff_md = format_ssot_comparison_table(old_ssot, final_ssot, args.corp_name)
+        diff_path = os.path.join(comp_dir, "2_Translated_DB", "ssot_diff_summary.md")
+        with open(diff_path, "w", encoding="utf-8") as df:
+            df.write(diff_md)
+        print("\n" + diff_md)
 
     # 4. Run 2-Tier Lossless Verbatim PDF Extraction (if PDFs exist and not skipped)
     verbatim_path = os.path.join(comp_dir, "2_Translated_DB", "verbatim_extracts.md")
@@ -453,8 +632,26 @@ def build_ai_prep_digest(comp_dir, corp_name):
         for g in ["Step 1.2", "Step 1.5", "Step 1.8", "Step 2.0", "Step 3.5"]:
             if g not in t1:
                 missing_gates.append(f"Phase1:{g}")
+        p1_h1 = next((ln for ln in t1.splitlines()[:10] if ln.lstrip().startswith("# ")), "")
+        if re.search(r"\bv4\.[0-9]", p1_h1, re.IGNORECASE):
+            missing_gates.append("Phase1:구버전(v4.x) 헤더 클린 리빌드 필요")
+        missing_secs = [
+            str(n) for n in range(1, 9)
+            if not re.search(rf"^##\s+(?:Section\s+)?{n}\.", t1, re.MULTILINE)
+        ]
+        if missing_secs:
+            missing_gates.append(f"Phase1:표준 목차(## {', '.join(missing_secs)}.) 누락")
     else:
         missing_gates.append("Phase1_Report.md 없음")
+
+    if p2_exists:
+        with open(p2_path, "r", encoding="utf-8") as f:
+            t2 = f.read()
+        p2_h1 = next((ln for ln in t2.splitlines()[:10] if ln.lstrip().startswith("# ")), "")
+        if re.search(r"\bv4\.[0-9]", p2_h1, re.IGNORECASE):
+            missing_gates.append("Phase2:구버전(v4.x) 헤더 클린 리빌드 필요")
+    else:
+        missing_gates.append("Phase2_Story.md 없음")
 
     if p3_exists:
         with open(p3_path, "r", encoding="utf-8") as f:
@@ -462,22 +659,45 @@ def build_ai_prep_digest(comp_dir, corp_name):
         for g in ["레드팀", "안전핀"]:
             if g not in t3:
                 missing_gates.append(f"Phase3:{g}")
+        p3_h1 = next((ln for ln in t3.splitlines()[:10] if ln.lstrip().startswith("# ")), "")
+        if re.search(r"\bv4\.[0-9]", p3_h1, re.IGNORECASE):
+            missing_gates.append("Phase3:구버전(v4.x) 헤더 클린 리빌드 필요")
     else:
         missing_gates.append("Phase3_DCF.md 없음")
 
+    thesis_abs = os.path.join(comp_dir, "Weekly_Trend", "thesis_log.md")
+    timeline_abs = os.path.join(comp_dir, "Weekly_Trend", "company_timeline.md")
+    path_block = (
+        "- **⚠️ 절대 저장 경로 고정 (경로 이탈·임의 폴더 생성 시 `build` 즉시 `[FAIL]`)**:\n"
+        f"  - Phase 1: `{p1_path}`\n"
+        f"  - Phase 2: `{p2_path}`\n"
+        f"  - Phase 3: `{p3_path}`\n"
+        f"  - 가설 로그: `{thesis_abs}`\n"
+        f"  - 타임라인 : `{timeline_abs}`"
+    )
+
     if not missing_gates and p1_exists and p2_exists and p3_exists:
+        s13_note = (
+            ""
+            if (p1_exists and "Step 1.3" in t1)
+            else "- 💡 **[v5.2 업그레이드 안내]**: 기존 보고서에 `Step 1.3 (BM 핵심인자 · DOL · 선행 OP 기울기)`가 아직 미수록 상태입니다. 정기 리빌드 시 `Track A (v5.2)`로 전면 통합하고, 격주 델타는 `Track B`로 진행 가능합니다.\n"
+        )
         track_verdict = (
             "⚡ **[Track B 자격 충족 — 격주 핀셋 델타 점검 가능]**\n"
-            "- 기존 `Phase1~3.md`가 모든 v4.3/v5.0 필수 게이트를 충족합니다.\n"
-            "- **토큰 90% 절약 지침**: 정기 분기/사업보고서 공시나 전면 리빌드 지시가 아니라면 `Phase1~3.md` 전체를 다시 쓰지(`write_file`) 마십시오!\n"
+            "- 기존 `3_Final_Reports/Phase1~3.md`가 모든 v5.0/v5.1/v5.2 필수 게이트 및 표준 목차(`## 1.`~`## 8.`)를 충족합니다.\n"
+            + s13_note
+            + "- **토큰 90% 절약 지침**: 정기 분기/사업보고서 공시나 전면 리빌드 지시가 아니라면 `Phase1~3.md` 전체를 다시 쓰지(`write_file`) 마십시오!\n"
             "- AI는 `Weekly_Trend/thesis_log.md` 및 `company_timeline.md`(필요 시 `Phase2_Story.md` / `Phase3_DCF.md` 서사 문단)만 `edit_file`로 갱신한 뒤, "
-            "`python ksa_orchestrator.py build --corp-name " + corp_name + " --patch-ssot`를 실행하면 `Phase1/Phase3`의 모든 주가·목표가·역DCF·SOP 매수가·HTML 태그가 100% 코드로 자동 패치됩니다!"
+            "`python ksa_orchestrator.py build --corp-name " + corp_name + " --patch-ssot`를 실행하면 `3_Final_Reports/Phase1·Phase3`의 모든 주가·목표가·역DCF·SOP 매수가·HTML 태그가 100% 코드로 자동 패치됩니다!\n"
+            + path_block
         )
     else:
         track_verdict = (
             f"🏛️ **[Track A 필수 — 전면 클린 리빌드 대상]** (사유: `{', '.join(missing_gates)}`)\n"
-            "- 신규 분석 기업이거나 기존 보고서에 필수 게이트가 누락된 구버전입니다.\n"
-            "- 아래 `[2] SSOT 자동 생성 테이블`과 `[4] 무손실 원문 발췌본`을 바탕으로 `Phase1_Report.md`, `Phase2_Story.md`, `Phase3_DCF.md`, `thesis_log.md`를 작성한 후 `ksa_orchestrator.py build`를 실행하십시오."
+            "- 신규 분석 기업이거나 기존 보고서가 구버전(`v4.x`) 또는 필수 게이트·표준 목차가 누락된 상태입니다.\n"
+            "- 상단 `[STATIC PROMPT CACHE PREFIX — PART D]`의 **Phase 1~3 고정 표준 목차(`## 1.`~`## 8.`)**와 아래 `[2] SSOT 자동 생성 테이블`, `[4] 무손실 원문 발췌본`을 바탕으로 아래 **정확한 절대 경로**에 작성한 뒤 `ksa_orchestrator.py build --corp-name " + corp_name + " --patch-ssot`를 실행하십시오.\n"
+            "- **v5.2 필수 규율**: `Phase1~3.md` 최상단 제목에 `(v5.2)` 표기 + 제목 직하단 `> **분석완료일**: YYYY-MM-DD` 명기 + Phase 1 Section 4 `Step 1.3`(`[코드 자동 생성 1-D]`) 수록 + Mermaid v10.9.8 규격(단독 `end` 노드 ID 금지, 특수문자/괄호 포함 라벨 큰따옴표 `id[\"텍스트\"]`) 엄수.\n"
+            + path_block
         )
 
     auto_md_path = os.path.join(comp_dir, "2_Translated_DB", "auto_tables.md")
@@ -513,7 +733,7 @@ def build_ai_prep_digest(comp_dir, corp_name):
 
 ---
 
-# 🧠 [{corp_name}] AI 원샷 통합 브리핑 문서 (`ai_prep_digest.md` — v5.1 Prompt-Cache Optimized)
+# 🧠 [{corp_name}] AI 원샷 통합 브리핑 문서 (`ai_prep_digest.md` — v5.2 Prompt-Cache Optimized)
 > **생성 시각 (Dynamic Suffix Area)**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 > **프롬프트 캐싱 구조**: 본 문서의 최상단(`[STATIC PROMPT CACHE PREFIX]`, 4,096+ 토큰 스키마·수식 정의서)은 전 종목 100% 고정되어 반복 호출 시 입력 토큰 비용 95% 할인($2.00 ➔ $0.10/1M) 및 캐시 히트를 보장하며, 기업별 가변 데이터는 모두 본 구분선 아래(Suffix)에 배치됩니다.
 
@@ -554,13 +774,103 @@ def extract_section_from_auto_md(auto_md, header_prefix):
     return m.group(1).strip() if m else None
 
 
+_AI_DRIVER_PLACEHOLDER_RE = re.compile(r"\[AI(?:가|\s*작성)[^\]]*\]")
+
+
+def _extract_scenario_key(cell0):
+    low = (cell0 or "").lower()
+    if "bull" in low:
+        return "bull"
+    if "base" in low:
+        return "base"
+    if "bear" in low:
+        return "bear"
+    if "tp1" in low:
+        return "tp1"
+    return None
+
+
+def _split_md_row(line):
+    s = line.strip()
+    if not (s.startswith("|") and s.endswith("|")):
+        return None
+    return [c.strip() for c in re.split(r"(?<!\\)\|", s[1:-1])]
+
+
+def _is_custom_driver_cell(cell):
+    s = (cell or "").strip()
+    if not s:
+        return False
+    if _AI_DRIVER_PLACEHOLDER_RE.search(s):
+        return False
+    if re.match(r"^(?:전방\s*(?:호황|둔화)/)?가동률\s*(?:상단|하락)\s*서술$", s):
+        return False
+    if re.match(r"^컨센서스/본업\s*유지\s*서술$", s):
+        return False
+    return True
+
+
+def _merge_auto2_section(existing_blk, new_blk):
+    """
+    Preserves AI-authored Column 3 (`핵심 드라이버 가정`) for Bull/Base/Bear
+    (and any custom trailing narrative bullets below the table) when patching
+    `[코드 자동 생성 2]`, while refreshing all SSOT numeric columns and notes.
+    """
+    preserved_drivers = {}
+    existing_lines = existing_blk.splitlines()
+    table_started = False
+    table_ended = False
+    trailing_custom_lines = []
+
+    for ln in existing_lines[1:]:
+        s = ln.strip()
+        if s.startswith("|"):
+            table_started = True
+            cells = _split_md_row(ln)
+            if cells and len(cells) >= 6:
+                key = _extract_scenario_key(cells[0])
+                if key in ("bull", "base", "bear") and _is_custom_driver_cell(cells[2]):
+                    preserved_drivers[key] = cells[2]
+        else:
+            if table_started:
+                table_ended = True
+            if table_ended:
+                if s.startswith("> **🧱"):
+                    continue
+                trailing_custom_lines.append(ln)
+
+    out_lines = []
+    for ln in new_blk.splitlines():
+        if ln.strip().startswith("|"):
+            cells = _split_md_row(ln)
+            if cells and len(cells) >= 6:
+                key = _extract_scenario_key(cells[0])
+                if key in preserved_drivers:
+                    cells[2] = preserved_drivers[key]
+                    ln = "| " + " | ".join(cells) + " |"
+        out_lines.append(ln)
+
+    while trailing_custom_lines and not trailing_custom_lines[0].strip():
+        trailing_custom_lines.pop(0)
+    while trailing_custom_lines and not trailing_custom_lines[-1].strip():
+        trailing_custom_lines.pop()
+
+    merged = "\n".join(out_lines).rstrip()
+    if trailing_custom_lines:
+        merged += "\n\n" + "\n".join(trailing_custom_lines)
+    return merged
+
+
 def _replace_auto_section(text, hdr, new_blk):
-    """Replaces either `## 📌 [hdr]` or `### 📌 [hdr]` sections cleanly while preserving heading level."""
+    """Replaces either `## 📌 [hdr]` or `### 📌 [hdr]` sections cleanly while preserving heading level and AI-authored scenario drivers."""
     pat = rf"(?P<hashes>#{{2,3}})\s*📌\s*\[{re.escape(hdr)}\].*?(?=\n#{{1,3}}\s|\n---|\Z)"
 
     def _repl(m):
         hashes = m.group("hashes")
-        blk_body = re.sub(r"^#{2,3}\s+", f"{hashes} ", new_blk.strip(), count=1)
+        target_blk = new_blk.strip()
+        if hdr == "코드 자동 생성 2":
+            target_blk = _merge_auto2_section(m.group(0), target_blk)
+        blk_body = re.sub(r"^#{2,3}\s+", f"{hashes} ", target_blk, count=1)
         return blk_body + "\n"
 
     return re.sub(pat, _repl, text, count=1, flags=re.DOTALL)
@@ -622,6 +932,47 @@ def _sync_anchor_declarations_and_refs(text, curr_anchor, extra_stale=None):
     return patched
 
 
+def _sync_analysis_completion_date(text, analysis_date):
+    """
+    Ensures Phase 1~3 reports explicitly display `> **분석완료일**: YYYY-MM-DD`
+    right below the top H1 title (converting legacy `작성 기준일` / `분석 기준일` if present).
+    """
+    if not analysis_date:
+        return text
+    lines = text.splitlines(keepends=True)
+    header_limit = min(len(lines), 30)
+    first_h2 = next((i for i, ln in enumerate(lines[:header_limit]) if ln.lstrip().startswith("## ")), header_limit)
+    scan_end = max(first_h2, min(len(lines), 12))
+
+    comp_re = re.compile(r"(분석\s*완료일)(\s*[*`]*\s*[:：]\s*[*`]*\s*)(\d{4}[-.]\d{2}[-.]\d{2})")
+    for i in range(scan_end):
+        ln = lines[i]
+        m = comp_re.search(ln)
+        if m:
+            lines[i] = ln[: m.start(1)] + "분석완료일" + m.group(2) + analysis_date + ln[m.end(3) :]
+            return "".join(lines)
+
+    legacy_re = re.compile(r"(작성\s*기준일|분석\s*기준일|보고서\s*기준일)(\s*[*`]*\s*[:：]\s*[*`]*\s*)(\d{4}[-.]\d{2}[-.]\d{2})")
+    for i in range(scan_end):
+        ln = lines[i]
+        if ln.lstrip().startswith("|"):
+            continue
+        m = legacy_re.search(ln)
+        if m:
+            lines[i] = ln[: m.start(1)] + "분석완료일" + m.group(2) + analysis_date + ln[m.end(3) :]
+            return "".join(lines)
+
+    badge = f"> **분석완료일**: {analysis_date}\n"
+    for i, ln in enumerate(lines[:scan_end]):
+        if ln.lstrip().startswith("# "):
+            nxt_is_blank = (i + 1 < len(lines) and lines[i + 1].strip() == "")
+            insert_block = ("\n" + badge) if nxt_is_blank else ("\n" + badge + "\n")
+            lines.insert(i + 1, insert_block)
+            return "".join(lines)
+
+    return badge + "\n" + text
+
+
 def patch_ssot_into_reports(comp_dir):
     """
     Deterministically patches SSOT tables, canonical HTML calculator tags, and updated price/SOP numbers
@@ -650,6 +1001,8 @@ def patch_ssot_into_reports(comp_dir):
 
     curr_anchor = curr_ssot.get("anchor_price")
     c_tag = curr_ssot.get("canonical_html_tag", "")
+    raw_gen = str(curr_ssot.get("generated_at") or "").strip()[:10]
+    analysis_date = raw_gen if re.match(r"^\d{4}-\d{2}-\d{2}$", raw_gen) else datetime.now().strftime("%Y-%m-%d")
 
     # Build numeric replacement pairs (old formatted -> new formatted) if prev_ssot exists
     num_replacements = []
@@ -688,6 +1041,7 @@ def patch_ssot_into_reports(comp_dir):
         "코드 자동 생성 1",
         "코드 자동 생성 1-B",
         "코드 자동 생성 1-C",
+        "코드 자동 생성 1-D",
         "코드 자동 생성 2",
         "코드 자동 생성 2-B",
         "코드 자동 생성 2-C",
@@ -724,6 +1078,7 @@ def patch_ssot_into_reports(comp_dir):
             txt = _sync_anchor_declarations_and_refs(
                 txt, curr_anchor, extra_stale=extra_stale_anchors
             )
+        txt = _sync_analysis_completion_date(txt, analysis_date)
 
         if fname == "Phase3_DCF.md":
             # Ensure optional [코드 자동 생성 2-D] Reference 3-Factor table is injected above calculator tag if missing
@@ -820,14 +1175,29 @@ def cmd_init(args):
         args.bottleneck_months = None
         args.capa_util_pct = None
         args.payout_ratio = None
+        args.tsr_pct = None
         args.buyback_cliff = False
+        args.mezzanine_eok = None
+        args.mezzanine_pct = None
         args.related_party_eok = None
+        args.listed_parent_sales = False
         args.governance_discount = None
+        args.gov_note = None
         args.anchor_price = None
         args.shortage_easing = False
         args.slope_decel = False
         args.policy_headwind = False
         args.clear_sell_signals = False
+        args.bm_core_driver = None
+        args.fixed_cost_ratio = None
+        args.var_cost_ratio = None
+        args.util_trend = None
+        args.var_cost_trend = None
+        args.op_slope = None
+        args.slope_evidence = None
+        args.capa_expand = False
+        args.asp_up = False
+        args.clear_bm_slope = False
         args.wacc = 0.09
         args.terminal = 0.02
         args.skip_pdf = True
@@ -893,14 +1263,29 @@ def main():
     p_prep.add_argument("--bottleneck-months", type=int, default=None)
     p_prep.add_argument("--capa-util-pct", type=float, default=None)
     p_prep.add_argument("--payout-ratio", type=float, default=None)
+    p_prep.add_argument("--tsr-pct", type=float, default=None)
     p_prep.add_argument("--buyback-cliff", action="store_true")
+    p_prep.add_argument("--mezzanine-eok", type=float, default=None)
+    p_prep.add_argument("--mezzanine-pct", type=float, default=None)
     p_prep.add_argument("--related-party-eok", type=float, default=None)
+    p_prep.add_argument("--listed-parent-sales", action="store_true")
     p_prep.add_argument("--governance-discount", type=float, default=None)
+    p_prep.add_argument("--gov-note", type=str, default=None)
     p_prep.add_argument("--anchor-price", type=float, default=None)
     p_prep.add_argument("--shortage-easing", action="store_true", help="S-Curve 매도·디레이팅 ①: 쇼티지 해소 / 리드타임 축소 / 경쟁사 진입 팩트")
     p_prep.add_argument("--slope-decel", action="store_true", help="S-Curve 매도·디레이팅 ②: 침투율·실적 성장 기울기 둔화 (2차 도함수 음전환)")
     p_prep.add_argument("--policy-headwind", action="store_true", help="S-Curve 매도·디레이팅 ③: 정책·보조금 축소 / 관세·규제 역풍 확정")
     p_prep.add_argument("--clear-sell-signals", action="store_true", help="기존 저장된 S-Curve 매도·디레이팅 시그널 플래그 초기화")
+    p_prep.add_argument("--bm-core-driver", type=str, default=None, help="Step 1.3: 비즈니스 구조 연계 영업이익 #1~2 핵심인자 서술")
+    p_prep.add_argument("--fixed-cost-ratio", type=float, default=None, help="Step 1.3: DART 비용의 성격별 분류 기준 매출 대비 고정비율(%%)")
+    p_prep.add_argument("--var-cost-ratio", type=float, default=None, help="Step 1.3: DART 비용의 성격별 분류 기준 매출 대비 변동비율(%%)")
+    p_prep.add_argument("--util-trend", type=str, default=None, help="Step 1.3: 가동률·수주·트래픽 핵심 볼륨 추세 (up | flat | down)")
+    p_prep.add_argument("--var-cost-trend", type=str, default=None, help="Step 1.3: 변동비 성격 비용 비율 추세 (down=마진개선 | flat | up=원가압박)")
+    p_prep.add_argument("--op-slope", type=str, default=None, help="Step 1.3: 선행 영업이익 기울기 전망 등급 (strong_accel | accel | neutral | decel | contraction)")
+    p_prep.add_argument("--slope-evidence", type=str, default=None, help="Step 1.3: 근거 신뢰도 등급 (high | medium | low)")
+    p_prep.add_argument("--capa-expand", action="store_true", help="Step 1.3: 확정 신규 Capa 증설 보유 (가동률 92%% 천장 가드 해제)")
+    p_prep.add_argument("--asp-up", action="store_true", help="Step 1.3: 확정 ASP 인상 / 고마진 믹스 전환 보유 (가동률 92%% 천장 가드 해제)")
+    p_prep.add_argument("--clear-bm-slope", action="store_true", help="기존 저장된 Step 1.3 BM 핵심인자·기울기 오버라이드 초기화")
     p_prep.add_argument("--wacc", type=float, default=0.09)
     p_prep.add_argument("--terminal", type=float, default=0.02)
     p_prep.add_argument("--skip-pdf", action="store_true", help="Skip PDF scanning")

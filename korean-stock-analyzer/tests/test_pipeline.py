@@ -519,5 +519,651 @@ class WarningRegistry(unittest.TestCase):
         self.assertEqual(len(ssot_common.get_warnings()), 1)
 
 
+class MermaidAndReportHeaderTests(unittest.TestCase):
+    def test_sanitize_and_check_mermaid_nested_brackets_and_bare_end(self):
+        import generate_html as gh
+        import validate_report as vr
+
+        sample = "\n".join([
+            "flowchart TD",
+            '    O1["수액제 병원 발주"] -->|"판가/원가 압박"| O2["매출총이익률 하락"]',
+            '    O2 --> O3["연결 영업이익 급감 (임계치: 분기 영업이익 < 79.9억 원 [QoQ -15%])"]',
+            '    M1["초고순도 SiC Ring [점유율 1위]"] -.->|증설 지연| end["종료 (마진 방어)"]',
+            "    subgraph SG1[원재료 리스크]",
+            "        O3 --> end",
+            "    end",
+        ])
+        fixed = gh.sanitize_mermaid_code(sample)
+        self.assertEqual(vr.check_mermaid_syntax(fixed), [])
+        self.assertIn('[QoQ -15%]', fixed)
+        self.assertNotIn('"])', fixed)
+        self.assertIn("end_node", fixed)
+
+    def test_build_html_v5_title_and_validator_catches_broken_html(self):
+        import glob
+        import generate_html as gh
+        import ksa_orchestrator as ko
+        import validate_report as vr
+
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "테스트사")
+            db = os.path.join(comp, "2_Translated_DB")
+            rpt = os.path.join(comp, "3_Final_Reports")
+            wt = os.path.join(comp, "Weekly_Trend")
+            os.makedirs(db)
+            os.makedirs(rpt)
+            os.makedirs(wt)
+
+            golden_files = sorted(
+                glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "golden", "*.json"))
+            )
+            self.assertTrue(golden_files, "No golden JSON files found")
+            ssot = json.loads(json.dumps(_load(golden_files[0])))
+            ssot["version"] = "5.0"
+            ssot["generated_at"] = "2026-11-18 20:00:00"
+            ssot["corp_name"] = "테스트사"
+            with open(os.path.join(db, "valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(ssot, f, ensure_ascii=False)
+            with open(os.path.join(db, "auto_tables.md"), "w", encoding="utf-8") as f:
+                f.write("<!-- AUTO -->\n")
+
+            p1 = os.path.join(rpt, "Phase1_Report.md")
+            p2 = os.path.join(rpt, "Phase2_Story.md")
+            p3 = os.path.join(rpt, "Phase3_DCF.md")
+            with open(p1, "w", encoding="utf-8") as f:
+                f.write(
+                    f"# 테스트사 Phase 1 (v5.0)\n\n> **단일 기준 주가**: {ssot['anchor_price']:,}원\n\n"
+                    "## 1. BM\n## 2. Step 1.2\n## 3. Step 1.5\n## 4. 원가\n## 5. Step 1.8\n"
+                    "## 6. Step 3.5\n## 7. 공식\n## 8. Step 2.0\n"
+                    '```mermaid\nflowchart TD\nA["시작 [1차]"] --> B["끝 (2차)"]\n```\n'
+                )
+            with open(p2, "w", encoding="utf-8") as f:
+                f.write("# 테스트사 Phase 2 (v5.0)\n\n본문\n")
+            with open(p3, "w", encoding="utf-8") as f:
+                f.write(
+                    f"# 테스트사 Phase 3 (v5.0)\n\n> **작성 기준일**: 2026-10-01 | **단일 기준 주가**: {ssot['anchor_price']:,}원\n\n"
+                    f"레드팀 안전핀 {ssot['section3']['base_auto_a']:,}\n{ssot['canonical_html_tag']}\n"
+                )
+            with open(os.path.join(wt, "thesis_log.md"), "w", encoding="utf-8") as f:
+                f.write("| 가설 | 내용 | QoQ | 근거 | Kill-Switch | 상태 |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n")
+
+            # Before patch: missing 분석완료일 should FAIL v5.0 validator
+            res_before = vr.validate_company(comp)
+            self.assertTrue(any("분석완료일" in e for e in res_before.errors), msg=f"errors={res_before.errors}")
+
+            # Patch completion dates & build HTML
+            ko.patch_ssot_into_reports(comp)
+            for md_name in ("Phase1_Report.md", "Phase2_Story.md", "Phase3_DCF.md"):
+                txt = open(os.path.join(rpt, md_name), encoding="utf-8").read()
+                self.assertIn("> **분석완료일**: 2026-11-18", "\n".join(txt.splitlines()[:10]))
+            self.assertNotIn("작성 기준일", open(p3, encoding="utf-8").read())
+
+            h1 = os.path.join(rpt, "Phase1_Report.html")
+            gh.build_html(p1, h1, explicit_ssot=os.path.join(db, "valuation_metrics.json"))
+            html_out = open(h1, encoding="utf-8").read()
+            self.assertIn("<title>테스트사 Phase 1 — Stock Analyzer Report (v5.0)</title>", html_out)
+            self.assertNotIn("(v4.2)", html_out)
+
+            res_after = vr.validate_company(comp)
+            self.assertEqual(res_after.errors, [], msg=f"Unexpected errors: {res_after.errors}")
+
+            # Corrupt HTML Mermaid block directly -> validator must catch it
+            corrupt_html = html_out.replace('A[&quot;시작 [1차]&quot;]', 'O3[&quot;\'급감 [QoQ -15%&quot;])&quot;]')
+            with open(h1, "w", encoding="utf-8") as f:
+                f.write(corrupt_html)
+            res_bad = vr.validate_company(comp)
+            self.assertTrue(any("HTML syntax error" in e for e in res_bad.errors), msg=f"errors={res_bad.errors}")
+
+
+class Step18KReturnScorecardTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import backtest_valuation as bv
+        cls.bv = bv
+
+    def test_step1_8_overrides_and_mezzanine_and_parent_channel(self):
+        dart_ts = [
+            {"year": 2025, "sales_eok": 2200.0, "op_eok": 360.0, "ni_ctrl_eok": 300.0, "eq_ctrl_eok": 2500.0},
+            {"year": 2024, "sales_eok": 2000.0, "op_eok": 340.0, "ni_ctrl_eok": 280.0, "eq_ctrl_eok": 2300.0},
+        ]
+        bench = {"dps": 550.0, "div_yield": 5.19}
+        res_jw = self.bv.compute_step1_8_k_market_shareholder_return(
+            "234080", bench, dart_ts, 15484554, 15834554, payout_ratio=29.8, governance_discount=10.0
+        )
+        self.assertIn("29.8%", res_jw["tax_incentive_status"])
+        self.assertNotIn("33%+", res_jw["tax_incentive_status"])
+        self.assertAlmostEqual(res_jw["gov_discount_pct"], 10.0, places=2)
+        self.assertAlmostEqual(res_jw["kgov_mult"], 0.9000, places=4)
+        self.assertTrue(res_jw["is_listed_parent_sales"])
+        self.assertIn("정상 영업 유통", res_jw["tunneling_status"])
+
+        res_mezz = self.bv.compute_step1_8_k_market_shareholder_return(
+            "999999", bench, dart_ts, 10000000, 10000000, payout_ratio=42.0, mezzanine_eok=120.0, mezzanine_pct=11.0
+        )
+        self.assertIn("요건1 충족", res_mezz["tax_incentive_status"])
+        self.assertAlmostEqual(res_mezz["kgov_mult"], 0.9700, places=4)
+        self.assertIn("메자닌 오버행 경보", res_mezz["overhang_status"])
+
+    def test_cmd_prep_inherits_step1_8_gov_discount_and_cliff(self):
+        import types
+        from unittest import mock
+        import ksa_orchestrator as ko
+
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "상속테스트")
+            db = os.path.join(comp, "2_Translated_DB")
+            os.makedirs(db)
+            ssot_path = os.path.join(db, "valuation_metrics.json")
+            with open(ssot_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "stock_code": "234080",
+                        "anchor_price": 10590,
+                        "step1_8_k_return": {
+                            "payout_ratio_pct": 29.8,
+                            "tsr_pct": 31.0,
+                            "buyback_cliff_warn": True,
+                            "mezzanine_eok": 50.0,
+                            "mezzanine_pct": 4.2,
+                            "related_party_eok": 1525.0,
+                            "is_listed_parent_sales": True,
+                            "gov_discount_pct": 10.0,
+                            "k_gov_note": "상장 모회사 유통 비할인 + 계열사 보증 할인",
+                        },
+                    },
+                    f,
+                    ensure_ascii=False,
+                )
+
+            args = types.SimpleNamespace(
+                corp_name="상속테스트",
+                code=None,
+                years=10,
+                sector_type=None,
+                rerating_date=None,
+                base_target=None,
+                bull_target=None,
+                dart_exposure=None,
+                forward_eps=None,
+                forward_eps_g=None,
+                expected_dps=None,
+                non_op_assets=None,
+                net_debt=None,
+                distb_shares=0,
+                total_shares=0,
+                fcf=None,
+                norm_fcf=None,
+                s_curve_phase2=False,
+                early_ignition=False,
+                no_s_curve=False,
+                penetration_pct=None,
+                second_penetration_pct=None,
+                bottleneck_grade=None,
+                bottleneck_months=None,
+                capa_util_pct=None,
+                payout_ratio=None,
+                tsr_pct=None,
+                buyback_cliff=False,
+                mezzanine_eok=None,
+                mezzanine_pct=None,
+                related_party_eok=None,
+                listed_parent_sales=False,
+                governance_discount=None,
+                gov_note=None,
+                anchor_price=None,
+                shortage_easing=False,
+                slope_decel=False,
+                policy_headwind=False,
+                clear_sell_signals=False,
+                wacc=0.09,
+                terminal=0.02,
+                skip_pdf=True,
+                pdf_dirs=None,
+                include_raw_pdfs=False,
+                primary_keywords=None,
+                keywords=None,
+                max_pages=18,
+            )
+
+            captured = {}
+            def _fake_bt(*a, **kw):
+                captured.update(kw)
+
+            with mock.patch.object(ko, "ensure_company_structure", return_value=comp), \
+                 mock.patch.object(ko, "run_valuation_backtest", side_effect=_fake_bt), \
+                 mock.patch.object(ko, "append_extended_ssot_tables"), \
+                 mock.patch.object(ko, "refresh_price_eq_in_ssot"), \
+                 mock.patch.object(ko, "build_ai_prep_digest", return_value=""):
+                ko.cmd_prep(args)
+
+            self.assertAlmostEqual(captured["governance_discount"], 10.0)
+            self.assertTrue(captured["buyback_cliff"])
+            self.assertAlmostEqual(captured["tsr_pct"], 31.0)
+            self.assertAlmostEqual(captured["mezzanine_eok"], 50.0)
+            self.assertAlmostEqual(captured["mezzanine_pct"], 4.2)
+            self.assertTrue(captured["listed_parent_sales"])
+            self.assertEqual(captured["gov_note"], "상장 모회사 유통 비할인 + 계열사 보증 할인")
+
+
+class ScenarioDriverPreservationTests(unittest.TestCase):
+    def test_patch_ssot_preserves_ai_drivers_in_auto2_while_updating_numbers(self):
+        import ksa_orchestrator as ko
+
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "테스트사")
+            os.makedirs(os.path.join(comp, "2_Translated_DB"))
+            os.makedirs(os.path.join(comp, "3_Final_Reports"))
+            os.makedirs(os.path.join(comp, "Weekly_Trend"))
+
+            ssot = json.loads(json.dumps(_load(GOLDEN[0])))
+            ssot["version"] = "5.1"
+            ssot["generated_at"] = "2026-11-20 12:00:00"
+            with open(os.path.join(comp, "2_Translated_DB", "valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(ssot, f, ensure_ascii=False)
+
+            auto_md = (
+                "### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PER)\n"
+                "| 시나리오 | 확률 (고정) | 핵심 드라이버 가정 (AI 해석 영역) | 적용 멀티플 (코드 산출) | 적정주가 (🛡️대안 B / 🚀대안 A) | 현재가 대비 등락률 (🛡️대안 B / 🚀대안 A) |\n"
+                "| :--- | :---: | :--- | :--- | :--- | :--- |\n"
+                "| **Bull (호황 상단)** | **25%** | [AI 작성 필수: Bull 구체 서술] | PER 상위 90% (대안A ×1.1500) | 🛡️ **120,000원** / 🚀 **138,000원** | 🛡️ **+20.0%** / 🚀 **+38.0%** |\n"
+                "| **Base (기본 적정)** | **50%** | [AI 작성 필수: Base 구체 서술] | PER 상위 65% (대안A ×1.1000) | 🛡️ **100,000원** / 🚀 **110,000원** | 🛡️ **+0.0%** / 🚀 **+10.0%** |\n"
+                "| **Bear (하방 지지)** | **25%** | [AI 작성 필수: Bear 구체 서술] | 하방 지지선 (할증 0% 고정) | 🛡️ **75,000원** / 🚀 **75,000원** | 🛡️ **-25.0%** / 🚀 **-25.0%** |\n"
+            )
+            with open(os.path.join(comp, "2_Translated_DB", "auto_tables.md"), "w", encoding="utf-8") as f:
+                f.write(auto_md)
+
+            bull_drv = "HBM4용 핵심 부품 수주 확대 + 가동률 95% 돌파 및 OPM 28% 달성 + 자사주 소각 리레이팅"
+            base_drv = "주력 라인 가동률 85%·OPM 24% 안착 + TTM 영업이익 500억 유지 및 배당성향 30% 지속"
+            bear_drv = "전방 CapEx 지연으로 가동률 65% 하락 + 분기 영업이익 95억(QoQ -15%) 하회 시 하방 압축"
+            p3_md = (
+                f"# 테스트사 Phase 3 (v5.1)\n\n> **분석완료일**: 2026-11-20 | **단일 기준 주가**: {ssot['anchor_price']:,}원\n\n"
+                "### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PER)\n"
+                "| 시나리오 | 확률 (고정) | 핵심 드라이버 가정 (AI 해석 영역) | 적용 멀티플 (코드 산출) | 적정주가 (🛡️대안 B / 🚀대안 A) | 현재가 대비 등락률 (🛡️대안 B / 🚀대안 A) |\n"
+                "| :--- | :---: | :--- | :--- | :--- | :--- |\n"
+                f"| **Bull (호황 상단)** | **25%** | {bull_drv} | PER 상위 90% (대안A ×1.1000) | 🛡️ **110,000원** / 🚀 **121,000원** | 🛡️ **+10.0%** / 🚀 **+21.0%** |\n"
+                f"| **Base (기본 적정)** | **50%** | {base_drv} | PER 상위 65% (대안A ×1.0500) | 🛡️ **95,000원** / 🚀 **99,750원** | 🛡️ **-5.0%** / 🚀 **-0.3%** |\n"
+                f"| **Bear (하방 지지)** | **25%** | {bear_drv} | 하방 지지선 (할증 0% 고정) | 🛡️ **70,000원** / 🚀 **70,000원** | 🛡️ **-30.0%** / 🚀 **-30.0%** |\n\n"
+                "- **확률가중 기대 적정주가**: 커스텀 요약 문단 유지 확인\n\n"
+                "---\n레드팀 안전핀\n"
+            )
+            p3_path = os.path.join(comp, "3_Final_Reports", "Phase3_DCF.md")
+            with open(p3_path, "w", encoding="utf-8") as f:
+                f.write(p3_md)
+
+            ko.patch_ssot_into_reports(comp)
+            patched = open(p3_path, encoding="utf-8").read()
+            # AI-written drivers and custom bullet must be preserved
+            self.assertIn(bull_drv, patched)
+            self.assertIn(base_drv, patched)
+            self.assertIn(bear_drv, patched)
+            self.assertIn("커스텀 요약 문단 유지 확인", patched)
+            # Numeric SSOT columns must be updated
+            self.assertIn("138,000원", patched)
+            self.assertIn("110,000원", patched)
+            self.assertIn("75,000원", patched)
+            self.assertNotIn("[AI 작성 필수", patched)
+
+    def test_validator_rejects_ai_driver_placeholders_and_stubs(self):
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "테스트사")
+            os.makedirs(os.path.join(comp, "2_Translated_DB"))
+            os.makedirs(os.path.join(comp, "3_Final_Reports"))
+            os.makedirs(os.path.join(comp, "Weekly_Trend"))
+
+            ssot = json.loads(json.dumps(_load(GOLDEN[0])))
+            ssot["version"] = "5.1"
+            with open(os.path.join(comp, "2_Translated_DB", "valuation_metrics.json"), "w", encoding="utf-8") as f:
+                json.dump(ssot, f, ensure_ascii=False)
+            with open(os.path.join(comp, "Weekly_Trend", "thesis_log.md"), "w", encoding="utf-8") as f:
+                f.write("| 가설 | 내용 | QoQ | 근거 | Kill-Switch | 판정 |\n| --- | --- | --- | --- | --- | --- |\n")
+
+            p3_path = os.path.join(comp, "3_Final_Reports", "Phase3_DCF.md")
+            with open(p3_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"# 테스트사 Phase 3 (v5.1)\n> **분석완료일**: 2026-11-20\n\n"
+                    "### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: PER)\n"
+                    "| 시나리오 | 확률 | 핵심 드라이버 가정 | 멀티플 | 적정주가 | 등락률 |\n"
+                    "| :--- | :---: | :--- | :--- | :--- | :--- |\n"
+                    "| **Bull (호황 상단)** | **25%** | [AI가 전방 호황/가동률 상단 서술] | PER 90% | 100원 | +10% |\n"
+                    "| **Base (기본 적정)** | **50%** | 가동률 상단 서술 | PER 65% | 90원 | 0% |\n"
+                    "| **Bear (하방 지지)** | **25%** | [AI 작성 필수: Bear 구체 서술] | 하방 | 70원 | -20% |\n"
+                    "레드팀 안전핀\n"
+                )
+            res = vr.validate_company(comp)
+            self.assertTrue(any("leftover placeholder" in e for e in res.errors), res.errors)
+            self.assertTrue(any("핵심 드라이버 가정" in e for e in res.errors), res.errors)
+
+
+class Step13BmOpSlopeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import backtest_valuation as bv
+        cls.bv = bv
+
+    def _make_price_dfs(self, start_p=30000, end_p=40000):
+        import pandas as pd
+        import numpy as np
+        dates_w = pd.date_range("2024-01-05", periods=110, freq="W-FRI")
+        prices_w = np.linspace(start_p, end_p, 110)
+        df_w = pd.DataFrame({
+            "date": dates_w, "open": prices_w * 0.99, "high": prices_w * 1.02,
+            "low": prices_w * 0.98, "close": prices_w, "vol": np.full(110, 50000.0)
+        })
+        dates_d = pd.date_range("2026-06-01", periods=65, freq="B")
+        prices_d = np.linspace(end_p * 0.96, end_p, 65)
+        df_d = pd.DataFrame({
+            "date": dates_d, "open": prices_d * 0.99, "high": prices_d * 1.01,
+            "low": prices_d * 0.98, "close": prices_d, "vol": np.full(65, 10000.0)
+        })
+        return df_w, df_d
+
+    def test_high_fixed_cost_low_roe_leverage_model_a_only(self):
+        # High fixed cost (35% of sales) + low OPM (10%) + low ROE (7.6% < 12%) + util up + var cost down
+        # -> DOL = 4.50x, strong_accel (Base 1.12x / Bull 1.15x) reflected ONLY in Model A; Model B is 100% invariant!
+        df_w, df_d = self._make_price_dfs(25000, 32000)
+        bench = {"bps": 25000.0, "eps": 2000.0, "pbr": 1.28, "stock_name": "고정비테스트"}
+        sec2 = {
+            "is_type_b": False, "curr_bps_used": 25000.0, "curr_eps_used": 2000.0,
+            "mid_cycle_eps": 2200.0, "mid_cycle_roe": 10.0, "curr_roe": 7.6,
+            "qoq_op_pct": 65.0, "op_yoy_used": 95.0,
+            "per_3y_p20": 10.0, "per_3y_mean": 14.0, "per_3y_p65": 16.0, "per_3y_p90": 22.0,
+            "pbr_3y_p20": 1.0, "pbr_3y_mean": 1.4, "pbr_3y_p65": 1.7, "pbr_3y_p90": 2.4,
+        }
+        sec8 = {"primary_metric": "PBR", "pbr_min": 0.9, "per_min": 8.0, "pbr_dir": 70.0, "per_dir": 65.0}
+        s12 = {"capa_util_pct": 68.0, "curr_opm_pct": 10.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "scurve_sell_triggered": False}
+        tech = {"w_swing_grade": "A", "w_swing_score": 74, "w_mfi14": 58.0, "w_mfi14_12w_max": 64.0}
+
+        r_neutral = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "고정비테스트", bench, df_w, df_d, sec2, 32000,
+            sector_type="A", step1_2_res=s12, sec8_res=sec8, tech_snap=tech, ev_implied_g=4.0,
+            bm_slope_params={"op_slope": "neutral", "slope_evidence": "high"},
+        )
+        r_lev = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "고정비테스트", bench, df_w, df_d, sec2, 32000,
+            sector_type="A", step1_2_res=s12, sec8_res=sec8, tech_snap=tech, ev_implied_g=4.0,
+            bm_slope_params={
+                "bm_core_driver": "감가상각 고정비(35%) 기반 가동률(68%→82%) 및 변동비율 하락",
+                "fixed_cost_ratio_pct": 35.0,
+                "util_trend": "up",
+                "var_cost_trend": "down",
+                "slope_evidence": "high",
+            },
+        )
+        # Model B MUST be 100% untouched!
+        self.assertEqual(r_lev["base_auto"], r_neutral["base_auto"])
+        self.assertEqual(r_lev["bull_auto"], r_neutral["bull_auto"])
+        self.assertEqual(r_lev["bear_auto"], r_neutral["bear_auto"])
+        # Step 1.3 must compute DOL = 4.50x and reflect strong_accel ONLY in Model A
+        s13 = r_lev["step1_3_bm_slope"]
+        self.assertAlmostEqual(s13["dol"], 4.5, places=2)
+        self.assertTrue(s13["is_high_fixed_cost"])
+        self.assertEqual(s13["final_grade"], "strong_accel")
+        self.assertAlmostEqual(r_lev["op_slope_base_mult"], 1.12, places=4)
+        self.assertAlmostEqual(r_lev["op_slope_bull_mult"], 1.15, places=4)
+        self.assertGreater(r_lev["base_auto_a"], r_neutral["base_auto_a"])
+        self.assertGreater(r_lev["bull_auto_a"], r_neutral["bull_auto_a"])
+
+    def test_anti_peakout_guard1_physical_capa_ceiling(self):
+        # Case A: 96.4% full utilization + NO expansion/ASP hike + negative QoQ (-6.0%) -> auto downgrade to decel (0.94/0.92)
+        r_rollover = self.bv.compute_step1_3_bm_op_slope(
+            "064760", "천장테스트", {},
+            sec2_res={"op_yoy_used": 37.7, "qoq_op_pct": -6.0, "curr_roe": 15.1, "is_type_b": False},
+            step1_2_res={"capa_util_pct": 96.4, "curr_opm_pct": 28.3},
+            sector_type="A", op_slope="accel", slope_evidence="high",
+            capa_expand=False, asp_up=False,
+        )
+        self.assertTrue(r_rollover["ceiling_guard_triggered"])
+        self.assertEqual(r_rollover["final_grade"], "decel")
+        self.assertAlmostEqual(r_rollover["op_slope_base_mult"], 0.94, places=4)
+        self.assertTrue(r_rollover["op_slope_decel_warn"])
+
+        # Case B: 98.9% full utilization + flat/positive QoQ (+0.6%) + NO expansion -> cap upside to neutral (1.00)
+        r_cap = self.bv.compute_step1_3_bm_op_slope(
+            "234080", "천장캡테스트", {},
+            sec2_res={"op_yoy_used": 32.9, "qoq_op_pct": 0.6, "curr_roe": 12.3, "is_type_b": False},
+            step1_2_res={"capa_util_pct": 98.9, "curr_opm_pct": 14.1},
+            sector_type="A", op_slope="accel", slope_evidence="high",
+            capa_expand=False, asp_up=False,
+        )
+        self.assertTrue(r_cap["ceiling_guard_triggered"])
+        self.assertEqual(r_cap["final_grade"], "neutral")
+        self.assertAlmostEqual(r_cap["op_slope_base_mult"], 1.00, places=4)
+
+        # Case C: Confirmed Capa expansion exempts physical ceiling guard -> accel preserved
+        r_exp = self.bv.compute_step1_3_bm_op_slope(
+            "234080", "증설예외테스트", {},
+            sec2_res={"op_yoy_used": 32.9, "qoq_op_pct": 5.0, "curr_roe": 12.3, "is_type_b": False},
+            step1_2_res={"capa_util_pct": 96.0, "curr_opm_pct": 14.1},
+            sector_type="A", op_slope="accel", slope_evidence="high",
+            capa_expand=True, asp_up=False,
+        )
+        self.assertFalse(r_exp["ceiling_guard_triggered"])
+        self.assertAlmostEqual(r_exp["op_slope_base_mult"], 1.06, places=4)
+
+    def test_anti_peakout_guard2_priced_in_overheating_asymmetric(self):
+        # 1 hot flag (EV g > +15%) halves upside boost: 1.12 -> 1.06
+        r_1hot = self.bv.compute_step1_3_bm_op_slope(
+            "999999", "선반영1", {},
+            sec2_res={"op_yoy_used": 40.0, "qoq_op_pct": 20.0, "curr_roe": 14.0},
+            step1_2_res={"capa_util_pct": 78.0, "curr_opm_pct": 15.0},
+            op_slope="strong_accel", slope_evidence="high",
+            ev_implied_g=22.0, curr_pbr=1.5, pbr_p90=2.5,
+            tech_snap={"w_mfi14": 60.0, "w_mfi14_12w_max": 65.0},
+        )
+        self.assertTrue(r_1hot["priced_in_guard_triggered"])
+        self.assertAlmostEqual(r_1hot["op_slope_base_mult"], 1.06, places=4)
+
+        # 2+ hot flags (EV g > +15% AND PBR >= p90*0.95) strips upside to 1.00
+        r_2hot = self.bv.compute_step1_3_bm_op_slope(
+            "999999", "선반영2", {},
+            sec2_res={"op_yoy_used": 40.0, "qoq_op_pct": 20.0, "curr_roe": 14.0},
+            step1_2_res={"capa_util_pct": 78.0, "curr_opm_pct": 15.0},
+            op_slope="strong_accel", slope_evidence="high",
+            ev_implied_g=22.0, curr_pbr=2.45, pbr_p90=2.5,
+            tech_snap={"w_mfi14": 60.0, "w_mfi14_12w_max": 65.0},
+        )
+        self.assertTrue(r_2hot["priced_in_guard_triggered"])
+        self.assertAlmostEqual(r_2hot["op_slope_base_mult"], 1.00, places=4)
+
+        # Asymmetric safety: downside contraction penalty is NEVER weakened by overheating flags!
+        r_down = self.bv.compute_step1_3_bm_op_slope(
+            "999999", "하방보존", {},
+            sec2_res={"op_yoy_used": -10.0, "qoq_op_pct": -20.0, "curr_roe": 8.0},
+            step1_2_res={"capa_util_pct": 70.0, "curr_opm_pct": 8.0},
+            op_slope="contraction", slope_evidence="high",
+            ev_implied_g=25.0, curr_pbr=2.5, pbr_p90=2.5,
+            tech_snap={"w_mfi14": 82.0, "w_mfi14_12w_max": 85.0},
+        )
+        self.assertAlmostEqual(r_down["op_slope_base_mult"], 0.88, places=4)
+        self.assertAlmostEqual(r_down["op_slope_bull_mult"], 0.85, places=4)
+
+    def test_anti_peakout_guard3_evidence_tier_and_track2_block(self):
+        # Medium evidence halves upside (1.12 -> 1.06); Low evidence blocks upside (1.00)
+        r_med = self.bv.compute_step1_3_bm_op_slope(
+            "999999", "신뢰도중", {}, step1_2_res={"capa_util_pct": 75.0, "curr_opm_pct": 15.0},
+            op_slope="strong_accel", slope_evidence="medium",
+        )
+        self.assertTrue(r_med["evidence_guard_triggered"])
+        self.assertAlmostEqual(r_med["op_slope_base_mult"], 1.06, places=4)
+
+        r_low = self.bv.compute_step1_3_bm_op_slope(
+            "999999", "신뢰도하", {}, step1_2_res={"capa_util_pct": 75.0, "curr_opm_pct": 15.0},
+            op_slope="strong_accel", slope_evidence="low",
+        )
+        self.assertAlmostEqual(r_low["op_slope_base_mult"], 1.00, places=4)
+
+        # Track 2 MUST be blocked when op_slope_decel_warn is True!
+        df_w, df_d = self._make_price_dfs(30000, 42000)
+        sec2 = {"is_type_b": False, "op_yoy_used": 25.0, "qoq_op_pct": -5.0}
+        sec3_ok = {
+            "base_auto": 40000, "base_auto_a": 48000, "bull_auto_a": 56000,
+            "tp1_price": 45000, "bear_auto": 30000, "is_low_vol_box": False,
+            "is_peak_trap": False, "scurve_sell_triggered": False,
+            "op_slope_decel_warn": False, "scurve_info": {"is_phase2": True},
+        }
+        sec3_decel = dict(sec3_ok, op_slope_decel_warn=True)
+        s4_ok = self.bv.compute_section4_master_sop_indicators(df_d, df_w, sec2, sec3_ok, anchor_price=42000)
+        s4_decel = self.bv.compute_section4_master_sop_indicators(df_d, df_w, sec2, sec3_decel, anchor_price=42000)
+        self.assertTrue(s4_ok["is_track2"])
+        self.assertFalse(s4_decel["is_track2"])
+
+        # Validator must catch Track 2 violation if SSOT has both op_slope_decel_warn=True & is_track2=True
+        bad_ssot = json.loads(json.dumps(_load(GOLDEN[0])))
+        bad_ssot["step1_3_bm_slope"] = {"op_slope_base_mult": 0.94, "op_slope_bull_mult": 0.92, "op_slope_decel_warn": True}
+        bad_ssot["section3"]["op_slope_decel_warn"] = True
+        bad_ssot["section4"]["is_track2"] = True
+        r_val = vr.Result("track2_decel_violation")
+        vr.check_ssot(bad_ssot, r_val)
+        self.assertTrue(any("is_track2" in e for e in r_val.errors), r_val.errors)
+
+    def test_orchestrator_step13_inheritance_diff_table_and_patch_1d(self):
+        import types
+        from unittest import mock
+        import ksa_orchestrator as ko
+
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "스텝13테스트")
+            db = os.path.join(comp, "2_Translated_DB")
+            rpt = os.path.join(comp, "3_Final_Reports")
+            wt = os.path.join(comp, "Weekly_Trend")
+            os.makedirs(db)
+            os.makedirs(rpt)
+            os.makedirs(wt)
+
+            prev_ssot = json.loads(json.dumps(_load(GOLDEN[0])))
+            prev_ssot["version"] = "5.2"
+            prev_ssot["step1_3_bm_slope"] = {
+                "bm_core_driver": "감가상각 고정비 기반 가동률 상승",
+                "fixed_cost_ratio_pct": 34.0,
+                "var_cost_ratio_pct": 54.0,
+                "dol": 3.8,
+                "is_high_fixed_cost": True,
+                "util_trend": "up",
+                "var_cost_trend": "down",
+                "input_mode": "explicit_op_slope",
+                "raw_grade": "strong_accel",
+                "final_grade": "strong_accel",
+                "slope_evidence": "high",
+                "capa_expand": True,
+                "asp_up": False,
+                "has_explicit_inputs": True,
+                "op_slope_base_mult": 1.12,
+                "op_slope_bull_mult": 1.15,
+                "guardrail_summary": "🟢 3중 안티-피크아웃 가드레일 정상 통과",
+            }
+            ssot_path = os.path.join(db, "valuation_metrics.json")
+            with open(ssot_path, "w", encoding="utf-8") as f:
+                json.dump(prev_ssot, f, ensure_ascii=False)
+
+            args = types.SimpleNamespace(
+                corp_name="스텝13테스트", code=None, years=10, sector_type=None, rerating_date=None,
+                base_target=None, bull_target=None, dart_exposure=None, forward_eps=None, forward_eps_g=None,
+                expected_dps=None, non_op_assets=None, net_debt=None, distb_shares=0, total_shares=0,
+                fcf=None, norm_fcf=None, s_curve_phase2=False, early_ignition=False, no_s_curve=False,
+                penetration_pct=None, second_penetration_pct=None, bottleneck_grade=None, bottleneck_months=None,
+                capa_util_pct=None, payout_ratio=None, tsr_pct=None, buyback_cliff=False,
+                mezzanine_eok=None, mezzanine_pct=None, related_party_eok=None, listed_parent_sales=False,
+                governance_discount=None, gov_note=None, anchor_price=None,
+                shortage_easing=False, slope_decel=False, policy_headwind=False, clear_sell_signals=False,
+                bm_core_driver=None, fixed_cost_ratio=None, var_cost_ratio=None, util_trend=None,
+                var_cost_trend=None, op_slope=None, slope_evidence=None, capa_expand=False, asp_up=False,
+                clear_bm_slope=False, wacc=0.09, terminal=0.02, skip_pdf=True, pdf_dirs=None,
+                include_raw_pdfs=False, primary_keywords=None, keywords=None, max_pages=18,
+            )
+            captured = {}
+            def _fake_bt(*a, **kw):
+                captured.update(kw)
+
+            with mock.patch.object(ko, "ensure_company_structure", return_value=comp), \
+                 mock.patch.object(ko, "run_valuation_backtest", side_effect=_fake_bt), \
+                 mock.patch.object(ko, "append_extended_ssot_tables"), \
+                 mock.patch.object(ko, "refresh_price_eq_in_ssot"), \
+                 mock.patch.object(ko, "build_ai_prep_digest", return_value=""):
+                ko.cmd_prep(args)
+
+            self.assertEqual(captured["bm_core_driver"], "감가상각 고정비 기반 가동률 상승")
+            self.assertAlmostEqual(captured["fixed_cost_ratio"], 34.0)
+            self.assertAlmostEqual(captured["var_cost_ratio"], 54.0)
+            self.assertEqual(captured["util_trend"], "up")
+            self.assertEqual(captured["var_cost_trend"], "down")
+            self.assertEqual(captured["op_slope"], "strong_accel")
+            self.assertTrue(captured["capa_expand"])
+
+            diff_md = ko.format_ssot_comparison_table({}, prev_ssot, "스텝13테스트")
+            self.assertIn("직전 vs 신규 SSOT 비교표", diff_md)
+            self.assertIn("Step 1.3", diff_md)
+            self.assertIn("DOL 3.80x", diff_md)
+            self.assertIn("대안 B 적정가", diff_md)
+            self.assertIn("대안 A 적정가", diff_md)
+
+            # Verify patch_ssot updates [코드 자동 생성 1-D] and validator checks Step 1.3 on v5.2
+            with open(os.path.join(db, "auto_tables.md"), "w", encoding="utf-8") as f:
+                f.write(
+                    "### 📌 [코드 자동 생성 1-D] Step 1.3 테스트\n"
+                    "| 항목 | 값 |\n| :--- | :--- |\n| 계수 | ×1.1200 |\n"
+                )
+            p1_path = os.path.join(rpt, "Phase1_Report.md")
+            with open(p1_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"# 스텝13테스트 Phase 1 (v5.2)\n> **분석완료일**: 2026-11-20 | **단일 기준 주가**: {prev_ssot['anchor_price']:,}원\n\n"
+                    "## 1. BM\n## 2. Step 1.2\n## 3. Step 1.5\n"
+                    "## 4. 원가 구조 및 Step 1.3\n"
+                    "### 📌 [코드 자동 생성 1-D] Step 1.3 구버전\n"
+                    "| 항목 | 값 |\n| :--- | :--- |\n| 계수 | ×1.0000 |\n\n"
+                    "## 5. Step 1.8\n## 6. Step 3.5\n## 7. 공식\n## 8. Step 2.0\n"
+                )
+            with open(os.path.join(wt, "thesis_log.md"), "w", encoding="utf-8") as f:
+                f.write("| 가설 | 내용 | QoQ | 근거 | Kill-Switch | 판정 |\n| --- | --- | --- | --- | --- | --- |\n")
+            ko.patch_ssot_into_reports(comp)
+            p1_after = open(p1_path, encoding="utf-8").read()
+            self.assertIn("×1.1200", p1_after)
+            self.assertNotIn("×1.0000", p1_after)
+            res_ok = vr.validate_company(comp)
+            self.assertEqual(res_ok.errors, [], res_ok.errors)
+
+            # Removing Step 1.3 from a v5.2 Phase 1 must FAIL validator
+            with open(p1_path, "w", encoding="utf-8") as f:
+                f.write(p1_after.replace("Step 1.3", "원가분석"))
+            res_fail = vr.validate_company(comp)
+            self.assertTrue(any("Step 1.3" in e for e in res_fail.errors), res_fail.errors)
+
+    def test_parse_pdf_captures_dart_cost_by_nature_without_company_name(self):
+        from unittest import mock
+        import parse_pdf as pp
+
+        class _FakePage:
+            def __init__(self, txt):
+                self._txt = txt
+            def extract_text(self):
+                return self._txt
+
+        class _FakeReader:
+            def __init__(self, _path):
+                self.pages = [
+                    _FakePage("표지 - 테스트반도체 2026년 3분기보고서"),
+                    _FakePage("일반 개요 페이지 테스트반도체 소개"),
+                    _FakePage("주석 24. 비용의 성격별 분류\n원재료 및 소모품의 사용 450억\n감가상각비 320억\n종업원급여 180억"),
+                    _FakePage("생산설비 가동률 현황\n생산능력 1,000 / 생산실적 680 / 평균가동률 68.0%"),
+                ]
+
+        with tempfile.TemporaryDirectory() as td:
+            pdf_p = os.path.join(td, "[테스트반도체]분기보고서(2026.11.14).pdf")
+            with open(pdf_p, "wb") as f:
+                f.write(b"%PDF-1.4\n")
+            out_md = os.path.join(td, "verbatim.md")
+            with mock.patch.object(pp.pypdf, "PdfReader", _FakeReader):
+                pp.batch_verbatim_extract(
+                    [td],
+                    ["테스트반도체", "반도체", "소부장"],
+                    output_md=out_md,
+                    primary_keywords=["테스트반도체"],
+                    max_pages_total=4,
+                )
+            content = open(out_md, encoding="utf-8").read()
+            self.assertIn("비용의 성격별 분류", content)
+            self.assertIn("평균가동률 68.0%", content)
+            self.assertIn("Step1.3 비용·가동률", content)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
 """
-Reverse DCF Calculator for Korean Stock Analyzer (v4.2)
+Reverse DCF Calculator for Korean Stock Analyzer (v5.0)
 Calculates implied FCF CAGR based on:
 1. Floating Equity Market Cap (distb_stock_co * price) [Conservative Equity Baseline]
 2. Enterprise Value (EV = Floating Market Cap + Preferred Market Cap + Net Debt) [Corporate Finance Standard]
@@ -289,7 +289,7 @@ if __name__ == "__main__":
         sys.stdout.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser(
-        description="Reverse DCF calculation tool (v4.3 — Equity, EV & SOTP Core EV Mode + SSOT JSON Export)"
+        description="Reverse DCF calculation tool (v5.0 — Equity, EV & SOTP Core EV Mode + SSOT JSON Export)"
     )
     parser.add_argument("--price", type=float, required=True, help="Current stock price (KRW, latest daily close)")
     parser.add_argument("--distb-shares", type=int, required=True, help="Floating shares (distb_stock_co, excluding treasury)")
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         update_ssot_json(args.export_json, res)
 
     print("====================================================================")
-    print("📈 역DCF 정밀 분석 결과 (Korean Stock Analyzer v4.2 — Equity · EV · SOTP 본업EV 병기)")
+    print("📈 역DCF 정밀 분석 결과 (Korean Stock Analyzer v5.0 — Equity · EV · SOTP 본업EV 병기)")
     print("====================================================================")
     print(f"현재 주가 (단일 앵커): {res['price']:,.0f}원")
     print(f"총 발행주식수:         {res['total_shares']:,}주 (명목 시총: {res['market_cap_total_eok']:,.2f}억 원)")

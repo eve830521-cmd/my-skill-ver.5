@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Stock Analyzer Report (v4.2)</title>
+    <title>헥토이노베이션 Phase 1 — Stock Analyzer Report (v5.1)</title>
     <style>
     /* Korean Stock Analyzer - Premium PDF Report Stylesheet */
 
@@ -406,411 +406,403 @@ p > em {
     </script>
 </head>
 <body>
-    <h1>🔍 Phase 1: 기업 해독기 (원천 팩트 초안)</h1>
+    <h1>🔍 Phase 1: 기업 해독기 — 헥토이노베이션 (214180) (v5.1)</h1>
 <blockquote>
+<p><strong>분석완료일</strong>: 2026-11-19
+- <strong>단일 기준 주가 (Single Price Anchor)</strong>: <strong><code>13,100원</code></strong> (SSOT 확정 종가, Phase 1~3 전 과정 100% 동일 고정)
+- <strong>주식수 · 지배주주 귀속률 · 최신 공시 스캔</strong>: 총발행주식수 <strong><code>12,863,433주</code></strong> / 자기주식 <strong><code>279,866주</code></strong>(<code>2.18%</code>, 2026.11.11 129,934주 소각 반영) / 실질 유통주식수 <strong><code>12,583,567주</code></strong> / 지배주주 순이익 귀속률 <strong><code>75.7%</code></strong> / 최신 공시: 제18기 3분기보고서(2026.11.16) 및 3개년 자사주 소각 완료(2026.11.11)</p>
 <p>💡 <strong>[핵심 용어 3줄 직관 해설]</strong>
-- <strong>[통신 3사 합산과금 (통행세 BM)]</strong>: 모바일 앱 부가서비스 이용료(월 1,100원 등)가 통신요금 고지서에 자동 합산 청구되는 시스템으로, 이용자가 능동적으로 해지하지 않는 한 영구적으로 매달 통행세처럼 현금이 따박따박 들어오는 초고마진 락인(Lock-in) 구조.
-- <strong>[가상계좌 중계 및 펌뱅킹 (결제 고속도로)]</strong>: 은행과 기업 간 전산 연동망을 직접 개설하여 대량의 자금 집금 및 결제를 초단위로 중계하는 핀테크 인프라로, 거래 건당 수수료를 수취하여 이커머스/플랫폼 물동량이 늘수록 현금창출력이 확대되는 핵심 결제 관문.
-- <strong>[지배주주 귀속률 &amp; 실질 유통 BPS]</strong>: 연결 자회사(헥토파이낸셜 지분 41.0% 등)의 소수주주 몫을 뺀 순수 모회사 주주 몫의 순이익 비율(75.7%)이며, 자사주(409,800주)를 차감한 실질 유통주식수(12,583,567주) 기준으로 주당 순자산가치(18,135원)를 계산하여 회사의 절대 안전마진 바닥(PBR 0.74배)을 평가하는 핵심 밸류에이션 지표.</p>
+1. <strong>SOTP (Sum-of-the-Parts, 부분합 가치평가)</strong>: 본업(IT정보서비스·결제·헬스케어) 가치와 비영업자산(부동산 리츠 출자지분·투자조합·금융자산) 가치를 따로 계산해 합산하는 기법으로, 비영업자산 비중이 20%를 넘으면 필수 적용합니다.
+2. <strong>간편현금결제(펌뱅킹) 공통 프레임워크</strong>: 신용카드망이 아닌 은행 계좌이체망을 대형 e-커머스·간편결제 페이사·공공기관에 표준 API 형태로 공급하는 독과점 결제 인프라입니다.
+3. <strong>오너 정규화 FCF (Normalized FCF)</strong>: PG/결제 대행사는 가맹점 정산 예수금 변동으로 보고 현금흐름이 크게 출렁이므로, 이를 제거하고 실질 영업이익 기반으로 회사가 순수하게 벌어들이는 현금창출력을 보수적으로 추정한 지표입니다.</p>
 </blockquote>
 <hr />
-<h2>1. 비즈니스 모델 및 밸류체인</h2>
-<blockquote>
-<p><strong>[26.10.19 글로벌 트렌드 델타 업데이트 🌐 (게이트 ① 직접 등재 충족: 80p+ 제도권 딥리서치 '주주환원확대 10선' 공인 및 연말 배당·지배구조 사이클 입체 연동)]</strong>
-- <strong>게이트 ① [직접 등재] 공식 확인</strong>: LS증권 83페이지 딥리서치 <code>[글로벌 트렌드: 26.09.01.LS증권.AI 투자 프레임의 변화.pdf p.72]</code>에서 당사(A214180 헥토이노베이션)가 <strong>'주주환원확대 10선' 9위에 실명 공인 등재</strong>되었습니다. (시가총액 1,952억 원, 주주환원율 15.2%, PBR 0.8배, ROE 17.0%, 배당수익률 3.2%로 FCF 대비 저평가 고배당 우량주 판정)
-- <strong>연계 종속회사 인프라 과점</strong>: LS증권 52페이지 결제 플랫폼 딥리서치 <code>[글로벌 트렌드: 26.07.27.LS증권.결제 플랫폼 - 정책, 밸류, 산업 성장 교집합에 주목.pdf p.40, p.43]</code>에 핵심 종속회사 헥토파이낸셜(234340, 당사 지분율 41.0%)이 국내 1위 가상계좌(연간 1,200조 원 자금 처리), 간편현금결제(22.2%), PG(49.2%), 펌뱅킹(12.0%) 인프라 공급사로 심층 등재되었습니다.
-- <strong>최신 거시 배당·지배구조 사이클 입체 연동</strong>: 최신 거시 아카이브 <code>[글로벌 거시 사이클: cycle_timeline.md 2026.10 상반기 #배당 #지배구조 테마]</code>에서 연말 승계·배당 수혜 및 ESG 행동주의 부각 사이클이 도래함에 따라, 당사의 3개년 1% 자사주 소각 이행(2024년 132,572주 소각 → 2025년 131,246주 소각 → 2026년 129,934주 소각예정 기보유) 및 별도 배당성향 22~26%(DPS 500원, 시가배당률 3.74%) 주주환원책이 거시 자금 유입의 강력한 하방 안전마진을 형성하고 있습니다.
-- <strong>AI 에이전틱 커머스 전환 수혜</strong>: 최신 AI 유통 심층 리포트 <code>[글로벌 트렌드: 26.09.22.LS증권.에이전틱 커머스의 시대.pdf p.3, p.5, p.6]</code>에 따르면, AI 에이전트 도입기에는 단순 앱 UI 해자가 약화되는 반면, "AI 모델 자체보다 <strong>상품과 고객 데이터, 결제, 재고, 물류 등 실제 거래 인프라를 얼마나 유기적으로 연결할 수 있는가</strong>"가 핵심 승부처로 부상합니다. 당사는 통신 3사 합산과금망과 금융권 펌뱅킹망이라는 극강의 전환비용(Switching Cost)을 선점하여, 대규모 CapEx 없이 AI 에이전트 커머스 생태계의 정산·인증 관문 역할을 수행합니다.</p>
-</blockquote>
-<p>[공시 팩트] 주식회사 헥토이노베이션(구 민앤지, 종목코드 214180)은 이동통신 3사(SKT, KT, LGU+)의 청구 및 가입 인프라를 기반으로 2차 본인인증(로그인플러스, 휴대폰간편로그인 등)과 실생활 정보보안 서비스를 개발·운영하는 B2C IT 플랫폼 기업입니다 [팩트: 24.03 사업보고서, 20-가]. 동시에 종속회사 헥토파이낸셜(B2B 가상계좌 중계, 펌뱅킹, 간편현금결제, PG)과 헥토헬스케어(프리미엄 프로바이오틱스 '드시모네' 직판 및 정기배송 '또박배송')를 연결 거느리고 있습니다 [팩트: 26.05 분기보고서, 18-바; 26.08 반기보고서, 3].</p>
-<ul>
-<li><strong>단일 기준 주가 (Single Price Anchor):</strong> <strong>13,380원</strong> (기준일: 2026-10-19 일봉 종가, <code>backtest_valuation.py</code> v4.1 실측치, 주봉 60주선 이격도 80.0%)</li>
-<li><strong>최신 공시 스캔 확인일 (korean-dart MCP):</strong> 2026-10-19 기준 최신 공시 전수 점검 완료 (2026-09-18 최대주주 이경민 담보대출 연장 공시 확인 — 지분율 39.13% 변동 없음, 정기보고서 마감 이후 추가 유상증자, CB/EB 발행, 계열사 채무보증 부재 확인).</li>
-</ul>
-<p>당사의 비즈니스 모델은 전 사업 부문이 '소액 월정액 부가서비스 요금', '결제 건당 중계 수수료', '정기구독 직판'으로 구성되어 있어 고객 이탈률이 극히 낮고 예측 가능한 반복 매출(Recurring Revenue)이 유입되는 전형적인 <strong>'통행세(Toll-bridge)' 구조</strong>를 구축하고 있습니다.</p>
-<pre><code class="language-mermaid">graph TD
-    subgraph SG_1[&quot;거시 환경 및 글로벌 트렌드: 3대 게이트 ① 직접 등재&quot;]
-    M1[&quot;Global Trend: 주주환원확대 10선 공인&lt;br/&gt;(LS증권 26.09.01 p.72)&quot;]
-    M2[&quot;Agentic Commerce 결제망 수요 폭증&lt;br/&gt;(LS증권 26.09.22 p.3, 5)&quot;]
-    M3[&quot;거시 테마: 연말 배당·지배구조 수혜&lt;br/&gt;(cycle_timeline.md 26.10 상반기)&quot;]
-    end
-
-    subgraph SG_2[&quot;공급자: 독점적 인프라 및 원료 파트너&quot;]
-    A1[&quot;이동통신 3사 (SKT/KT/LGU+ 통신·청구망)&quot;]
-    A2[&quot;시중 은행 및 금융기관 (가상계좌/펌뱅킹 연동망)&quot;]
-    A3[&quot;원료 개발자 및 생산 파트너 (드시모네 특수배합 포뮬러)&quot;]
-    end
-
-    subgraph SG_3[&quot;당사 및 종속회사: 헥토 그룹 생태계&quot;]
-    B1[&quot;헥토이노베이션 (보안·인증·생활 플랫폼)&quot;]
-    B2[&quot;헥토파이낸셜 (전자금융·결제 중계 플랫폼)&quot;]
-    B3[&quot;헥토헬스케어 (프리미엄 바이오 건기식 유통)&quot;]
-    end
-
-    subgraph SG_4[&quot;고객사 및 최종 소비자: 락인 기반 반복 결제&quot;]
-    C1[&quot;일반 모바일 가입자 (B2C: 통신비 합산 월 1,100원 정기 지불)&quot;]
-    C2[&quot;가맹점 및 대형 플랫폼 기업 (B2B: 결제 건당 중계 수수료 지불)&quot;]
-    C3[&quot;일반 소비자 및 약국 (B2C/B2B: 또박배송 정기구독 및 직판)&quot;]
-    end
-
-    M1 -.-&gt;|&quot;PBR 0.74배 저평가 &amp; 고배당 부각&quot;| B1
-    M2 -.-&gt;|&quot;AI 에이전틱 커머스 정산 관문 연동&quot;| B2
-    M3 -.-&gt;|&quot;자사주 소각 1% &amp; 배당성향 22~26%&quot;| B1
-
-    A1 --&gt;|&quot;청구·가입 인프라 연동&quot;| B1
-    A2 --&gt;|&quot;금융 펌뱅킹 전산망 제공&quot;| B2
-    A3 --&gt;|&quot;독점 원료 공급 및 완제품 생산&quot;| B3
-
-    B1 -.-&gt;|&quot;보안 2차 인증 및 생활 플랫폼 제공&quot;| C1
-    B2 -.-&gt;|&quot;가상계좌 / 간편현금결제 / PG 중계&quot;| C2
-    B3 -.-&gt;|&quot;정기구독(또박배송) 및 약국 유통&quot;| C3
+<h2>1. 비즈니스 모델(BM) 해부 및 밸류체인 구조</h2>
+<p>헥토이노베이션(구 민앤지, 2022년 6월 28일 사명 변경)은 <strong>① 지배회사 본업(IT 정보서비스·모바일 부가서비스·보안/인증 구독)</strong>을 중심으로 <strong>② 상장 종속기업 헥토파이낸셜(지분율 38.50%, 구 세틀뱅크 — 간편현금결제·가상계좌·펌뱅킹·PG)</strong>과 <strong>③ 비상장 종속기업 헥토헬스케어(연결 지분율 58.42%, 구 바이오일레븐 — 프리미엄 프로바이오틱스 '드시모네' 및 이너뷰티 '온리츄얼')</strong>라는 3대 현금창출 축을 보유한 사업지주형 IT 플랫폼 그룹입니다(<code>[헥토이노베이션]반기보고서(2026.08.14).pdf</code>, p.8, p.42).</p>
+<h3>1.1 글로벌 트렌드 3대 게이트 매칭</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">매칭 축</th>
+<th style="text-align: left;">산업 구조 변화</th>
+<th style="text-align: left;">헥토이노베이션 포지션 및 실질 수혜 검증</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>게이트 1: 핀테크 결제 인프라 고도화</strong></td>
+<td style="text-align: left;">대형 커머스·페이사·공공기관의 카드 수수료 절감 및 계좌 기반 즉시결제(Account-to-Account) 확대</td>
+<td style="text-align: left;">헥토파이낸셜이 국내 대형 e-커머스 및 간편결제사 간편현금결제 인프라를 과점하며 경쟁이 아닌 <strong>상생형 인프라 공급자</strong>로 자리매김(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.23).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>게이트 2: 고함량 기능성 헬스케어 프리미엄화</strong></td>
+<td style="text-align: left;">저가 유산균 경쟁 심화 속 식약처 개별인정 원료·임상 기반 고부가 제품으로 수요 이동</td>
+<td style="text-align: left;">헥토헬스케어 '드시모네 4500'(보장균수 4,500억, SCI 논문 250편+)과 신규 이너뷰티 '온리츄얼'을 통해 2025년 매출 <strong>854억 원</strong>(전년 대비 +40% 이상) 역대 최고치 경신(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.23).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>게이트 3: 스테이블코인·VASP 차세대 결제</strong></td>
+<td style="text-align: left;">글로벌 결제망의 디지털자산·스테이블코인 정산 논의 확산</td>
+<td style="text-align: left;">관계기업 <strong>헥토월렛원(지분율 47.15%)</strong>을 통해 지갑·VASP 인프라를 준비 중이나, 현재 P&amp;L 단독 매출 비중이 0%에 수렴하여 <strong>S-Curve 멀티플 할증 0%('0원 무상 콜옵션')</strong>로 엄격 분리 평가.</td>
+</tr>
+</tbody>
+</table>
+<h3>1.2 그룹 밸류체인 및 지배구조도 (Mermaid v10.9.8)</h3>
+<pre><code class="language-mermaid">flowchart TD
+    owner[&quot;최대주주 이경민 39.13% / 프리미어PEF 10.27%&quot;] --&gt; parent[&quot;헥토이노베이션 - IT정보서비스 및 모바일 보안 구독&quot;]
+    parent --&gt; fin[&quot;헥토파이낸셜 38.50% - 코스닥 상장&quot;]
+    parent --&gt; health[&quot;헥토헬스케어 58.42% - 비상장 종속&quot;]
+    parent --&gt; data_sub[&quot;헥토 100% / 헥토미디어 97.21% / 헥토데이터 92.88%&quot;]
+    parent --&gt; wallet[&quot;헥토월렛원 47.15% - 관계기업 및 0원 콜옵션&quot;]
+    parent --&gt; reits[&quot;펨코오피스제10호 리츠 등 비영업투자자산&quot;]
+    fin --&gt; fin_bm[&quot;간편현금결제 / 가상계좌 / 펌뱅킹 / PG / 헥토엔링크&quot;]
+    health --&gt; health_bm[&quot;드시모네 4500 / 구강 및 여성유산균 / 온리츄얼&quot;]
+    fin_bm --&gt; end_user[&quot;대형 e-커머스 / 페이사 / 공공기관 / 일반 소비자&quot;]
+    health_bm --&gt; end_user
+    parent --&gt; end_user
 </code></pre>
+<h3>1.3 Argon 4단계 공정·인프라 엔지니어링 인과 사슬 (Engineering-to-Earnings Causal Chain)</h3>
+<p>결제망 및 보안·인증 인프라는 제조업의 설비 공정과 동일하게 높은 시스템 안정성과 금융당국·은행권 연동 규격이 진입장벽으로 작동합니다.
+1. <strong>[Step E1 — 시스템·인프라 메커니즘 정의]</strong>: 헥토파이낸셜은 <strong>금융VAN사 중 유일하게 은행 시스템을 직접 운영</strong>하며 국내 최초로 지자체 간 실시간 송수신이 가능한 G-banking 시스템을 국내 A은행과 개발·구축했습니다. 또한 펌뱅킹 연동 기능을 표준화한 <strong>공통 프레임워크(Common Framework)</strong>를 설계해 e-커머스 가맹점뿐 아니라 코레일·KT·조폐공사·제로페이 등 공공기관까지 단일 아키텍처에 수용합니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.23).
+2. <strong>[Step E2 — 기술적 병목 및 인허가·품질(Qual) 장벽 도출]</strong>: 대규모 결제 시스템은 단 1초의 장애도 대형 커머스의 매출 중단으로 직결되므로, 시중은행 전산망 직접 운영 트랙레코드와 금융결제원·통신 3사 보안 인허가, 대형 플랫폼 결제망 검증을 거치는 데 후발주자 기준 최소 24개월 이상의 전환 비용(Switching Cost)이 발생합니다.
+3. <strong>[Step E3 — 거래량(Q) 연동 및 과금 시차 매핑]</strong>: 초기 공통 프레임워크 구축 완료 이후에는 신규 가맹점·페이사 온보딩 시 추가 CapEx 부담이 미미하며, 결제 거래 건수(Q)와 가맹점 거래액(GMV) 증가가 수수료 매출로 즉시 전이되는 고정비 레버리지 구조를 갖습니다.
+4. <strong>[Step E4 — DART 영업이익률(OPM) 레버리지 및 마진 믹스 연결]</strong>: 본사 구독형 IT서비스와 헥토파이낸셜 가상계좌·간편현금결제는 높은 공헌이익률을 제공하지만, 최근 저마진 PG·상품권 유통(헥토엔링크, 구 엠트웰브+허니콘 흡수합병) 및 헥토헬스케어 마케팅비·대손충당금 확대가 믹스에 섞이면서 연결 OPM이 과거 중위 <strong>17.5%</strong>에서 현재 <strong>12.8%(-4.7%p)</strong>로 하락한 레짐 변화가 확인됩니다.</p>
 <hr />
-<h2>2. 주요 제품별 매출 비중 추이 (최근 5년 및 최신 분기)</h2>
+<h2>2. 주요 제품별 매출 구성 및 [Step 1.2] S-Curve 10% 변곡점 · 3축 구조적 병목 · 리드타임 진단</h2>
+<h3>2.1 사업부문별 구조 및 신기술 매출 익스포저 산출표</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">사업부문 (주력 법인)</th>
+<th style="text-align: left;">핵심 제품 / 서비스</th>
+<th style="text-align: left;">매출·수익 성격</th>
+<th style="text-align: center;">신기술(스테이블코인/VASP) 단독 매출 비중</th>
+<th style="text-align: left;">밸류에이션 처리 원칙</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>IT 정보서비스 (헥토이노베이션 본사)</strong></td>
+<td style="text-align: left;">통신 3사 제휴 보안·인증·생활구독 부가서비스</td>
+<td style="text-align: left;">초고마진 월정액 구독(Cash Cow)</td>
+<td style="text-align: center;"><code>0.0%</code></td>
+<td style="text-align: left;">본업 핵심 가치 반영</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>핀테크·결제 (헥토파이낸셜 등)</strong></td>
+<td style="text-align: left;">간편현금결제, 가상계좌, 펌뱅킹, PG, 모바일상품권(헥토엔링크)</td>
+<td style="text-align: left;">거래량 연동 수수료 (B2B 인프라)</td>
+<td style="text-align: center;"><code>0.0%</code> (미공시)</td>
+<td style="text-align: left;">본업 핵심 가치 반영 (상장 자회사 지배귀속률 75.7% 차감)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>헬스케어 (헥토헬스케어 등)</strong></td>
+<td style="text-align: left;">드시모네 4500, 구강/여성유산균, 이너뷰티 '온리츄얼'</td>
+<td style="text-align: left;">2025년 매출 854억 원(+40%+), 브랜드 B2C</td>
+<td style="text-align: center;"><code>0.0%</code></td>
+<td style="text-align: left;">본업 성장 동력 반영</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>신사업 (헥토월렛원 등)</strong></td>
+<td style="text-align: left;">VASP·디지털자산 지갑·스테이블코인 정산 인프라</td>
+<td style="text-align: left;">관계기업(지분 47.15%), 초기 투자 단계</td>
+<td style="text-align: center;"><strong><code>0.0%</code> (30% 미달·단독 미공시)</strong></td>
+<td style="text-align: left;"><strong>🚨 Zone D '0원 무상 콜옵션' (할증 0% 강제 차단)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3>📌 [코드 자동 생성 1-B] Step 1.2 S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 리드타임 &amp; Step 1.8 K-주주환원 진단표 (v5.0)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">진단 축 (3-Axis + K-Return)</th>
+<th style="text-align: left;">실측 지표 및 근거</th>
+<th style="text-align: left;">코드 판정 및 Phase 3 목표주가 가중치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>① 전방 시장 침투율 (10% 변곡점 여부)</strong></td>
+<td style="text-align: left;">1차 침투율 <strong><code>0.0%</code></strong> (<code>Zone D [무상 콜옵션/비해당 — 단독매출 30% 미달·미공시로 침투율(0.0%/0.0%) 할증 0% 차단]</code>)</td>
+<td style="text-align: left;">📌 <strong>확산/성숙 구간 진행</strong> (3축 통합 Base <code>×1.00</code> / Bull <code>×1.00</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-A 물리적 Capa 병목 (가동률/증설)</strong></td>
+<td style="text-align: left;">공장 가동률 <strong><code>0.0%</code></strong> — 특허/벤더 Lock-in: 통신 3사·금융권 본인인증 및 펌뱅킹 결제망 독과점 라이선스 장벽</td>
+<td style="text-align: left;">🟢 <strong>여유 Capa 보유</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-B 기술격차 해자 (OPM/수율/단가결정력)</strong></td>
+<td style="text-align: left;">현 OPM <strong><code>12.8%</code></strong> — N/A</td>
+<td style="text-align: left;">고마진 가격전가력(Pricing Power) 점검</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>②-C 원천특허 · 글로벌 벤더 퀄(Qual) 락인</strong></td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">후발주자 진입장벽(Switching Cost) 점검</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>③ 병목 해소 예상 소요기간 (Lead Time)</strong></td>
+<td style="text-align: left;"><strong><code>B등급</code></strong> (해소 리드타임 <strong><code>9개월</code></strong>)</td>
+<td style="text-align: left;">금융결제원·통신사 보안 인허가 및 대형 플랫폼 결제망 연동에 24개월+ 진입장벽 (PEG 계수 <code>0.80</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>③-B S-Curve 3대 매도·디레이팅 시그널</strong></td>
+<td style="text-align: left;">🟢 해당 없음 (병목 유지 · 성장 기울기 건전 · 정책 역풍 미감지)</td>
+<td style="text-align: left;">🟢 <strong>매도 시그널 미감지 (정상 평가)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④-A K-주주환원 (배당 · TSR · 분리과세)</strong></td>
+<td style="text-align: left;">DPS <strong><code>500원</code></strong> (배당수익률 <strong><code>3.82%</code></strong> / 성향 <code>20.6%</code> / TSR <code>30.3%</code>)</td>
+<td style="text-align: left;">⚪ 배당소득 분리과세 미해당 (배당성향 20.6% &lt; 25%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④-B 자사주 · 환원절벽 · 메자닌(CB/BW)</strong></td>
+<td style="text-align: left;">자사주 <strong><code>279,866주</code></strong> (<code>2.18%</code>) / 미상환 메자닌 <strong><code>0.0억</code></strong> (희석 <code>0.0%</code>)</td>
+<td style="text-align: left;">🟢 정상 (현재 자기주식 279,866주 [2.18%] 보유 — 소각 전환 여부 모니터링) / 🟢 청정 (미상환 CB/BW/EB 잠재 희석 0%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④-C 지배구조 · 내부거래 · 거버넌스 (Step 1.8)</strong></td>
+<td style="text-align: left;">특수관계인 거래 <strong><code>19.8억</code></strong></td>
+<td style="text-align: left;">🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [19.8억 원]) — 최대주주 이경민 39.13%(담보 2.67%), 상장 자회사 헥토파이낸셜(38.50%) 중복상장(지배귀속률 75.5% 반영) 및 3개년 자사주 소각 계획(2026.11.11 129,934주 소각) 완수 후 FY27~ 신규 환원정책 갱신 모니터링 (<code>kgov_mult = ×1.0000</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)</strong></td>
+<td style="text-align: left;">대안 A 내재 영업이익: Base <strong><code>370.1억</code></strong> / Bull <strong><code>336.5억</code></strong></td>
+<td style="text-align: left;">🟢 물리적 Capa 한계 내 달성 가능</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 Step 1.2 4대 질문 및 3대 매도·디레이팅 시그널 해독</h3>
+<ol>
+<li><strong>전방 시장 S-Curve 10% 변곡점 통과 여부</strong>: 시장이 테마로 반응하는 스테이블코인·가상자산 결제 영역은 DART 재무제표상 단독 매출이 미공시(비중 <code>0.0%</code>) 상태이므로, 원칙 4 및 원칙 15에 따라 <strong>Zone D('0원 무상 콜옵션')</strong>로 분류하여 S-Curve 할증을 <code>×1.00</code>(0%)으로 강제 차단합니다.</li>
+<li><strong>3축 구조적 병목 및 리드타임 판독</strong>: 소프트웨어·결제 인프라 특성상 물리적 공장 가동률 병목은 존재하지 않으나(가동률 <code>0.0%</code> 표시), 은행권 직접 시스템 운영·통신 3사 제휴 구독망·식약처 개별인정 원료(드시모네)가 방어적 진입장벽을 형성합니다. 다만 코드 기준 병목 해소 리드타임은 <strong>B등급(9개월, PEG 계수 0.80)</strong>으로 보수적 평가되어 과도한 성장 프리미엄 부여를 차단합니다.</li>
+<li><strong>3대 매도·디레이팅 시그널 진단</strong>: ① 쇼티지 해소(해당 없음), ② 침투율 ≥25% + YoY 급락/QoQ -15% 이하 3중 교차검증(2026.2Q 영업이익 QoQ <code>-11.5%</code>로 <code>-15%</code> 임계치 미도달), ③ 확정된 정책·보조금 축소 역풍(미감지)으로 현재 <strong>매도·디레이팅 시그널은 미발동(<code>🟢 정상 평가</code>)</strong> 상태입니다. 다만 차기 분기 영업이익이 <code>109.5억 원</code> 미만(QoQ -15% 초과 하락)으로 떨어질 경우 즉각 경보가 발동됩니다.</li>
+</ol>
+<hr />
+<h2>3. 재무 건전성 및 [Step 1.5] 장부가(Book Value) 해부 &amp; SOTP 20% 분리 게이트</h2>
+<h3>📌 [코드 자동 생성 1] SOTP 장부 분해 &amp; 4대 레짐 체크 요약표</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">검증 항목</th>
+<th style="text-align: left;">코드 실측 수치</th>
+<th style="text-align: left;">판정 결과 (Code Verdict)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>단일 기준 주가 (Anchor Price)</strong></td>
+<td style="text-align: left;"><strong><code>13,100원</code></strong></td>
+<td style="text-align: left;">전 Phase 1~3 100% 동일 고정</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>지배주주 순이익 귀속률</strong></td>
+<td style="text-align: left;"><strong><code>75.7%</code></strong></td>
+<td style="text-align: left;">비지배지분 차감 완료</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 1.5 비영업자산 비중 (SOTP 20% 룰)</strong></td>
+<td style="text-align: left;">장부 대비 <strong><code>37.4%</code></strong> / 시총 대비 <strong><code>51.8%</code></strong></td>
+<td style="text-align: left;">🚨 <strong>SOTP 분리 평가 발동</strong> (본업BPS 11,345원)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 1.5 본업 이익 유지력 (Core ROIC)</strong></td>
+<td style="text-align: left;">TTM 영업이익 <strong><code>524.7억</code></strong> (NOPAT <strong><code>409.3억</code></strong>)</td>
+<td style="text-align: left;">✅ <strong>본업 이익 유지 견고</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 2.0 4대 레짐 변화 체크</strong></td>
+<td style="text-align: left;">③ 비영업자산레짐(비영업자산 비중 51.8% ≥ 20% — 명목 PBR 저평가 착시 주의) / ④ 사업구성레짐(OPM 과거중위 17.5% → 현재 12.8%, -4.7%p [본업 마진 훼손/경쟁 심화])</td>
+<td style="text-align: left;">🔄 <strong>레짐 변화 반영 필수</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Step 3.0 사이클 고점 함정 가드레일</strong></td>
+<td style="text-align: left;">피크 이익 과열 미해당</td>
+<td style="text-align: left;">🟢 <strong>정상 멀티플 적용</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>직전 분기 대비 (QoQ) 실적 추이</strong></td>
+<td style="text-align: left;">[2026.1Q → 2026.2Q] 매출액 1,123.2억→1,028.3억(QoQ -8.4%)</td>
+<td style="text-align: left;">영업이익 145.6억→128.8억(QoQ -11.5%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>가설 반증 임계치 (Kill-Switch)</strong></td>
+<td style="text-align: left;"><strong>차기 분기 영업이익 &lt; 109.5억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS &lt; 446원 기록 시 핵심 가설 즉시 [약화] 강등</strong></td>
+<td style="text-align: left;">미달 시 가설 즉시 [약화] 강등</td>
+</tr>
+</tbody>
+</table>
+<h3>3.1 재무상태표 핵심 항목 및 순현금·비영업자산 SOTP 분해</h3>
+<ul>
+<li><strong>유통시가총액 vs 실질 기업가치(EV)</strong>: 단일 기준 주가 <code>13,100원</code> × 실질 유통주식수 <code>12,583,567주</code> 기준 유통시총은 <strong><code>1,648.5억 원</code></strong>입니다. 여기서 순차입금 <strong><code>-711.7억 원</code></strong>(즉, 순현금 <strong><code>711.7억 원</code></strong>)을 반영한 실질 기업가치(EV)는 <strong><code>936.8억 원</code></strong>에 불과합니다.</li>
+<li><strong>Step 1.5 SOTP 20% 분리 게이트 발동</strong>: 연결 재무상태표 내 투자부동산·관계기업 출자지분(펨코오피스제10호위탁관리부동산투자회사, 헥토콘 1·2호 투자조합, 단순투자 12개사 등 — 2025년 말 타법인출자 총 장부가액 <code>1,584.6억 원</code> 중 경영참여 <code>1,248.4억 원</code>·단순투자 <code>336.2억 원</code>, <code>[헥토이노베이션]사업보고서(2026.03.19).pdf</code>, p.284) 및 장기금융자산 등 비영업자산 합계가 장부가 대비 <strong><code>37.4%</code></strong>, 시총 대비 <strong><code>51.8%</code></strong>에 달합니다.</li>
+<li>이에 따라 단순 연결 PBR 적용을 금지하고, 비영업자산 안전가치(<strong><code>598.1억 원</code></strong>, 할인율 적용 후)를 별도 분리하여 <strong>본업 기업가치(Core EV) <code>338.7억 원</code></strong>과 <strong>본업 BPS <code>11,345원</code></strong>을 산출해 Phase 3 목표주가 산식에 직결합니다.</li>
+<li><strong>본업 이익 유지력(Core ROIC) 판정</strong>: TTM 연결 영업이익 <strong><code>524.7억 원</code></strong>, 지배귀속률(<code>75.7%</code>) 및 법인세 반영 <strong>NOPAT <code>409.3억 원</code></strong>으로, 시총의 절반 이상이 순현금과 비영업자산으로 채워진 상태에서도 본업 현금창출력이 매우 견고합니다(<code>✅ 본업 이익 유지 견고</code>).</li>
+</ul>
+<h3>3.2 부외 우발채무 및 풋/콜옵션 정밀 점검 (DART 주석 팩트)</h3>
+<ol>
+<li><strong>펨코오피스제10호 리츠 1종종류주주 풋옵션 및 연대책임</strong>: 연결회사(헥토이노베이션·헥토파이낸셜·헥토헬스케어·헥토)는 리츠 지분 53%를 보유한 1종종류주주(하나은행 신탁업자)와 출자 납입 후 5년 경과 시점부터 2년간 연 8% 현금수익률(Cash-on-Cash Return) 기준의 풋옵션 약정을 체결했습니다. 보통주주 연대책임 이행한도는 <strong>총 <code>480억 원</code></strong>(헥토이노베이션 <code>100억 원</code>, 헥토파이낸셜 <code>75억 원</code>, 헥토헬스케어 및 헥토 <code>305억 원</code>)이며, 연결회사 보유 리츠 지분 <code>700,000주</code>(본사 <code>250,000주</code>)에 우리은행 근질권이 설정되어 있습니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.64, p.96~97).</li>
+<li><strong>헥토월렛원 지분 풋/콜옵션</strong>: 헥토월렛원의 2028년 개별 영업이익이 <code>25억 원</code> 초과 시 특정 주주가 주당 <code>20,000원</code>에 매도할 풋옵션, 반대로 <code>5억 원</code> 미만 시 회사가 주당 <code>5,000원</code>에 매수할 콜옵션이 체결되어 있습니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.64, p.97). 실적 연동형 비대칭 구조로 본사 자본 리스크를 통제한 설계입니다.</li>
+<li><strong>기타 우발채무 및 출자약정</strong>: 당분기말 계류 중인 소송사건은 존재하지 않으며(p.96), 잔여 투자조합 출자약정액은 <code>5.56억 원</code>(메디치-IBKC 1.56억 + 헥토콘 2호 4.0억), 별도 리스부채는 <code>13.56억 원</code>으로 재무 건전성에 미치는 부담은 극히 경미합니다.</li>
+</ol>
+<hr />
+<h2>4. 원가 구조, 영업 레버리지 및 가동률/수주잔고 실측</h2>
+<h3>4.1 분기 실적(QoQ) 및 TTM 수익성 구조 해부</h3>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">구분</th>
-<th style="text-align: left;">핵심 내용</th>
-<th style="text-align: left;">비고</th>
+<th style="text-align: center;">2026.1Q (확정)</th>
+<th style="text-align: center;">2026.2Q (확정)</th>
+<th style="text-align: center;">직전 분기 대비 (QoQ)</th>
+<th style="text-align: left;">TTM / 비고</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>헥토파이낸셜 (금융결제)</strong></td>
-<td style="text-align: left;">[공시 팩트: 24.03 사업보고서, 19-20] 21년 1,043억(47.2%) → 22년 1,216억(46.3%) → 23년 1,404억(48.7%) 및 [공시 팩트: 26.2Q 실적발표] 26.2Q 435억(YoY +11.2%)</td>
-<td style="text-align: left;">간편현금결제(YoY +29.8%) 및 PG 안정 성장을 통한 그룹 최대 캐시카우 <code>[글로벌 트렌드: 26.07.27.LS증권 p.40]</code></td>
+<td style="text-align: left;"><strong>연결 매출액</strong></td>
+<td style="text-align: center;"><code>1,123.2억 원</code></td>
+<td style="text-align: center;"><code>1,028.3억 원</code></td>
+<td style="text-align: center;"><strong><code>-8.4%</code></strong></td>
+<td style="text-align: left;">결제·커머스 계절성 및 믹스 조정</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>헥토이노베이션 (IT 보안/인증)</strong></td>
-<td style="text-align: left;">[공시 팩트: 24.03 사업보고서, 19-20] 21년 715억(32.3%) → 22년 833억(31.7%) → 23년 930억(32.2%) 및 [공시 팩트: 26.03 사업보고서, 126] 25년 별도 1,203억 원 달성</td>
-<td style="text-align: left;">통신 부가서비스의 안정적 현금흐름 위에 앱테크(발로소득), 더쎈카드 확장 결합</td>
+<td style="text-align: left;"><strong>연결 영업이익</strong></td>
+<td style="text-align: center;"><code>145.6억 원</code></td>
+<td style="text-align: center;"><code>128.8억 원</code></td>
+<td style="text-align: center;"><strong><code>-11.5%</code></strong></td>
+<td style="text-align: left;"><strong>TTM <code>524.7억 원</code> (OPM <code>12.8%</code>)</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>헥토헬스케어 (건강기능식품)</strong></td>
-<td style="text-align: left;">[공시 팩트: 24.03 사업보고서, 19-20] 21년 457억(20.7%) → 23년 537억(18.6%) → [공시 팩트: 26.03 사업보고서, 158] 25년 854억(영업이익 98억, YoY +40% 이상 폭증)</td>
-<td style="text-align: left;">[공시 팩트: 26.2Q 실적발표] 26년 상반기 476억(YoY +17.3%) 성장, 중국 1,550억 수출 선적 및 다이어트 개별인정 획득</td>
+<td style="text-align: left;"><strong>지배주주 수정EPS</strong></td>
+<td style="text-align: center;"><code>502.0원</code></td>
+<td style="text-align: center;"><code>558.0원</code></td>
+<td style="text-align: center;"><strong><code>+11.2%</code></strong></td>
+<td style="text-align: left;">액분·무증 소급보정, 반등·흑자 유지 ✅</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>연결 조정 및 기타</strong></td>
-<td style="text-align: left;">내부거래 제거 및 종속회사 합산 조정액 반영 (매년 -0.2% ~ +0.5% 수준 유지)</td>
-<td style="text-align: left;">[공시 팩트: 24.03 사업보고서, 51-52]</td>
-</tr>
-</tbody>
-</table>
-<h3>2.1 S-Curve 신기술 테마 매출 익스포저(Exposure %) 산출표 (하이브리드 수비 검증)</h3>
-<p>[공시 팩트] DART 사업보고서 'II. 사업의 내용' 및 최근 공시/IR 실적을 기반으로 당사의 신기술 테마(가상자산/스테이블코인 CPN, AI 에이전틱 커머스 결제 등) 직결 매출 익스포저를 정밀 산출하여 30% 컷오프를 판정합니다. DART 단독 분리 공시 매출이 확인되지 않는 신사업은 0원 무상 콜옵션(할증 0%)으로 엄격히 분리합니다.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">제품/서비스 구분</th>
-<th style="text-align: center;">매출액 (2025년 기준 억원)</th>
-<th style="text-align: center;">전사 매출 비중(%)</th>
-<th style="text-align: center;">신기술 테마 직결 여부</th>
-<th style="text-align: center;">하이브리드 수비 판정</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>스테이블코인 CPN &amp; AI 에이전틱 결제</strong></td>
-<td style="text-align: center;">단독 미공시 (&lt; 10.0억) [추정]</td>
-<td style="text-align: center;">&lt; 0.3%</td>
-<td style="text-align: center;">파이프라인/개발 단계 (서클 파트너십)</td>
-<td style="text-align: center;">⚠️ [0원 무상 콜옵션(할증 0%)] (P&amp;L 직접 기여 미미)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>전자금융 결제 인프라 (헥토파이낸셜)</strong></td>
-<td style="text-align: center;">1,700.0 [추정]</td>
-<td style="text-align: center;">45.2%</td>
-<td style="text-align: center;">기존 PG/가상계좌/간편결제 (레거시 캐시카우)</td>
-<td style="text-align: center;">⚪ 전통 핀테크 인프라 (Recurring BM)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>모바일 보안·인증 (헥토이노베이션)</strong></td>
-<td style="text-align: center;">1,203.0 [공시 팩트]</td>
-<td style="text-align: center;">32.0%</td>
-<td style="text-align: center;">통신 3사 부가서비스 2차 인증 (레거시 캐시카우)</td>
-<td style="text-align: center;">⚪ 독점적 구독형 B2C IT 서비스</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>바이오 헬스케어 (드시모네 직판/수출)</strong></td>
-<td style="text-align: center;">854.0 [공시 팩트]</td>
-<td style="text-align: center;">22.7%</td>
-<td style="text-align: center;">프리미엄 프로바이오틱스 건기식</td>
-<td style="text-align: center;">⚪ 바이오 헬스케어 유통 BM</td>
+<td style="text-align: left;"><strong>영업이익률 (OPM)</strong></td>
+<td style="text-align: center;"><code>13.0%</code></td>
+<td style="text-align: center;"><code>12.5%</code></td>
+<td style="text-align: center;"><code>-0.5%p</code></td>
+<td style="text-align: left;">과거 중위 <code>17.5%</code> 대비 <code>-4.7%p</code> 하락 레짐</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>테마 실질 단독 익스포저 합산:</strong> <strong>&lt; 0.5%</strong> <em>(단독 미공시 신사업은 0% 처리 원칙)</em></li>
-<li><strong>수혜 적격성 최종 판정:</strong> <strong><code>[⚪ S-Curve N/A (플랫폼·지식서비스 / 안정적 독점 구독 캐시카우 BM / 신사업 0원 무상 콜옵션)]</code></strong></li>
-<li><em>판정 근거:</em> 당사는 신기술/신제품 침투율 S-Curve(10~40%)에 직접 좌우되는 하드웨어 사이클 제조기업이 아니며, 시장 일각의 '가상자산/스테이블코인 테마주' 오인과 달리 실질 P&amp;L 상 직접 매출 익스포저는 0%대에 수렴합니다. 따라서 무리한 S-Curve 멀티플 할증(<code>sc_mult = 1.00</code>, 0% 할증)을 엄격히 배제하고, 독점적 B2C/B2B 구독 통행세에 기반한 강력한 현금창출력 및 실질 유통 BPS 밴드 분석으로 정석 우회합니다.</li>
+<li><strong>영업 레버리지와 마진 훼손 원인</strong>: 본사 IT 부가서비스와 헥토파이낸셜 간편현금결제는 고정비 레버리지가 큰 고마진 구조이나, ① PG·모바일상품권 유통 확대, ② 헥토헬스케어 외형 성장(2025년 854억 원, +40%+)에 따른 마케팅·판매수수료 지출, ③ <strong>매출채권 대손충당금 누적</strong>이 겹치며 연결 OPM이 과거 중위 <code>17.5%</code>에서 <code>12.8%</code>로 낮아졌습니다.</li>
+</ul>
+<h3>4.2 가동률·수주잔고 구조 및 매출채권 대손·재고자산 실측 (2026.3Q 공시)</h3>
+<ul>
+<li><strong>가동률 및 수주잔고 미공시 구조</strong>: 지배회사 및 핵심 핀테크 자회사는 <strong>비제조 소프트웨어·플랫폼·결제 인프라 업종</strong>으로 물리적 생산설비 가동률이나 장기 제조 수주잔고가 존재하지 않습니다(Section 7 유형 C+D 복합 구조와 100% 일치). 헬스케어 부문(드시모네 등) 역시 전문 위탁제조·유통 중심입니다.</li>
+<li><strong>🚨 [비판·리스크 핵심 실측] 매출채권 대손충당금의 가파른 누적</strong>:</li>
+<li>제18기 3분기(2026.09.30) 연결 매출채권 총액은 <code>430.6억 원</code>(6개월 이하 <code>95.86%</code>, 1년 초과 <code>3.57%</code>)이나, <strong>대손충당금 기말 잔액이 제16기 <code>93.6억 원</code> ➔ 제17기 <code>213.5억 원</code> ➔ 제18기 3분기 <code>279.7억 원</code></strong>으로 2년 새 약 3배 급증했습니다.</li>
+<li>당분기 누적 대손상각비 계상액만 <strong><code>49.8억 원</code></strong>(제17기 <code>118.9억 원</code>, 제16기 <code>67.5억 원</code>)에 달합니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.109). PG·결제 정산 가맹점 리스크 및 일부 종속기업(예: 빅쏠 대여금 4.7억 원 100% 대손충당금 설정, p.98) 채권 부실화 여부가 마진 회복의 핵심 관건입니다.</li>
+<li><strong>재고자산 건전성 (헬스케어 중심)</strong>: 제18기 3분기 연결 재고자산 합계는 <strong><code>172.2억 원</code></strong>(헥토헬스케어 <code>129.7억 원</code>, 헥토파이낸셜 상품 <code>42.5억 원</code>)으로 총자산 대비 <strong><code>2.0%</code></strong>(전기 1.7%) 수준이며, 재고자산회전율은 <strong><code>2.3회</code></strong>(제16기 0.3회 ➔ 제17기 2.1회 ➔ 제18기 3Q 2.3회)로 지속 개선되고 있습니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.109~110).</li>
 </ul>
 <hr />
-<h2>3. 전사 영업이익률 및 FCF 추이</h2>
-<p>[공시 팩트] 당사는 대규모 설비투자(CapEx) 부담이 미미한 지식서비스·금융 플랫폼 비즈니스를 영위하므로, 영업이익이 고스란히 현금으로 환산되는 탁월한 현금전환율을 보유하고 있습니다. 2021년 2,210억 원이던 연결 매출액은 2025년 3,758억 원으로 연평균 두 자릿수 성장을 이어갔으며, 연결 영업이익 역시 370억 원대에서 500억 원대로 레벨업되었습니다 [공시 팩트: 26.03 사업보고서, 125].</p>
-<p>연결 재무제표 상 비지배지분(헥토파이낸셜 등 소수주주 지분)이 존재하므로, 지배주주 귀속 순이익 및 지배주주 귀속률(%)을 명시합니다 (<code>backtest_valuation.py</code> 실측 지배주주 순이익 귀속률: <strong>75.7%</strong>).</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">연도/분기</th>
-<th style="text-align: center;">매출액</th>
-<th style="text-align: center;">영업이익</th>
-<th style="text-align: center;">OPM(%)</th>
-<th style="text-align: center;">지배주주 순이익(귀속률)</th>
-<th style="text-align: center;">FCF</th>
-<th style="text-align: left;">비고</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><strong>2021년 (제13기)</strong></td>
-<td style="text-align: center;">2,210.4억</td>
-<td style="text-align: center;">374.8억</td>
-<td style="text-align: center;">16.95%</td>
-<td style="text-align: center;">210.9억 (65.0%)</td>
-<td style="text-align: center;">807.0억 [공시 팩트]</td>
-<td style="text-align: left;">연결순익 324.7억, OCF 834.3억, CapEx 27.3억 [팩트: 24.03 사업보고서]</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2022년 (제14기)</strong></td>
-<td style="text-align: center;">2,629.7억</td>
-<td style="text-align: center;">356.4억</td>
-<td style="text-align: center;">13.55%</td>
-<td style="text-align: center;">294.5억 (91.5%)</td>
-<td style="text-align: center;">206.8억 [공시 팩트]</td>
-<td style="text-align: left;">연결순익 321.8억, OCF 260.4억, CapEx 53.6억 [팩트: 23.03 사업보고서]</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2023년 (제15기)</strong></td>
-<td style="text-align: center;">2,884.9억</td>
-<td style="text-align: center;">380.3억</td>
-<td style="text-align: center;">13.18%</td>
-<td style="text-align: center;">225.6억 (70.7%)</td>
-<td style="text-align: center;">574.3억 [공시 팩트]</td>
-<td style="text-align: left;">연결순익 319.1억, OCF 613.9억, CapEx 39.6억 [팩트: 26.03 사업보고서 소급]</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2024년 (제16기)</strong></td>
-<td style="text-align: center;">3,194.7억</td>
-<td style="text-align: center;">488.6억</td>
-<td style="text-align: center;">15.29%</td>
-<td style="text-align: center;">279.0억 (80.2%)</td>
-<td style="text-align: center;">987.2억 [공시 팩트]</td>
-<td style="text-align: left;">연결순익 347.7억, OCF 1,059.9억, CapEx 72.7억 (외형·이익 급성장)</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2025년 (제17기)</strong></td>
-<td style="text-align: center;">3,758.2억</td>
-<td style="text-align: center;">501.8억</td>
-<td style="text-align: center;">13.35%</td>
-<td style="text-align: center;">305.3억 (83.0%)</td>
-<td style="text-align: center;">916.3억 [공시 팩트]</td>
-<td style="text-align: left;">연결순익 367.9억, OCF 1,004.3억, CapEx 88.0억 (영업익 500억 클럽 안착)</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2026.2Q (최신누적)</strong></td>
-<td style="text-align: center;">상반기 1,935.5억</td>
-<td style="text-align: center;">상반기 249.4억</td>
-<td style="text-align: center;">12.89%</td>
-<td style="text-align: center;">상반기 88.1억 (75.7%)</td>
-<td style="text-align: center;">반기 OCF 154.8억 [팩트]</td>
-<td style="text-align: left;">2Q 조정 EBITDA 179억 (마진 17.4%), 헬스케어 RCPS 조기상환 132억 완료</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>4. 핵심 KPI 추이 (가동률, 수주잔고, ASP 등)</h2>
-<p>[공시 팩트]
-- <strong>공장 가동률 지표 (해당사항 없음):</strong> 지배회사 헥토이노베이션은 보안 솔루션 및 모바일 서비스를 개발·운영하는 IT 지식서비스 및 핀테크 플랫폼 기업으로 물리적 생산설비와 공장이 존재하지 않아 DART 정기보고서 공시상 <strong>'해당사항 없음'</strong>으로 공식 기재되어 있습니다 [공시 팩트: 24.03 사업보고서, 52]. 제조업과 달리 공장 가동률 하락에 따른 고정비 레버리지 역풍 위험이 원천 차단된 구조입니다.
-- <strong>재고자산 구성비율 (초경량 에셋라이트 모델):</strong> 지배회사는 재고자산이 전무하며, 건기식 유통 종속회사(헥토헬스케어 등)를 포함한 연결 자산총계(7,983억 원) 대비 재고자산(166억 원) 비중은 [공시 팩트: 26.2Q 실적발표] <strong>2.08%</strong>에 불과합니다 (2024년 말 1.70% → 2025년 말 2.09% → 2026년 반기말 2.10% [공시 팩트: 26.08 반기보고서, 3]). 운전자본 묶임 현상이 극히 드문 우량 재무구조입니다.
-- <strong>내수/수출 구조의 변곡점 (글로벌 확장):</strong> 과거 내수 비중이 거의 100%에 수렴하던 구조였으나 [공시 팩트: 24.03 사업보고서, 52], 2024년 말 헥토헬스케어가 중국 시노팜 계열 국약약재와 <strong>5년간 총 1,550억 원</strong> 규모의 드시모네 수출 계약을 체결하여 [공시 팩트: 25.03 사업보고서, 149] 2025년부터 수출 실적이 반영되기 시작했습니다.
-- <strong>신규 바이오 파이프라인 개별인정 획득:</strong> 2026년 2분기 식약처로부터 <strong>'체지방감소에 도움을 줄 수 있음'</strong> 기능성에 대한 개별인정을 공식 획득하여(임상 결과 체지방률, 내장지방면적, BMI 유의미 감소) [공시 팩트: 26.2Q 실적발표], 2027년 초 출시될 다이어트 건기식 메가 파이프라인을 구축했습니다.</p>
-<hr />
-<h2>5. 경영진 및 주주환원 이력</h2>
-<p>[공시 팩트] 워런 버핏이 가장 중요시하는 지표 중 하나인 '경영진의 지분율과 자본배치(Capital Allocation) 역량'에서 당사는 코스닥 최고 수준의 실행력을 입증하고 있습니다. 창업자이자 최대주주인 이경민 사내이사는 2025년 장내외 매수 등을 통해 소유 주식을 5,084,278주로 늘리며 지분율을 <strong>39.13%</strong>(특별관계자 포함 5,116,140주, <strong>39.38%</strong>)까지 끌어올려 책임경영 의지를 확고히 했습니다 [공시 팩트: 2026.09.18 대량보유상황보고서].</p>
-<p>또한 당사는 FY2024 ~ FY2026 사업연도에 걸쳐 매년 발행주식총수의 1%를 기보유 자기주식으로 전량 소각하는 3개년 주주환원 계획을 결의하고 실제 100% 이행하고 있습니다 [공시 팩트: 26.03 사업보고서, 79].</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">주주환원 및 자본배치 항목</th>
-<th style="text-align: left;">세부 실행 내용 및 공시 팩트</th>
-<th style="text-align: left;">출처</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>자사주 소각 (2024년)</strong></td>
-<td style="text-align: left;">보통주 132,572주 소각 완료 (소각금액 1,850,908,356원)</td>
-<td style="text-align: left;">[공시 팩트: 26.03 사업보고서, 78]</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>자사주 소각 (2025년)</strong></td>
-<td style="text-align: left;">보통주 131,246주 소각 완료 (소각금액 2,005,026,458원)</td>
-<td style="text-align: left;">[공시 팩트: 26.03 사업보고서, 78]</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>자사주 소각 (2026년 예정)</strong></td>
-<td style="text-align: left;">2026년 반기 기준 소각예정 자기주식 129,934주 기보유 중</td>
-<td style="text-align: left;">[공시 팩트: 26.08 반기보고서, 68]</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>현금 배당 추이 (별도 성향)</strong></td>
-<td style="text-align: left;">21년 390원(23.9%) → 22년 420원(21.8%) → 23년 360원(23.0%) → 24년 490원(26.6%) → 25년 500원(총 62.9억 원, 시가배당률 3.74%)</td>
-<td style="text-align: left;">[공시 팩트: 25.03 사업보고서, 102; 26.08 반기보고서, 312]</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>부채 조기 상환 및 배당 집행</strong></td>
-<td style="text-align: left;">2026년 2분기 헬스케어 RCPS 132억 원 조기 상환(부채 축소) 및 현금배당금 81억 원 실지급 완료</td>
-<td style="text-align: left;">[공시 팩트: 26.2Q 실적발표]</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>제도권 딥리서치 공인</strong></td>
-<td style="text-align: left;">LS증권 '주주환원확대 10선' 9위 등재 (PBR 0.8배, ROE 17.0%, 주주환원율 15.2%)</td>
-<td style="text-align: left;"><code>[글로벌 트렌드: 26.09.01.LS증권.AI 투자 프레임의 변화.pdf p.72]</code></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>6. 공시 본문 기반 3대 핵심 리스크</h2>
-<p>[공시 팩트] 사업보고서 및 최근 분기보고서에 명시된 주요 투자위험 요소는 다음과 같습니다 [공시 팩트: 24.03 사업보고서, 21, 74; 26.03 사업보고서, 32, 157].</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">리스크 요인</th>
-<th style="text-align: left;">핵심 내용 (발생 조건)</th>
-<th style="text-align: center;">확률(Prob)</th>
-<th style="text-align: center;">파급력(Impact)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>플랫폼 출혈 경쟁 및 마케팅비 증가 리스크</strong></td>
-<td style="text-align: left;">B2C 앱테크 플랫폼 '발로소득' 및 마이데이터 서비스의 치열한 모바일 앱 마케팅 경쟁 속 유저 이탈 방지용 포인트/마케팅 비용 증가로 인한 단기 마진 저하 위험 [공시 팩트: 26.03 사업보고서, 32]</td>
-<td style="text-align: center;">Mid</td>
-<td style="text-align: center;">Mid</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>전자금융 및 펌뱅킹 결제망 전산 안정성·보안사고 리스크</strong></td>
-<td style="text-align: left;">종속회사 헥토파이낸셜의 가상계좌, 간편현금결제 등 금융망 시스템에서 대규모 정전, 전산 오류, 해킹 등 금융사고 발생 시 거래 중단 및 손해배상 책임 유발 위험 [공시 팩트: 24.03 사업보고서, 21, 74]</td>
-<td style="text-align: center;">Low</td>
-<td style="text-align: center;">High</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>해외 수출 선적 지연 및 자회사 실적 변동성 리스크</strong></td>
-<td style="text-align: left;">헥토헬스케어의 중국 1,550억 수출 계약 이행 과정에서 대외 무역 여건이나 인허가 지연 시 외형 성장 속도 둔화 및 연결 실적 변동성 발생 위험 [공시 팩트: 23.03 사업보고서, 17; 25.03 사업보고서, 149]</td>
-<td style="text-align: center;">Mid</td>
-<td style="text-align: center;">High</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>7. 비즈니스 모델 기반 표준 실적 산출 공식 (Phase 3 연계)</h2>
-<p>(대상 기업의 비즈니스 모델 특성과 Section 4의 DART 공시 팩트에 기반하여, <strong>4대 업종별 표준 공식 트리 중 유형 C [플랫폼·지식·유통·에이전시 서비스]</strong> 산식을 선정하여 최초 1회 정의 및 영구 고정)</p>
-<h3>[4대 업종별 표준 공식 트리 분기 규칙 (Taxonomy) 적용]</h3>
+<h2>5. 자본 배분(CapEx, R&amp;D) 및 [Step 1.8] K-마켓 특수성 · 주주환원 입체 스코어카드</h2>
+<h3>5.1 자본 배분 전략 (M&amp;A · 투자 · R&amp;D)</h3>
 <ul>
-<li><strong>선택 유형:</strong> <strong>유형 C [플랫폼·지식·유통·에이전시 서비스]</strong></li>
-<li><strong>채택 공식:</strong>
-  $$\left[ \text{모바일 보안/인증 유료 가입자수} \times \text{ARPU(월 1,100원)} \right] + \left[ \text{핀테크 결제 총 거래액(GMV)} \times \text{수수료율(Take Rate)} \right] + \left[ \text{헬스케어 구독자수} \times \text{객단가} + \text{대중국 수출 선적액} \right]$$
-  $$\implies \text{연결 매출액} \implies \text{영업이익 (OPM 반영)} \implies \text{지배주주 순이익 (귀속률 75.7% 반영)} \implies \text{지배주주 EPS / Forward BPS}$$</li>
-<li>
-<p><strong>세부 4단계 산출 체인:</strong>
-    $$\text{본업 캐시카우 및 헬스케어 외형(3,500억~5,000억 원)} \longrightarrow \text{매출액} \times \text{예상 OPM}(13\sim 16\%) \longrightarrow \text{영업이익} \times \text{지배주주 귀속률}(75.7\%) \longrightarrow \text{지배순이익} \div \text{실질 유통주식수}(12,583,567\text{주}) \longrightarrow \text{EPS}$$</p>
-</li>
-<li>
-<p><strong>선정 근거 및 Section 4 공시 팩트와의 정합성 해설:</strong></p>
-</li>
-<li><strong>🚨 상호 교차 검증 절대 규칙 준수:</strong> Section 4에서 확인된 바와 같이, 당사는 물리적 생산설비가 전무한 IT 지식서비스 및 핀테크 플랫폼 기업으로 DART 상에 공장 가동률(%)을 공시하지 않습니다. 따라서 본 산식에서 <strong>'공장 가동률' 단어 사용을 100% 엄격 배제</strong>하고, 순수 가입자 기반 월정액 부가서비스(ARPU), 핀테크 결제 거래액(GMV) 기반 수수료, 헬스케어 정기배송(또박배송) 및 대중국 1,550억 원 수출 선적 체인으로 표준화했습니다.</li>
-<li>
-<p><strong>원가 구조 및 영업 레버리지:</strong> 당사는 고정 설비투자 부담이 없는 에셋라이트 모델로, 플랫폼 가입자 및 결제 거래액 증가 시 추가 원가 없이 마진율(조정 EBITDA 마진율 17.4%)이 극대화되는 구조를 보유하고 있습니다.</p>
-</li>
-<li>
-<p><strong>고정 규칙:</strong> 본 공식은 Phase 3 시나리오 분석 시 100% 동일하게 상속되며, 기업의 구조적 BM 격변(신사업 비중 30% 초과 등) 또는 사용자의 명시적 재검토 요청이 없는 한 영구 유지됩니다.</p>
-</li>
+<li>헥토이노베이션은 대규모 유형자산 설비투자(CapEx) 대신 <strong>소프트웨어 인프라 고도화, 계열사 재편(2026년 7월 엠트웰브의 '헥토엔링크' 사명 변경 및 허니콘 흡수합병), 지분 투자(2026년 3Q 마핀 종속기업 편입, 노바웰스 관계기업 편입)</strong>에 잉여현금을 배분해 왔습니다(<code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.97~98; <code>[헥토이노베이션]반기보고서(2026.08.14).pdf</code>, p.185).</li>
+<li>다만 비영업 투자자산(부동산 리츠·투자조합·단순투자) 비중이 시총의 <code>51.8%</code>까지 비대해진 점은 자본효율성(ROE/ROIC) 관점에서 시장의 멀티플 할인 사유로 작용합니다.</li>
+</ul>
+<h3>5.2 [Step 1.8] K-마켓 특수성 · 주주환원 3단 입체 스코어카드 (<code>④-A / B / C</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">점검 축</th>
+<th style="text-align: left;">핵심 팩트 및 실측 수치 (DART &amp; SSOT)</th>
+<th style="text-align: left;">판정 및 밸류에이션 영향</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>④-A 고배당 · 분리과세 · TSR</strong></td>
+<td style="text-align: left;">주당배당금(DPS) <strong><code>500원</code></strong> / 배당수익률 <strong><code>3.82%</code></strong> / 배당성향 <strong><code>20.6%</code></strong> / 총주주환원율(TSR) <strong><code>30.3%</code></strong></td>
+<td style="text-align: left;">⚪ 배당소득 분리과세 요건 미해당(성향 <code>20.6% &lt; 25%</code>). 다만 자사주 소각 포함 TSR <code>30.3%</code>는 코스닥 평균 상회.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④-B 자사주 · 환원절벽 · 메자닌</strong></td>
+<td style="text-align: left;">잔여 자사주 <strong><code>279,866주</code></strong>(<code>2.18%</code>, 2026.11.11 129,934주 소각 완료) / 미상환 CB·BW·EB <strong><code>0.0억 원</code></strong>(희석 <code>0.0%</code>) / 임직원 RSU 부여(본사 미행사 <code>181,440주</code> — 3년 내 연속 5영업일 평균 시총 <strong><code>5,000억 원</code></strong> 달성 조건; 헥토파이낸셜 5차 <code>125,200주</code> — 시총 <strong><code>1.5조 원</code></strong> 달성 조건, <code>[헥토이노베이션]분기보고서(2026.11.16).pdf</code>, p.56)</td>
+<td style="text-align: left;">🟢 메자닌 희석 리스크 <strong>0% 청정</strong>. RSU 역시 시총 3배 이상(현 1,648억 ➔ 5,000억) 폭등 시에만 지급되는 주주친화적 성과연동 구조. 단, 3개년 자사주 소각 계획 완수 이후 <strong>FY27~ 신규 주주환원 정책 공백(환원절벽)</strong> 여부 모니터링 필수.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>④-C 지배구조 · 내부거래 · 중복상장</strong></td>
+<td style="text-align: left;">최대주주 이경민 <strong><code>39.13%</code></strong>(특수관계인 포함 <code>39.38%</code>, 담보 <code>2.67%</code>), 2대주주 프리미어성장전략M&amp;A 사모투자합자회사 <strong><code>10.27%</code></strong>(<code>1,334,786주</code>, p.118). 특수관계인 내부거래 <strong><code>19.8억 원</code></strong>(오너 개인회사 터널링 미감지). 상장 자회사 헥토파이낸셜(<code>38.50%</code>) 중복상장.</td>
+<td style="text-align: left;">🟢 오너 사익편취 내부거래 청정(<code>kgov_mult = ×1.0000</code>). 중복상장 영향은 지배귀속률(<code>75.7%</code>) 및 SOTP 비영업자산 할인으로 선반영 완료. <strong>주의</strong>: 2대주주 사모펀드(프리미어PEF <code>10.27%</code>)의 향후 엑시트(블록딜) 잠재 오버행 점검 필요.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. 핵심 리스크 요인 및 [Step 3.5] 리스크 3단계 인과 도미노 (Domino Chain)</h2>
+<h3>6.1 리스크 3단계 인과 도미노 매트릭스</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">리스크 시나리오</th>
+<th style="text-align: left;">1차 촉발 요인 (Trigger)</th>
+<th style="text-align: left;">2차 영업·운전자본 전이 (Transmission)</th>
+<th style="text-align: left;">3차 재무·자본 타격 및 정량 임계치 (Impact)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>도미노 1: PG 가맹점 부실 및 대손 폭증</strong></td>
+<td style="text-align: left;">경기 둔화로 e-커머스·중소 가맹점 도산·정산 사고 재발</td>
+<td style="text-align: left;">매출채권 연체 확대 및 분기 대손상각비 급증(이미 대손충당금 <code>279.7억 원</code> 누적)</td>
+<td style="text-align: left;">분기 영업이익 <strong><code>&lt; 109.5억 원</code></strong>(QoQ -15% 하회) 추락 및 OPM <code>10%</code> 붕괴 ➔ Kill-Switch 즉시 발동</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>도미노 2: OPM 구조적 하락(마진 훼손)</strong></td>
+<td style="text-align: left;">헬스케어 마케팅 출혈 경쟁 및 저마진 PG·상품권 믹스 과대</td>
+<td style="text-align: left;">본사 구독 이탈 + 자회사 판관비율 상승으로 영업 레버리지 역전</td>
+<td style="text-align: left;">연결 OPM 과거 중위(<code>17.5%</code>) 대비 격차 심화(<code>12.8% → &lt; 10%</code>) ➔ 유형 B(가치함정) 전락 및 PBR 하단(<code>9,340원</code>) 고착</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>도미노 3: 리츠 풋옵션 및 PEF 오버행</strong></td>
+<td style="text-align: left;">상업용 부동산 침체로 펨코오피스제10호 리츠 1종종류주주 풋옵션 행사 + 프리미어PEF(<code>10.27%</code>) 엑시트</td>
+<td style="text-align: left;">그룹 연대책임 최대 <strong><code>480억 원</code></strong>(본사 <code>100억 원</code>) 현금 유출 및 비영업자산 비중 재상승</td>
+<td style="text-align: left;">순현금(<code>711.7억 원</code>) 대폭 소진 + FY27 주주환원 축소(환원절벽) ➔ 1단계 손절선(<code>8,870원</code>) 이탈 위험</td>
+</tr>
+</tbody>
+</table>
+<h3>6.2 리스크 3단계 인과 도미노 구조도 (Mermaid v10.9.8)</h3>
+<pre><code class="language-mermaid">flowchart LR
+    trig1[&quot;1차 촉발 - PG 가맹점 부실 및 헬스케어 경쟁 심화&quot;] --&gt; trans1[&quot;2차 전이 - 대손상각비 증가 및 OPM 12.8% 하방 압박&quot;]
+    trig2[&quot;1차 촉발 - 리츠 풋옵션 480억 및 PEF 10.27% 오버행&quot;] --&gt; trans2[&quot;2차 전이 - 순현금 유출 및 FY27 주주환원 공백 우려&quot;]
+    trans1 --&gt; imp1[&quot;3차 타격 - 분기 영업이익 109.5억 미만 Kill-Switch 발동&quot;]
+    trans2 --&gt; imp2[&quot;3차 타격 - 자본효율성 훼손 및 멀티플 영구 할인 고착&quot;]
+    imp1 --&gt; final_risk[&quot;최종 결과 - 유형 B 가치함정 전락 및 Bear 9,340원 이탈&quot;]
+    imp2 --&gt; final_risk
+</code></pre>
+<hr />
+<h2>7. 4대 업종별 표준 실적 산출 공식 트리 (유형 A/B/C/D 분기)</h2>
+<p>Section 4에서 확인된 바와 같이 헥토이노베이션은 제조 설비 가동률에 종속되지 않는 <strong>유형 C(플랫폼·IT 구독·결제 인프라) + 유형 D(브랜드 소비재·헬스케어) 복합 업종</strong>입니다. 이에 따라 비제조 표준 실적 산출 트리를 적용합니다.</p>
+<p>$$\text{연결 영업이익} = \underbrace{(\text{구독자 수 } Q_{\text{IT}} \times \text{월정액 ARPU } P_{\text{IT}} - C_{\text{제휴수수료}})}<em>{\text{유형 C: 본사 IT정보서비스}} + \underbrace{(\text{결제 거래액 } GMV \times \text{Take Rate} - C</em>{\text{정산/대손}})}<em>{\text{유형 C: 헥토파이낸셜}} + \underbrace{(\text{드시모네·온리츄얼 판매량 } Q</em>{\text{HC}} \times \text{ASP} - C_{\text{원가/마케팅}})}_{\text{유형 D: 헥토헬스케어}}$$</p>
+<ul>
+<li><strong>실적 민감도 핵심 레버</strong>:</li>
+<li><strong>본사(유형 C)</strong>: 통신 3사 제휴 구독자 유지율(Retention)이 현금흐름의 하방을 지지.</li>
+<li><strong>헥토파이낸셜(유형 C)</strong>: 간편현금결제/가상계좌 거래액(GMV) 성장과 <strong>대손상각비(<code>C_대손</code>) 통제</strong>가 수익성의 핵심.</li>
+<li><strong>헥토헬스케어(유형 D)</strong>: 드시모네·온리츄얼의 높은 매출 성장률(+40%+)이 마케팅비 투하 대비 영업이익 레버리지로 전환되는 변곡점 확인 필요.</li>
 </ul>
 <hr />
-<h2>8. 최적 밸류에이션 지표 백테스트 (Phase 3 연계)</h2>
-<p>(동사의 <strong>과거 10년 풀사이클(2016년 10월 ~ 2026년 10월 19일 현재, 521개 캔들) 주봉(Weekly) 주가 시계열</strong>과 PER·PBR·배당수익률·EV/EBITDA 4개 밸류에이션 밴드의 상관관계를 분석하여, 주가 설명력이 가장 높은 최적 지표를 최초 1회 선정하고 영구 고정)</p>
-<h3>[백테스트 수행 파이프라인 및 제도권 공식 벤치마크 Sanity Check]</h3>
-<ol>
-<li><strong>표준 백테스트 엔진 가동</strong>: <code>python e:\antigravity-work\my-skill\korean-stock-analyzer\backtest_valuation.py --code 214180 --years 10 --corp-name 헥토이노베이션</code></li>
-<li><strong>제도권 공식 벤치마크 (네이버 금융 / FnGuide / KRX 기준 2026.10.19 실시간 동기화)</strong>:</li>
-<li><strong>단일 기준 주가 (최신 일봉 종가):</strong> <strong>13,380원</strong> (기준일: 2026-10-19, 주봉 60주선 이격도 80.0%)</li>
-<li><strong>실질 유통주식수:</strong> <strong>12,583,567주</strong> (총 발행 12,993,367주 − 자기주식 409,800주)</li>
-<li><strong>공식 BPS:</strong> <strong>18,135원</strong> (지배주주 순자산 기준)</li>
-<li><strong>공식 PBR:</strong> <strong>0.74배</strong> (= 13,380원 ÷ 18,135원)</li>
-<li><strong>공식 EPS:</strong> <strong>1,982원</strong> (기본 주당순이익 기준)</li>
-<li><strong>공식 PER:</strong> <strong>6.75배</strong> (= 13,380원 ÷ 1,982원)</li>
-<li><strong>공식 배당수익률:</strong> <strong>3.74%</strong> (DPS 500원 기준: 500원 ÷ 13,380원)</li>
-<li><strong>🛡️ Sanity Check (유통 BPS 검증)</strong>:</li>
-<li>최신 주가(13,380원) ÷ 공식 BPS(18,135원) = PBR <strong>0.74배</strong></li>
-<li>✅ <strong>[검증 통과] 제도권 공식 PBR(0.74배) 및 PER(6.75배)과 정합성 100% 일치 확인.</strong></li>
-<li><strong>10년 풀사이클(2016~2026, 521주) 역사적 Trough/Peak 포착</strong>:</li>
-<li>10년 역사적 최저가(Trough): <strong>9,040원</strong> (2020-03-20, 팬데믹 바닥)</li>
-<li>10년 역사적 최고가(Peak): <strong>27,500원</strong> (2017-12-01, 코스닥 랠리 고점)</li>
-<li><strong>허위 상관(Spurious Correlation) 필터링 결과 (<code>backtest_valuation.py</code> 실측)</strong>:</li>
-<li><strong>PER(수정 EPS 기준)</strong>: 주가 설명력 R² = 0.20이나, <strong>방향 일치율이 46.2%로 50% 미만</strong>에 그침 ➡️ 시클리컬 실적 변동기 주가와 EPS 역행에 따른 통계적 착시로 판정하여 <strong>1순위 지표에서 자동 배제</strong>하고 보조 지표로 강등.</li>
-<li><strong>PBR(유통 BPS 기준)</strong>: 주가 설명력 R² = 0.27, <strong>방향 일치율 59.0% (≥ 50% 통과)</strong> ➡️ 매년 이익잉여금 유입 및 자사주 소각으로 우상향하는 순자산가치와 주가 바닥권 간 상관관계가 가장 강력하여 <strong>최적 1순위 주 지표로 최종 채택</strong>.</li>
-</ol>
-<h3>[10년 풀사이클 백테스트 결과표 (2016~2026, 521주)]</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">밸류에이션 지표</th>
-<th style="text-align: center;">10년 밴드 (MIN ~ MAX)</th>
-<th style="text-align: center;">현재 위치 (13,380원 기준)</th>
-<th style="text-align: center;">주봉 주가 상관계수 (R²)</th>
-<th style="text-align: center;">방향 일치율</th>
-<th style="text-align: center;"><strong>순위 (BM 적합성 반영)</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>PBR (유통 BPS 기준)</strong></td>
-<td style="text-align: center;"><strong>0.72배 ~ 8.19배</strong> (3년 평균 0.92배)</td>
-<td style="text-align: center;"><strong>0.74배</strong> (역사적 하단 락바텀)</td>
-<td style="text-align: center;"><strong>0.27</strong></td>
-<td style="text-align: center;"><strong>59.0%</strong></td>
-<td style="text-align: center;"><strong>1위 (채택! 방향일치율 ≥ 50%)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>PER (수정 EPS 기준)</strong></td>
-<td style="text-align: center;"><strong>7.14배 ~ 36.87배</strong> (3년 평균 10.00배)</td>
-<td style="text-align: center;"><strong>6.75배</strong> (역사적 하단 밴드)</td>
-<td style="text-align: center;"><strong>0.20</strong></td>
-<td style="text-align: center;"><strong>46.2%</strong></td>
-<td style="text-align: center;"><strong>2위 (방향일치율 &lt; 50% 배제, 보조)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>배당수익률 (DPS 기준)</strong></td>
-<td style="text-align: center;"><strong>1.45% ~ 5.02%</strong> (중앙값 2.85%)</td>
-<td style="text-align: center;"><strong>3.74%</strong> (상단 밴드 안착)</td>
-<td style="text-align: center;"><strong>0.74</strong></td>
-<td style="text-align: center;"><strong>98.2%</strong></td>
-<td style="text-align: center;"><strong>3위 (하방 지지용 보조 지표)</strong></td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>EV/EBITDA (동적 순현금)</strong></td>
-<td style="text-align: center;"><strong>1.03배 ~ 6.50배</strong> (중앙값 2.45배)</td>
-<td style="text-align: center;"><strong>1.35배</strong> (극저평가)</td>
-<td style="text-align: center;"><strong>0.15</strong></td>
-<td style="text-align: center;"><strong>88.0%</strong></td>
-<td style="text-align: center;"><strong>4위</strong></td>
-</tr>
-</tbody>
-</table>
+<h2>8. [Step 2.0] 4대 레짐 변화 고정 체크 &amp; 10년 밸류에이션 백테스트</h2>
+<h3>8.1 [Step 2.0] 4대 레짐 변화 고정 게이트</h3>
+<p>과거 10년 멀티플 밴드를 단순 적용하기 전 4대 구조적 레짐 변화를 점검한 결과, <strong>2개 핵심 레짐 변화(<code>③ 비영업자산</code>, <code>④ 사업구성</code>)가 공식 감지</strong>되어 단순 저평가 착시를 배제한 보정 밸류에이션이 필수입니다.
+1. <strong>① 설비 레짐 (CapEx·감가상각)</strong>: 비제조 소프트웨어/결제 구조로 대규모 유형자산 증설 사이클 미해당(안정).
+2. <strong>② 자본구조 레짐 (순부채·희석)</strong>: 순현금 <strong><code>711.7억 원</code></strong>, 미상환 CB/BW <strong><code>0원</code></strong>, 3개년 자사주 소각 이행으로 재무 레짐은 오히려 개선.
+3. <strong>③ 비영업자산 레짐 (🚨 변화 감지)</strong>: 비영업자산 비중이 시총 대비 <strong><code>51.8%</code></strong>(장부 대비 <code>37.4%</code>)로 20% 기준을 크게 상회 ➔ 단순 연결 PBR을 과거 밴드와 비교할 경우 <strong>명목 저평가 착시</strong>가 발생하므로 <strong>SOTP 분리 평가(본업 BPS <code>11,345원</code> + 비영업 안전가치 <code>598.1억 원</code>) 강제 적용</strong>.
+4. <strong>④ 사업구성 레짐 (🚨 변화 감지)</strong>: 연결 OPM이 과거 중위 <strong><code>17.5%</code></strong>에서 현재 <strong><code>12.8%</code></strong>로 <strong><code>-4.7%p</code> 하락</strong> ➔ 고마진 본사 구독 비중이 희석되고 PG·헬스케어·대손비용이 확대된 믹스 변화를 인정하여, 과거 전성기 고멀티플 적용을 배제하고 보수적 PBR 밴드를 적용.</p>
+<h3>8.2 [Step 3.0] 사이클 고점 함정 가드레일 &amp; 10년 밸류에이션 백테스트 상속</h3>
 <ul>
-<li><strong>채택 지표:</strong> <strong>PBR (순자산가치 배수)</strong> — 주가 설명력 R² = <strong>0.27</strong>, 방향 일치율 <strong>59.0%</strong> (1순위 채택), <strong>PER(6.75배)</strong> 및 <strong>배당수익률(방향 일치율 98.2%)</strong> 상호 보조</li>
-<li><strong>선정 근거:</strong></li>
-<li>당사는 매년 300억~500억 원의 순이익이 이익잉여금으로 누적되고 자사주 소각(연간 1%)이 병행되어 BPS가 구조적으로 우상향(2023년 14,092원 → 2026년 18,135원)하는 지식서비스 BM으로, 10년 역사적 PBR 밴드(0.72배 ~ 8.19배)의 하단(0.74배)이 주가의 바닥 지지선을 가장 높은 설명력으로 규정해 왔습니다.</li>
-<li>PER의 경우 방향 일치율이 46.2%로 50% 미만에 그쳐 단독 1순위 적용 시 통계적 착시를 유발하므로, 방향 일치율 59.0%인 PBR을 주 잣대로 삼고 PER을 보조 지표로 병기합니다.</li>
-<li>동시에 배당수익률(현재 3.74%, 최대 5.0%)이 98.2%의 방향 일치율로 초강력 하방 안전마진을 제공하고 있습니다.</li>
-<li><strong>🚨 Phase 3 강제 구속력 (Mandatory Binding):</strong></li>
-<li>본 백테스트에서 채택된 1순위 주 지표인 <strong>PBR(<code>Forward BPS = 현재 BPS + 추정 지배순이익 − 예상 DPS</code>)</strong>은 Phase 3 시나리오 표의 <strong><code>Target 멀티플 열</code>에 100% 동일하게 적용</strong>되며, 괄호 안에 <strong>내재 Implied Forward PER</strong>을 교차 검증용으로 병기합니다.</li>
-<li><strong>고정 규칙:</strong> 본 채택 지표는 Phase 3 시나리오 분석 시 100% 동일하게 상속되며, 기업의 구조적 BM 격변(신사업 비중 30% 초과 등) 또는 사용자의 명시적 재검토 요청이 없는 한 영구 유지됩니다.</li>
+<li><strong>Step 3.0 사이클 고점 함정 판정</strong>: 현재 이익은 경기민감 호황 피크 이익 과열 구간에 해당하지 않음(<code>🟢 정상 멀티플 적용</code>).</li>
+<li><strong>10년 밸류에이션 백테스트 1순위 지표 확정 및 Phase 3 강제 상속</strong>:</li>
+<li>헥토이노베이션은 자회사 지분·투자부동산·현금성 자산 등 자산가치 비중이 크고 PG 정산자금 변동 및 지배귀속률(<code>75.7%</code>) 영향으로 순이익 변동성이 존재하는 사업지주 구조입니다.</li>
+<li>코드 백테스트 결과, 허위 상관을 제거한 최우선 밸류에이션 지표로 <strong><code>PBR</code> (SOTP 본업 BPS <code>11,345원</code> + 비영업자산 안전가치 <code>598.1억 원</code> 결합 기준)</strong>이 최종 선정되었으며, 이 지표는 <strong>Phase 3 시나리오 밸류에이션(<code>Bear 9,340원 / Base 14,980원 / Bull 16,300원</code>)의 주 멀티플로 100% 강제 상속</strong>됩니다.</li>
 </ul>
     <script>
-        const SSOT_DATA = null;
+        const SSOT_DATA = {"version": "5.0", "generated_at": "2026-11-19 21:46:10", "stock_code": "214180", "corp_name": "헥토이노베이션", "anchor_price": 13100, "primary_metric": "PBR", "bench": {"stock_name": "헥토이노베이션", "close": 13390.0, "bps": 18135.0, "pbr": 0.72, "eps": 1982.0, "per": 6.61, "div_yield": 3.82, "dps": 500.0, "market_cap_str": "1,702억", "investor_flow": {"days": 20, "foreign_net_shares": 55995, "organ_net_shares": 11058, "retail_net_shares": -72213, "smart_money_net_shares": 67053, "smart_money_vol_pct": 6.39, "smart_money_net_eok": 8.8, "foreign_5d_shares": 3234, "organ_5d_shares": 4227, "foreign_hold_ratio_pct": 15.7, "foreign_hold_chg_pctp": 0.42}}, "sotp": {"sotp_triggered": true, "book_eq_eok": 2282.03, "mcap_eok": 1648.45, "non_op_assets_eok": 854.4, "recognized_non_op_eok": 598.08, "non_op_haircut": 0.3, "non_op_ratio_book_pct": 37.44, "non_op_ratio_mcap_pct": 51.83, "non_op_max_ratio_pct": 51.83, "core_bps": 11345, "nopat_eok": 409.27, "core_roic_pct": 28.67, "core_profit_sustainable": true, "implied_core_op_ev_eok": 338.67}, "step1_2_bottleneck": {"is_phase2": false, "is_early_ignition": false, "theme_name": "S-Curve 할증 미적용 (--no-s-curve)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 0.0, "second_penetration_pct": 0.0, "is_near_10pct_inflection": false, "penetration_zone": "Zone D [무상 콜옵션/비해당 — 단독매출 30% 미달·미공시로 침투율(0.0%/0.0%) 할증 0% 차단]", "inflection_desc": "IT 본인인증·금융결제(헥토파이낸셜) 캐시카우 + 글로벌 헬스케어(드시모네) B2B 확장 초입(~10~12%)", "bottleneck_grade": "B", "bottleneck_factors": ["특허/벤더 Lock-in: 통신 3사·금융권 본인인증 및 펌뱅킹 결제망 독과점 라이선스 장벽"], "bottleneck_lead_time_months": 9, "bottleneck_duration_label": "⚡ 단기 일시적 병목 (9개월 / 1년 미만 해소 주의)", "bottleneck_lead_reason": "금융결제원·통신사 보안 인허가 및 대형 플랫폼 결제망 연동에 24개월+ 진입장벽", "capa_util_pct": 0.0, "curr_opm_pct": 12.81, "core_bottleneck_only_mode": false, "scurve_sell_triggered": false, "shortage_easing": false, "slope_decel": false, "policy_headwind": false, "sell_signal_summary": "🟢 해당 없음 (병목 유지 · 성장 기울기 건전 · 정책 역풍 미감지)", "pen_base_boost": 0.0, "pen_bull_boost": 0.0, "bn_base_bonus": 0.0, "bn_bull_bonus": 0.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "peg_factor": 0.8}, "step1_8_k_return": {"payout_ratio_pct": 20.6, "tsr_pct": 30.3, "div_yield_pct": 3.82, "dps": 500.0, "treasury_shares": 279866, "treasury_ratio_pct": 2.18, "tax_incentive_status": "⚪ 배당소득 분리과세 미해당 (배당성향 20.6% < 25%)", "buyback_cliff_warn": false, "buyback_cliff_risk": false, "cliff_status": "🟢 정상 (현재 자기주식 279,866주 [2.18%] 보유 — 소각 전환 여부 모니터링)", "mezzanine_eok": 0.0, "mezzanine_pct": 0.0, "overhang_status": "🟢 청정 (미상환 CB/BW/EB 잠재 희석 0%)", "related_party_eok": 19.8, "is_listed_parent_sales": false, "tunneling_status": "🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [19.8억 원])", "k_gov_note": "최대주주 이경민 39.13%(담보 2.67%), 상장 자회사 헥토파이낸셜(38.50%) 중복상장(지배귀속률 75.5% 반영) 및 3개년 자사주 소각 계획(2026.11.11 129,934주 소각) 완수 후 FY27~ 신규 환원정책 갱신 모니터링", "gov_discount_pct": null, "kgov_mult": 1.0}, "regime": {"regime_changed": true, "ppe_chg_2y_pct": null, "debt_ratio_chg_2y_pctp": null, "opm_shift_pctp": -4.72, "flags": ["③ 비영업자산레짐(비영업자산 비중 51.8% ≥ 20% — 명목 PBR 저평가 착시 주의)", "④ 사업구성레짐(OPM 과거중위 17.5% → 현재 12.8%, -4.7%p [본업 마진 훼손/경쟁 심화])"]}, "section8": {"primary_metric": "PBR", "pbr_min": 0.66, "pbr_max": 7.8, "pbr_r2": 0.34, "pbr_dir": 60.5, "per_min": 4.71, "per_max": 25.17, "per_r2": 0.35, "per_dir": 31.6, "official_pbr": 0.72, "official_per": 6.61, "official_div": 3.82}, "section2": {"is_type_b": false, "verdict": "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]", "controlling_ratio_pct": 75.65, "qoq_eps_positive": true, "qoq_eps_detail": "[액분·무증 소급보정 지배주주 EPS] 2026.1Q 502.0원 → 2026.2Q 558.0원 (QoQ 반등/흑자유지 ✅)", "qoq_rev_pct": -8.4, "qoq_op_pct": -11.5, "qoq_summary_str": "[2026.1Q → 2026.2Q] 매출액 1,123.2억→1,028.3억(QoQ -8.4%) | 영업이익 145.6억→128.8억(QoQ -11.5%) | 수정EPS 502원→558원", "kill_switch_guide": "차기 분기 영업이익 < 109.5억 원(직전분기 대비 -15% 하회) 또는 분기 지배주주 EPS < 446원 기록 시 핵심 가설 즉시 [약화] 강등", "eps_2y_chg": -3.6121565912091307, "bps_2y_chg": 20.84173584551993, "op_yoy_q": -4.03446429815691, "op_yoy_ttm": -0.8837866624973924, "op_yoy_used": -4.03446429815691, "op_yoy_detail": "분기(2025.2Q→2026.2Q) -4.0% (134.2억 → 128.8억) | TTM 영업이익 YoY: -0.9%", "curr_roe": 6.959877035411837, "mid_cycle_roe": 8.577670317113338, "mid_cycle_eps": 2202.0, "pbr_cycle_max": 7.800989326558855, "pbr_3y_max": 1.4021194039977547, "pbr_3y_mean": 0.9084318488903977, "pbr_3y_p20": 0.7807397748383806, "pbr_3y_p65": 0.946904155768349, "pbr_3y_p90": 1.048940181258125, "per_3y_max": 9.799396684931663, "per_3y_mean": 6.528987343605989, "per_3y_p20": 5.646361282378879, "per_3y_p65": 6.955880509687272, "per_3y_p90": 7.815786518829297, "curr_eps_used": 1982.0, "curr_bps_used": 18135.0, "prev_swing_grade": "B", "prev_swing_score": 52}, "section3": {"is_low_vol_box": false, "nature_badge": "🚀 [성장·사이클 추세주 (52주 등락폭 >= 36%)]", "range_52w_pct": 104.66, "median_52w_range_pct": 55.6, "effective_52w_range": 55.6, "forward_bps": 18135.0, "forward_eps_suspended": false, "is_non_overheated_rampup": false, "is_peak_trap": false, "peak_trap_reason": "", "op_mult": 1.0, "sc_base_mult": 1.0, "sc_bull_mult": 1.0, "kgov_mult": 1.0, "peg_factor_used": 0.8, "base_mult_a": 1.0, "bull_mult_a": 1.0, "scurve_sell_triggered": false, "scurve_info": {"is_phase2": false, "is_early_ignition": false, "theme_name": "S-Curve 할증 미적용 (--no-s-curve)", "exposure_pct": 0.0, "source_pdf": null, "penetration_pct": 12.0, "second_penetration_pct": 10.0, "is_near_10pct_inflection": true, "inflection_desc": "IT 본인인증·금융결제(헥토파이낸셜) 캐시카우 + 글로벌 헬스케어(드시모네) B2B 확장 초입(~10~12%)", "bottleneck_grade": "A", "bottleneck_factors": ["특허/벤더 Lock-in: 통신 3사·금융권 본인인증 및 펌뱅킹 결제망 독과점 라이선스 장벽"], "bottleneck_lead_time_months": 24, "bottleneck_lead_reason": "금융결제원·통신사 보안 인허가 및 대형 플랫폼 결제망 연동에 24개월+ 진입장벽"}, "tp1_price": 16080, "tp1_price_a": 16080, "tp1_upside": 22.75, "tp1_upside_a": 22.75, "tech_resist_1": 16080, "has_pre_base_resist": false, "bear_auto": 9340, "base_auto": 14980, "bull_auto": 16300, "base_auto_a": 14980, "bull_auto_a": 16300, "red_team_capa_verdict": "🟢 물리적 Capa 한계 내 달성 가능", "implied_op_base_a_eok": 370.1, "implied_op_bull_a_eok": 336.5}, "cyclical_guard": {"is_peak_trap": false, "peak_trap_reason": ""}, "risk_causal_chain": {"stage1_trigger": "전방 산업 수요 둔화 / 고객사 재고 조정 또는 경쟁사 단가 인하(ASP 하락)", "stage2_operational": "수주/출하(Q) 둔화 ➔ 고정비(감가상각·인건비) 디레버리지로 영업이익 급감(현재 QoQ -11.5%, YoY -4.0%) 및 재고/매출채권 회전일수 상승", "stage3_financial": "영업현금흐름(OCF) 둔화 ➔ 순현금(711.7억) 버퍼 소진 및 S-Curve/성장 멀티플 프리미엄 박탈 ➔ PBR/배당 하단 지지선 테스트"}, "section4": {"d_close": 13100, "d_low20": 11470, "poc_low": 13006, "poc_high": 13518, "poc_pct": 41.2, "poc_trail_pin": 12616, "d_ma5": 13332, "d_ma20": 12868, "d_ma60": 13656, "vol_ma20": 52431, "vol_ratio": 0.67, "stoch_k": 72.7, "stoch_d": 76.2, "w_close": 13100, "w_ma5": 12764, "w_ma10": 13300, "w_ma20": 13786, "w_ma60": 16427, "w_ma120": 14878, "w_disp5_pct": 2.63, "w_disp20_pct": -4.97, "w_disp60_pct": -20.25, "w_disp120_pct": -11.95, "w_poc_low": 14148, "w_poc_high": 15592, "w_poc_price": 14870, "w_poc_pct": 29.5, "w_vp_dist_pct": -11.9, "w_vp_status": "매물벽하단저항(-8점)", "bb_upper": 15372, "bb_lower": 12199, "w_macd": -926.6, "w_macd_sig": -948.3, "w_macd_hist": 21.7, "w_mfi14": 49.5, "w_rsi14": 41.9, "w_mfi14_12w_max": 61.7, "w_swing_score": 52, "w_swing_grade": "B", "w_swing_signal": "🔵 B-급 완충 눌림목 구간 (45~54점 히스테리시스: 45점 하회 전 눌림목 분할 대응 유지)", "buy1": 9340, "buy2": 12870, "buy3": 13520, "avg_buy_price": 12006, "init_stop_pin": 8870, "breakout_trail_pin": 12616, "gate1_rr": 0.5, "exec_rr": 0.95, "is_overvalued": false, "is_track2": false, "is_value_trap_hold": false, "is_downtrend_hold": false, "sop_mode_desc": "🚀 [Track 1: 오름차순 정렬 완료 (Buy1 < Buy2 < Buy3 < 목표가)]: 낮은 추세선(12,870원)을 2차 본대로, 높은 추세선/매물대(13,520원)를 3차 확인사살로 배치하여 가격 역전 및 역손익비 원천 차단!"}, "reverse_dcf": {"status": "success", "price": 13100.0, "fcf_eok": 971.7, "norm_fcf_eok": 327.5, "distb_shares": 12583567, "total_shares": 12863433, "treasury_shares": 279866, "wacc": 0.09, "terminal_g": 0.02, "years": 5, "net_debt_eok": -711.7, "pref_mcap_eok": 0.0, "market_cap_distb_eok": 1648.45, "market_cap_total_eok": 1685.11, "ev_distb_eok": 936.75, "non_op_assets_eok": 854.4, "non_op_haircut": 0.3, "recognized_non_op_eok": 598.08, "non_op_ratio_mcap_pct": 51.83, "non_op_ratio_book_pct": 37.44, "sotp_triggered": true, "core_op_ev_eok": 338.67, "implied_g_distb_pct": -42.16, "implied_g_total_pct": -41.74, "implied_g_ev_pct": -53.0, "implied_g_core_ev_pct": -72.68, "norm_g_distb_pct": -20.95, "norm_g_ev_pct": -32.12, "norm_g_core_ev_pct": -51.64}, "price_equation_eval": {"anchor_price": 13100, "earnings_score": 46, "earnings_label": "🟡 실적 중립/혼조", "earnings_detail": "QoQ 영익 -11.5% · YoY -4.0% · 본업 ROIC 28.7% / ROE 7.0%", "supply_demand_score": 69, "supply_demand_label": "🟢 수급 양호/지지", "supply_demand_detail": "주봉 스윙 52점(B) · MFI 49.5(12주최고 61.7) · 매물대 매물벽하단저항(-8점) · 자사주 2.18% · KRX 20일 외인·기관 수급비중 +6.39%(+8.8억, 외인지분 15.70%[+0.42%p])", "expectation_catalyst_score": 66, "expectation_priced_status": "❄️ 기대감 미반영/역성장 가정 (거품 0%)", "expectation_detail": "역DCF EV 요구성장률 -53.00% · 3Y PBR 밴드 위치 0.0% (0.72x vs p20 0.78x~p90 1.05x) · S-Curve/병목 B등급", "implied_g_ref_pct": -53.0, "pbr_band_position_pct": 0.0, "krx_investor_flow": {"days": 20, "foreign_net_shares": 55995, "organ_net_shares": 11058, "retail_net_shares": -72213, "smart_money_net_shares": 67053, "smart_money_vol_pct": 6.39, "smart_money_net_eok": 8.8, "foreign_5d_shares": 3234, "organ_5d_shares": 4227, "foreign_hold_ratio_pct": 15.7, "foreign_hold_chg_pctp": 0.42}, "composite_score": 59, "regime_verdict": "🔥 기대감 선행·추세 균형형 (실적 확인 병행 보유)", "reference_action_note": "실적·수급·기대감이 균형을 이루는 구간. 신규 진입은 SOP 분할 가격 엄수, 기보유자는 차기 분기 Kill-Switch 및 주봉 MFI 80 이탈 여부를 모니터링하며 대응."}, "canonical_html_tag": "<div id=\"dcf-calculator-root\" data-price=\"13100\" data-shares=\"12583567\" data-total-shares=\"12863433\" data-fcf=\"971.7\" data-reported-fcf=\"971.7\" data-net-debt=\"-711.7\" data-non-op-assets=\"598.1\" data-bear=\"9340\" data-base=\"14980\" data-bull=\"16300\" data-base-a=\"14980\" data-bull-a=\"16300\" data-tp1=\"16080\" data-tp1-a=\"16080\" data-buy1=\"9340\" data-buy2=\"12870\" data-buy3=\"13520\" data-stop-pin=\"8870\" data-poc-low=\"13006\"></div>", "data_quality": {"status": "ok", "warnings": []}, "input_params": {"code": "214180", "sector_type": "C", "rerating_date": null, "distb_shares": 12583567, "total_shares": 12863433, "fcf": 971.7, "norm_fcf": 327.5, "net_debt": -711.7, "non_op_assets": 854.4, "dart_exposure": 0.0, "forward_eps": null, "forward_eps_g": null, "expected_dps": 500.0, "sc_override": false, "early_ignition": false, "tsr_pct": 30.3, "mezzanine_eok": 0.0, "mezzanine_pct": 0.0, "listed_parent_sales": false, "governance_discount": null, "gov_note": "최대주주 이경민 39.13%(담보 2.67%), 상장 자회사 헥토파이낸셜(38.50%) 중복상장(지배귀속률 75.5% 반영) 및 3개년 자사주 소각 계획(2026.11.11 129,934주 소각) 완수 후 FY27~ 신규 환원정책 갱신 모니터링"}};
         // Replace mermaid code blocks with div class="mermaid" and run rendering safely
         document.addEventListener("DOMContentLoaded", function() {
             const blocks = document.querySelectorAll("code.language-mermaid");
@@ -863,7 +855,14 @@ p > em {
                 const rawPrice = Number(SSOT_DATA?.anchor_price || sDcf.price || dcfRoot.getAttribute('data-price') || 100000);
                 const initPrice = rawPrice.toLocaleString();
                 const initShares = Number(sDcf.distb_shares || dcfRoot.getAttribute('data-shares') || 10000000).toLocaleString();
-                const initFcf = Number(sDcf.fcf_eok || dcfRoot.getAttribute('data-fcf') || 500).toLocaleString();
+                const reportedFcfNum = (sDcf.fcf_eok !== undefined) ? Number(sDcf.fcf_eok) : Number(dcfRoot.getAttribute('data-reported-fcf') || dcfRoot.getAttribute('data-fcf') || 500);
+                const normFcfNum = (sDcf.norm_fcf_eok !== undefined && sDcf.norm_fcf_eok !== null) ? Number(sDcf.norm_fcf_eok) : 0;
+                const useNormFcf = (reportedFcfNum <= 0 && normFcfNum > 0);
+                const effectiveFcfNum = useNormFcf ? normFcfNum : (Number(dcfRoot.getAttribute('data-fcf')) > 0 ? Number(dcfRoot.getAttribute('data-fcf')) : reportedFcfNum);
+                const initFcf = effectiveFcfNum.toLocaleString();
+                const fcfLabelText = useNormFcf
+                    ? ('기준 FCF (억 원 · 증설기 오너정규화 FCF, 보고FCF ' + reportedFcfNum.toLocaleString() + '억)')
+                    : '기준 FCF (억 원)';
                 const rawNetDebt = parseFloat(sDcf.net_debt_eok !== undefined ? sDcf.net_debt_eok : (dcfRoot.getAttribute('data-net-debt') || '0'));
                 const initNetDebt = isNaN(rawNetDebt) ? '0' : Math.round(rawNetDebt).toLocaleString();
                 const rawNonOp = parseFloat(sDcf.recognized_non_op_eok !== undefined ? sDcf.recognized_non_op_eok : (dcfRoot.getAttribute('data-non-op-assets') || '0'));
@@ -974,7 +973,7 @@ p > em {
                             '<input type="text" id="dcf-input-non-op" value="' + initNonOp + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +
-                            '<label>기준 FCF (억 원)</label>' +
+                            '<label>' + fcfLabelText + '</label>' +
                             '<input type="text" id="dcf-input-fcf" value="' + initFcf + '">' +
                         '</div>' +
                         '<div class="dcf-input-group">' +

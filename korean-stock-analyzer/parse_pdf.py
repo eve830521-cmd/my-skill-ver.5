@@ -11,6 +11,7 @@ High-Speed PDF Parser, Anchor Keyword Verifier & 2-Tier Lossless Verbatim Extrac
 
 import sys
 import os
+import re
 import glob
 import json
 import argparse
@@ -42,6 +43,14 @@ CRITICAL_RISK_TERMS = [
 
 DART_BOILERPLATE_MARKERS = [
     "재무위험관리", "유동성위험", "신용위험", "이자율위험", "민감도 분석", "범주별 금융상품", "중요한 회계추정",
+]
+
+# [NEW v5.2 Step 1.3] DART Cost-by-Nature (Fixed/Variable Cost) & Core OP Driver terms
+COST_DRIVER_HIGH_ANCHORS = [
+    "비용의 성격별 분류", "원재료 및 소모품", "가동률", "생산능력", "생산실적", "주요 원재료", "수주잔고",
+]
+COST_DRIVER_SUPPORT_TERMS = [
+    "감가상각비", "무형자산상각비", "종업원급여", "외주가공비", "매입가격", "변동비", "고정비", "영업레버리지", "공헌이익", "가동시간",
 ]
 
 
@@ -102,6 +111,17 @@ def verify_anchor_in_pdf(pdf_path, page_num, anchor_keywords):
         return {"verified": False, "reason": str(e), "page": page_num}
 
 
+def _extract_filename_date(fname):
+    """Extracts YYYYMMDD integer from PDF filename (supports 2026.11.16, 2026-11-16, 26.11.16)."""
+    m4 = re.search(r"(20\d{2})[.\-_](\d{2})[.\-_](\d{2})", fname)
+    if m4:
+        return int(f"{m4.group(1)}{m4.group(2)}{m4.group(3)}")
+    m2 = re.search(r"(?<!\d)(\d{2})[.\-_](\d{2})[.\-_](\d{2})(?!\d)", fname)
+    if m2:
+        return int(f"20{m2.group(1)}{m2.group(2)}{m2.group(3)}")
+    return 0
+
+
 def batch_verbatim_extract(
     target_paths,
     keywords_list,
@@ -117,13 +137,16 @@ def batch_verbatim_extract(
     - Tier 2 (Broad Industry/Theme Keywords):
       Requires >= 2 distinct keyword co-occurrences on the same page (+15 pts per hit)
       and filters out unrelated sector reports (e.g. insurance reports matching '배당' alone).
+    - Prioritizes newest PDFs by filename date (so latest quarterly/annual DART filing is never
+      crowded out by older filings under alphabetical ordering).
     - Caps total extracted pages at `max_pages_total` (default 20, sorted by score descending)
       so `verbatim_extracts.md` can always be read in a single `read_file` call without context explosion.
     """
     pdf_files = []
     for p in target_paths:
         if os.path.isdir(p):
-            found = sorted(glob.glob(os.path.join(p, "**", "*.pdf"), recursive=True))
+            found = glob.glob(os.path.join(p, "**", "*.pdf"), recursive=True)
+            found.sort(key=lambda fp: (-_extract_filename_date(os.path.basename(fp)), os.path.basename(fp)))
             pdf_files.extend(found)
         elif os.path.isfile(p) and p.lower().endswith(".pdf"):
             pdf_files.append(p)
@@ -135,6 +158,14 @@ def batch_verbatim_extract(
         if norm_f not in seen:
             seen.add(norm_f)
             unique_pdfs.append(f)
+
+    dart_filing_tags = ("사업보고서", "반기보고서", "분기보고서")
+    dart_dates = [
+        _extract_filename_date(os.path.basename(f))
+        for f in unique_pdfs
+        if any(tag in os.path.basename(f) for tag in dart_filing_tags)
+    ]
+    latest_dart_date = max(dart_dates) if dart_dates else 0
 
     kw_clean = [k.strip() for k in keywords_list if k.strip()]
     if primary_keywords:
@@ -153,6 +184,7 @@ def batch_verbatim_extract(
     for file_order, pdf_path in enumerate(unique_pdfs):
         fname = os.path.basename(pdf_path)
         fname_lower = fname.lower()
+        file_date = _extract_filename_date(fname)
         # Check if filename itself mentions a Tier-1 keyword
         file_has_t1 = any(k.lower() in fname_lower for k in tier1_kws)
 
@@ -176,13 +208,29 @@ def batch_verbatim_extract(
                 hit_t1 = [k for k in tier1_kws if k.lower() in lower_text]
                 hit_t2 = [k for k in tier2_kws if k.lower() in lower_text]
 
+                is_dart_filing = any(tag in fname for tag in dart_filing_tags)
+                is_dart_boilerplate = is_dart_filing and any(bm in raw_text for bm in DART_BOILERPLATE_MARKERS)
+                hit_cost_hi = [c for c in COST_DRIVER_HIGH_ANCHORS if c.lower() in lower_text]
+                hit_cost_sup = [c for c in COST_DRIVER_SUPPORT_TERMS if c.lower() in lower_text]
+                has_cost_driver = (
+                    not is_dart_boilerplate
+                    and (
+                        (is_dart_filing and file_has_t1 and (len(hit_cost_hi) >= 1 or len(hit_cost_sup) >= 2))
+                        or (bool(hit_t1) and (len(hit_cost_hi) >= 1 or len(hit_cost_sup) >= 2))
+                    )
+                )
+
                 # Filter rule:
                 # 1. If Tier-1 primary keyword is matched -> ALWAYS include (High Priority)
-                # 2. If only Tier-2 broad keywords matched -> must NOT be an unrelated sector report,
+                # 2. If DART filing for target company has Cost-by-Nature / Utilization / Raw Material table -> ALWAYS include (Step 1.3)
+                # 3. If only Tier-2 broad keywords matched -> must NOT be an unrelated sector report,
                 #    and must match at least 3 broad keywords (or 2 non-dividend industry keywords)
                 if hit_t1:
                     score = len(hit_t1) * 100 + len(hit_t2) * 15 + (50 if file_has_t1 else 0)
                     tier_label = "Tier-1 (핵심 앵커 직결)"
+                elif is_dart_filing and file_has_t1 and has_cost_driver:
+                    score = 130 + len(hit_cost_hi) * 35 + len(hit_cost_sup) * 15
+                    tier_label = "Tier-1 (DART 비용구조·가동률 원문)"
                 else:
                     if is_unrelated_sector:
                         continue
@@ -195,8 +243,16 @@ def batch_verbatim_extract(
                     score = len(hit_t2) * 15 + len(non_generic_t2) * 10
                     tier_label = "Tier-2 (산업 S-Curve 복합매칭)"
 
-                is_dart_filing = any(tag in fname for tag in ("사업보고서", "반기보고서", "분기보고서"))
-                is_dart_boilerplate = is_dart_filing and any(bm in raw_text for bm in DART_BOILERPLATE_MARKERS)
+                if is_dart_filing and latest_dart_date > 0:
+                    if file_date == latest_dart_date:
+                        score += 45
+                    elif file_date < latest_dart_date:
+                        score -= 25
+                if has_cost_driver:
+                    score += min(60, len(hit_cost_hi) * 30 + len(hit_cost_sup) * 10)
+                    cost_tags = (hit_cost_hi + hit_cost_sup)[:3]
+                    tier_label += f" [⚙️Step1.3 비용·가동률: {', '.join(cost_tags)}]"
+
                 hit_risk = [r for r in CRITICAL_RISK_TERMS if r.lower() in lower_text]
                 has_risk_counter = (
                     not is_dart_filing
@@ -211,6 +267,8 @@ def batch_verbatim_extract(
                     "score": score,
                     "tier_label": tier_label,
                     "has_risk_counter": has_risk_counter,
+                    "has_cost_driver": has_cost_driver,
+                    "file_date": file_date,
                     "file_order": file_order,
                     "pdf_path": os.path.abspath(pdf_path),
                     "fname": fname,
@@ -224,17 +282,32 @@ def batch_verbatim_extract(
             error_logs.append((fname, str(e)))
 
     # Sort by score descending to keep top `max_pages_total` most relevant pages,
-    # while guaranteeing at least 25% quota (min 3 pages) for critical/risk counter-evidence pages if present!
+    # while guaranteeing:
+    #   (1) >= 25% quota (min 3 pages) for critical/risk counter-evidence pages if present
+    #   (2) >= 20% quota (min 3 pages) for Step 1.3 Cost-by-Nature / Utilization / Raw Material pages if present!
     total_raw_candidates = len(candidate_pages)
     if max_pages_total and len(candidate_pages) > max_pages_total:
         sorted_all = sorted(
             candidate_pages,
-            key=lambda x: (-x["score"], x["file_order"], x["page_no"]),
+            key=lambda x: (-x["score"], -x["file_date"], x["file_order"], x["page_no"]),
         )
         risk_quota = max(3, max_pages_total // 4)
+        cost_quota = max(3, max_pages_total // 5)
         risk_cands = [p for p in sorted_all if p.get("has_risk_counter")][:risk_quota]
         picked_keys = {(p["pdf_path"], p["page_no"]) for p in risk_cands}
         top_selected = list(risk_cands)
+
+        cost_added = 0
+        for p in sorted_all:
+            if cost_added >= cost_quota or len(top_selected) >= max_pages_total:
+                break
+            if p.get("has_cost_driver"):
+                key = (p["pdf_path"], p["page_no"])
+                if key not in picked_keys:
+                    top_selected.append(p)
+                    picked_keys.add(key)
+                    cost_added += 1
+
         for p in sorted_all:
             if len(top_selected) >= max_pages_total:
                 break

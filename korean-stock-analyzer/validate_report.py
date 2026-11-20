@@ -1,10 +1,11 @@
 """
-validate_report.py - Mechanical integrity checks for the Phase 1~3 pipeline (v4.3.x)
+validate_report.py - Mechanical integrity checks for the Phase 1~3 pipeline (v5.0)
 
 SCOPE (read this before trusting a green result)
   VERIFIES   : internal consistency of 2_Translated_DB/valuation_metrics.json (SSOT), HTML-tag <-> JSON
                agreement, the price / safety-pin / multiplier-cap inequalities from GEMINI.md, required
-               section headings, leftover placeholders, and that SSOT numbers appear in Phase3_DCF.md.
+               section headings, top `분석완료일` header, Mermaid v10.9.8 diagram syntax (MD + HTML),
+               leftover placeholders, and that SSOT numbers appear in Phase3_DCF.md.
   DOES NOT   : judge whether the reasoning is sound, whether qualitative claims (bottleneck lead time,
                governance, theme selection) are true, or whether cited facts are real.
                A PASS means "numbers are consistent", NOT "the analysis is correct".
@@ -16,6 +17,7 @@ Usage
   python validate_report.py --diff old.json new.json    # numeric diff, ignores generated_at (regression aid)
 Exit code: 1 if any ERROR, else 0. WARN never fails the run.
 """
+import html
 import json
 import os
 import re
@@ -25,6 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from generate_html import sanitize_mermaid_code  # noqa: E402
 from ssot_common import STOCK_RESEARCH_ROOT  # noqa: E402
 
 EPS = 1e-6
@@ -34,7 +37,18 @@ FLOOR_MULT_A = 0.80
 
 PHASE1_REQUIRED = ["Step 1.2", "Step 1.5", "Step 1.8", "Step 2.0", "Step 3.5"]
 PHASE3_REQUIRED = ["레드팀", "안전핀"]
-PLACEHOLDER_PATTERNS = [r"\{\{.*?\}\}", r"\[기업명\]", r"XX,XXX", r"TODO", r"data-[a-z-]+=\"\s*\"", r"\bNaN\b"]
+PLACEHOLDER_PATTERNS = [
+    r"\{\{.*?\}\}",
+    r"\[기업명\]",
+    r"XX,XXX",
+    r"TODO",
+    r"data-[a-z-]+=\"\s*\"",
+    r"\bNaN\b",
+    r"\[AI(?:가|\s*작성)[^\]]*\]",
+]
+_GENERIC_DRIVER_STUB_RE = re.compile(
+    r"^(?:AI가\s*)?(?:(?:전방\s*(?:호황|둔화)/)?가동률\s*(?:상단|하락)\s*서술|컨센서스/본업\s*유지\s*서술)$"
+)
 
 
 class Result:
@@ -182,6 +196,18 @@ def check_ssot(d, res):
     if (not near or not is_p2_b) and "Zone A" in zone:
         res.warn(f"zone says Zone A but penetration {pen1}/{pen2} not in 8~18% or is_phase2=False")
 
+    # --- Step 1.3 BM Core Driver & Forward OP Slope (v5.2, Model A exclusive + Track 2 block) ---
+    s13 = d.get("step1_3_bm_slope")
+    if isinstance(s13, dict) and s13:
+        sb_m = _num(s13.get("op_slope_base_mult"))
+        su_m = _num(s13.get("op_slope_bull_mult"))
+        if sb_m is not None and not (0.88 - EPS <= sb_m <= 1.12 + EPS):
+            res.err(f"step1_3_bm_slope.op_slope_base_mult={sb_m} out of bounds [0.88, 1.12]")
+        if su_m is not None and not (0.85 - EPS <= su_m <= 1.15 + EPS):
+            res.err(f"step1_3_bm_slope.op_slope_bull_mult={su_m} out of bounds [0.85, 1.15]")
+        if bool(s3.get("op_slope_decel_warn") or s13.get("op_slope_decel_warn")) and bool(s4.get("is_track2")):
+            res.err("section4.is_track2 must be False when Step 1.3 op_slope_decel_warn is True")
+
     # --- Falsification fields (principle 12) ---
     for k in ("qoq_summary_str", "kill_switch_guide"):
         if not d["section2"].get(k):
@@ -223,7 +249,184 @@ def _extract_declared_anchors(text):
     return hits
 
 
+_MERMAID_MD_RE = re.compile(r"```mermaid[ \t]*\r?\n(.*?)```", re.DOTALL)
+_MERMAID_HTML_RE = re.compile(
+    r'<pre>\s*<code[^>]*class="[^"]*language-mermaid[^"]*"[^>]*>(.*?)</code>\s*</pre>',
+    re.DOTALL | re.IGNORECASE,
+)
+_MERMAID_KNOWN_HEADERS = (
+    "graph",
+    "flowchart",
+    "sequencediagram",
+    "classdiagram",
+    "statediagram",
+    "erdiagram",
+    "gantt",
+    "pie",
+    "journey",
+    "gitgraph",
+    "mindmap",
+    "timeline",
+    "quadrantchart",
+    "requirementdiagram",
+    "c4context",
+    "sankey",
+    "xychart",
+    "block-beta",
+)
+_NON_NODE_KEYWORDS = (
+    "subgraph ",
+    "subgraph\t",
+    "style ",
+    "classdef ",
+    "class ",
+    "linkstyle ",
+    "click ",
+    "direction ",
+    "acctitle",
+    "accdescr",
+)
+_BARE_END_NODE_RE = re.compile(r"(?<![A-Za-z0-9_-])end(?![A-Za-z0-9_-])")
+_COMPLETION_DATE_RE = re.compile(r"분석\s*완료일\s*[*`]*\s*[:：]\s*[*`]*\s*\d{4}[-.]\d{2}[-.]\d{2}")
+
+
+def check_mermaid_syntax(code):
+    """Lightweight structural validator targeting Mermaid v10.9.8 parser failure modes."""
+    errors = []
+    if not code or not code.strip():
+        return ["empty mermaid block"]
+
+    raw_lines = code.splitlines()
+    header = ""
+    i = 0
+    while i < len(raw_lines):
+        s = raw_lines[i].strip()
+        if not s:
+            i += 1
+            continue
+        if s.startswith("%%{"):
+            while i < len(raw_lines) and "}%%" not in raw_lines[i]:
+                i += 1
+            i += 1
+            continue
+        if s.startswith("%%"):
+            i += 1
+            continue
+        header = s.lower()
+        break
+
+    if not header:
+        return ["missing mermaid diagram header"]
+    first_tok = header.split()[0]
+    if not any(first_tok.startswith(k) for k in _MERMAID_KNOWN_HEADERS):
+        errors.append(f"unrecognized mermaid header '{raw_lines[i].strip()[:40]}'")
+        return errors
+
+    is_flowchart = first_tok.startswith("flowchart") or first_tok.startswith("graph")
+    if not is_flowchart:
+        return errors
+
+    subgraph_depth = 0
+    in_init = False
+    for ln_no, raw in enumerate(raw_lines, 1):
+        s = raw.strip()
+        if not s:
+            continue
+        if in_init:
+            if "}%%" in s:
+                in_init = False
+            continue
+        if s.startswith("%%{"):
+            if "}%%" not in s:
+                in_init = True
+            continue
+        if s.startswith("%%"):
+            continue
+        low = s.lower()
+        if ln_no == i + 1 and (low.startswith("flowchart") or low.startswith("graph")):
+            continue
+
+        if low == "subgraph" or low.startswith("subgraph ") or low.startswith("subgraph\t"):
+            subgraph_depth += 1
+        elif low == "end":
+            subgraph_depth -= 1
+            if subgraph_depth < 0:
+                errors.append(f"line {ln_no}: unmatched 'end' without open subgraph")
+                subgraph_depth = 0
+            continue
+
+        # Character-level scan for balanced quotes and node brackets outside quotes
+        in_quote = False
+        stack = []
+        pipe_count = 0
+        no_quote_chars = []
+        j = 0
+        n = len(raw)
+        while j < n:
+            ch = raw[j]
+            if ch == '"':
+                in_quote = not in_quote
+                no_quote_chars.append(" ")
+                j += 1
+                continue
+            if in_quote:
+                j += 1
+                continue
+            if ch == "%" and j + 1 < n and raw[j + 1] == "%":
+                break
+            no_quote_chars.append(ch)
+            if ch in "[({":
+                stack.append(ch)
+            elif ch in "])}":
+                expected = {"]": "[", ")": "(", "}": "{"}[ch]
+                # Allow asymmetric flag `id>label]` when `>` opened it without `[`
+                if not stack and ch == "]" and ">" in raw[:j]:
+                    pass
+                elif not stack or stack[-1] != expected:
+                    errors.append(f"line {ln_no}: unmatched '{ch}' outside quotes in '{s[:60]}'")
+                    break
+                else:
+                    stack.pop()
+            elif ch == "|":
+                pipe_count += 1
+            j += 1
+
+        if in_quote:
+            errors.append(f"line {ln_no}: unclosed double quote in '{s[:60]}'")
+        elif stack:
+            errors.append(f"line {ln_no}: unclosed '{stack[-1]}' in '{s[:60]}'")
+        if pipe_count % 2 != 0:
+            errors.append(f"line {ln_no}: unclosed '|' edge label in '{s[:60]}'")
+
+        if not any(low.startswith(kw) for kw in _NON_NODE_KEYWORDS):
+            nq = "".join(no_quote_chars)
+            if _BARE_END_NODE_RE.search(nq):
+                errors.append(f"line {ln_no}: reserved keyword 'end' used as node ID in '{s[:60]}'")
+
+    if subgraph_depth > 0:
+        errors.append(f"unclosed subgraph block(s): missing {subgraph_depth} 'end'")
+    return errors
+
+
 def check_reports(folder, d, res):
+    # --- Guardrail: Detect stray/misplaced Phase1~3 reports outside 3_Final_Reports/ ---
+    allowed_dirs = {"1_Raw_Data", "2_Translated_DB", "2_Context_Cache", "3_Final_Reports", "Weekly_Trend"}
+    if os.path.isdir(folder):
+        for entry in sorted(os.listdir(folder)):
+            ep = os.path.join(folder, entry)
+            if os.path.isfile(ep) and re.match(r"^Phase[123]_.*\.(?:md|html)$", entry, re.IGNORECASE):
+                res.err(
+                    f"misplaced report in company root: {entry} "
+                    f"(must be written to 3_Final_Reports/{entry}; merge and remove stray file)"
+                )
+            elif os.path.isdir(ep) and entry not in allowed_dirs:
+                for sub in sorted(os.listdir(ep)):
+                    if re.match(r"^Phase[123]_.*\.(?:md|html)$", sub, re.IGNORECASE):
+                        res.err(
+                            f"misplaced report in non-standard folder: {entry}/{sub} "
+                            f"(must be written to 3_Final_Reports/{sub}; merge and remove {entry}/)"
+                        )
+
     rpt = os.path.join(folder, "3_Final_Reports")
     p1, p2, p3 = (os.path.join(rpt, n) for n in ("Phase1_Report.md", "Phase2_Story.md", "Phase3_DCF.md"))
     texts = {}
@@ -233,11 +436,30 @@ def check_reports(folder, d, res):
         else:
             texts[os.path.basename(p)] = _read(p)
 
+    ssot_ver = str((d or {}).get("version", ""))
     t1 = texts.get("Phase1_Report.md")
     if t1:
         for s in PHASE1_REQUIRED:
             if s not in t1:
                 res.err(f"Phase1 missing required gate: {s} (legacy report -> clean rebuild)")
+        t1_h1 = next((ln for ln in t1.splitlines()[:10] if ln.lstrip().startswith("# ")), "")
+        is_v52_doc = bool(re.search(r"\bv5\.[2-9]", t1_h1, re.IGNORECASE))
+        is_v52_ssot = bool(re.match(r"^5\.[2-9]", ssot_ver))
+        if "Step 1.3" not in t1:
+            if is_v52_doc or (is_v52_ssot and not re.search(r"\bv5\.[01]\b", t1_h1, re.IGNORECASE)):
+                res.err("Phase1 missing required v5.2 gate: Step 1.3 (BM 핵심인자 · DOL · 선행 OP 기울기 진단)")
+            elif is_v52_ssot:
+                res.warn("Phase1 (v5.0/v5.1) does not include v5.2 Step 1.3 yet (will be added on next Track A rebuild)")
+        missing_secs = [
+            str(n) for n in range(1, 9)
+            if not re.search(rf"^##\s+(?:Section\s+)?{n}\.", t1, re.MULTILINE)
+        ]
+        if missing_secs:
+            msg = f"Phase1_Report.md missing canonical section heading(s): ## {', '.join(missing_secs)}."
+            if ssot_ver.startswith("5."):
+                res.err(msg + " (follow static_cache_prefix PART D standard ## 1.~## 8. skeleton)")
+            else:
+                res.warn(msg)
     t3 = texts.get("Phase3_DCF.md")
     if t3:
         for s in PHASE3_REQUIRED:
@@ -251,6 +473,41 @@ def check_reports(folder, d, res):
             for k, v in probes.items():
                 if v and f"{int(round(v)):,}" not in t3 and str(int(round(v))) not in t3:
                     res.warn(f"Phase3 does not contain SSOT {k}={int(round(v)):,} (stale report or different format)")
+
+    # --- Top `분석완료일`, stale v4.x H1 check & Mermaid v10.9.8 syntax checks (Markdown + compiled HTML) ---
+    for name, t in texts.items():
+        top_zone = "\n".join(t.splitlines()[:30])
+        h1_line = next((ln for ln in t.splitlines()[:10] if ln.lstrip().startswith("# ")), "")
+        is_v5 = ssot_ver.startswith("5.") or bool(re.search(r"\bv5\.[0-9]", "\n".join(t.splitlines()[:10])))
+        if ssot_ver.startswith("5.") and re.search(r"\bv4\.[0-9]", h1_line, re.IGNORECASE):
+            res.err(
+                f"{name}: H1 title still declares legacy v4.x ('{h1_line[:70]}') while SSOT is v{ssot_ver} "
+                f"(Track A clean rebuild into 3_Final_Reports/{name} required)"
+            )
+        if not _COMPLETION_DATE_RE.search(top_zone):
+            msg = f"{name}: missing top '분석완료일: YYYY-MM-DD' header"
+            if is_v5:
+                res.err(msg)
+            else:
+                res.warn(msg)
+
+        for m_idx, m in enumerate(_MERMAID_MD_RE.finditer(t), 1):
+            sanitized = sanitize_mermaid_code(m.group(1))
+            for err in check_mermaid_syntax(sanitized):
+                res.err(f"{name}: Mermaid #{m_idx} syntax error: {err}")
+
+        html_name = os.path.splitext(name)[0] + ".html"
+        html_path = os.path.join(rpt, html_name)
+        if os.path.exists(html_path):
+            htxt = _read(html_path)
+            for h_idx, hm in enumerate(_MERMAID_HTML_RE.finditer(htxt), 1):
+                raw_code = html.unescape(hm.group(1))
+                for err in check_mermaid_syntax(raw_code):
+                    res.err(f"{html_name}: Mermaid #{h_idx} HTML syntax error: {err}")
+            if is_v5:
+                title_m = re.search(r"<title>(.*?)</title>", htxt, re.IGNORECASE)
+                if title_m and re.search(r"\(v4\.[0-9.]*\)", title_m.group(1)):
+                    res.warn(f"{html_name}: HTML <title> shows stale version '{title_m.group(1)}' (rebuild HTML for v5.0)")
 
     # --- Cross-report SSOT anchor_price & calculator tag verification across Phase 1~3 ---
     if d and d.get("anchor_price"):
@@ -283,7 +540,29 @@ def check_reports(folder, d, res):
         for pat in PLACEHOLDER_PATTERNS:
             m = re.search(pat, t)
             if m:
-                res.err(f"{name}: leftover placeholder '{m.group(0)[:30]}'")
+                res.err(f"{name}: leftover placeholder '{m.group(0)[:45]}'")
+
+        m_auto2 = re.search(
+            r"#{2,3}\s*📌\s*\[코드 자동 생성 2\].*?(?=\n#{1,3}\s|\n---|\Z)",
+            t,
+            flags=re.DOTALL,
+        )
+        if m_auto2:
+            for ln in m_auto2.group(0).splitlines():
+                s = ln.strip()
+                if not (s.startswith("|") and s.endswith("|")):
+                    continue
+                cells = [c.strip() for c in re.split(r"(?<!\\)\|", s[1:-1])]
+                if len(cells) < 6:
+                    continue
+                c0_low = cells[0].lower()
+                if any(k in c0_low for k in ("bull", "base", "bear")):
+                    drv = cells[2].strip()
+                    if not drv or len(drv) < 15 or _GENERIC_DRIVER_STUB_RE.match(drv):
+                        res.err(
+                            f"{name}: [코드 자동 생성 2] '{cells[0]}' 핵심 드라이버 가정이 미작성/일반문구입니다 "
+                            f"('{drv[:30]}') — 기업별 제품·고객사·가동률·OPM·촉매 수치로 구체 서술 필수"
+                        )
 
     thesis = os.path.join(folder, "Weekly_Trend", "thesis_log.md")
     if os.path.exists(thesis):

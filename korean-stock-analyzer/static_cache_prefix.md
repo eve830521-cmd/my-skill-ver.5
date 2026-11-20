@@ -1,4 +1,4 @@
-# 🔒 [STATIC PROMPT CACHE PREFIX — IMMUTABLE SYSTEM RULES & DART XBRL/IFRS SCHEMA v5.1]
+# 🔒 [STATIC PROMPT CACHE PREFIX — IMMUTABLE SYSTEM RULES & DART XBRL/IFRS SCHEMA v5.2]
 <!-- DO NOT INSERT DYNAMIC TIMESTAMPS OR COMPANY NAMES ABOVE THE END-OF-PREFIX MARKER -->
 <!-- PURPOSE: Pins the invariant System Prompt + DART Financial Schema + Valuation & Swing Formulas at the very beginning of every prompt/digest to maximize LLM Prefix Cache Hit Rate (95% Input Token Discount: $2.00 -> $0.10 / 1M tokens on Gemini 4.0 Argon). -->
 
@@ -123,5 +123,79 @@
    - 공정 절차서상 어느 단계(선행 발주 vs 후행 시운전/유지보수 MRO)에서 매출이 인식되는지 파악하여 밸류체인 순환매 시차를 도출한다.
 4. **[Step E4 — DART 수주잔고·가동률·영업이익률(OPM) 레버리지 연결]**:
    - 도출된 엔지니어링 독점력이 실제 DART 공시의 수주잔고, 판가(ASP), 고마진 믹스 개선($\Delta \text{OPM}$)으로 어떻게 직결되는지 수치로 검증한다.
+
+### 5. `[Step 1.3]` 비즈니스 구조 연계 영업이익 핵심인자 · 영업레버리지(DOL) · 선행 OP 기울기 규율 (v5.2 · 🚀 대안 A 단독 반영)
+1. **DART `비용의 성격별 분류` 기반 영업레버리지(DOL) 정량화**:
+   - $\text{공헌이익률 (CM\%)} = 100\% - \text{매출 대비 변동비율(\%)} = \text{현 OPM(\%)} + \text{매출 대비 고정비율(\%)}$
+   - $\text{이론 영업레버리지 (DOL)} = \text{Clamp}_{1.0..8.0}\left(\frac{\text{CM\%}}{\max(\text{현 OPM\%}, 3.0\%)}\right)$
+   - 유형 A/B 제조·장치주에서 고정비율 $\ge 25\%$ 또는 $\text{DOL} \ge 2.5$배인 고고정비 기업은 현재 OPM/ROE가 낮더라도 가동률 상승(`--util-trend up`)과 변동비율 하락(`--var-cost-trend down`) 결합 시 향후 영업이익 기울기가 수직 가속한다.
+2. **5단계 선행 OP 기울기 계수 (`op_slope_mult` — 오직 `🚀 대안 A` 단독 반영, `🛡️ 대안 B` 무변경)**:
+   - `strong_accel` (`Base ×1.12 / Bull ×1.15`) · `accel` (`×1.06 / ×1.08`) · `neutral` (`×1.00`) · `decel` (`×0.94 / ×0.92`) · `contraction` (`×0.88 / ×0.85`).
+3. **3중 한국형 안티-피크아웃(Anti-Peak-Out) 강제 가드레일**:
+   - **① 물리적 천장 게이트**: 유형 A/B `가동률 ≥ 92%` & 무증설(`--capa-expand` 없음)·무ASP인상(`--asp-up` 없음) 시 상방 할증 차단(`×1.00`), 직전분기 QoQ $\le 0\%$ 동반 시 `decel`(`×0.94/×0.92`) 자동 강등.
+   - **② 주가 선반영 과열 게이트**: `역DCF EV > +15%`, `PBR ≥ 3Y p90 × 0.95`, `주봉 MFI ≥ 80(또는 12주 최고 80 피크아웃)` 중 1개 해당 시 상방 할증 50% 축소, 2개 이상 시 전액 차단(`×1.00`). *(하방 둔화 할인은 비대칭으로 100% 유지!)*
+   - **③ 신뢰도 등급 캡 (`--slope-evidence high/medium/low`) & `Track 2` 연동**: `medium` 상방 50% 캡, `low` 상방 0% 차단, `decel`/`contraction` 발동 시 `Section 4 Track 2` 돌파매수 즉시 차단.
+
+---
+
+## PART D. Phase 1~3 절대 저장 경로 및 표준 목차 고정 스켈레톤 (Canonical Paths & Section Skeleton v5.2)
+
+모든 기업 보고서의 구조적 통일성과 파이프라인 자동 빌드 무결성을 100% 강제하기 위해, 에이전트는 아래 **절대 저장 경로**와 **고정 섹션 번호·목차 스켈레톤**을 예외 없이 준수한다.
+
+### 1. 절대 저장 경로 규율 (Path Guardrail — 위반 시 `validate_report.py` 즉시 `[FAIL]`)
+- **Phase 1**: 반드시 `e:\antigravity-work\my-skill\Stock_Research\[기업명]\3_Final_Reports\Phase1_Report.md`
+- **Phase 2**: 반드시 `e:\antigravity-work\my-skill\Stock_Research\[기업명]\3_Final_Reports\Phase2_Story.md`
+- **Phase 3**: 반드시 `e:\antigravity-work\my-skill\Stock_Research\[기업명]\3_Final_Reports\Phase3_DCF.md`
+- **가설·타임라인**: 반드시 `e:\antigravity-work\my-skill\Stock_Research\[기업명]\Weekly_Trend\thesis_log.md` 및 `company_timeline.md`
+- **🚫 절대 금지 경로**: 기업 루트(`Stock_Research\[기업명]\Phase*.md`) 또는 임의 하위폴더(`3_Reports\` 등)에 보고서 파일을 생성·저장하지 않는다.
+
+### 2. Phase 1 (`3_Final_Reports/Phase1_Report.md`) 고정 표준 목차 (전 종목 100% 동일 헤딩 체계)
+```markdown
+# 🔍 Phase 1: 기업 해독기 — [기업명] ([종목코드]) (v5.2)
+
+> **분석완료일**: YYYY-MM-DD
+> - **단일 기준 주가 (Single Price Anchor)**: **`[anchor_price]원`** (SSOT 확정 종가, Phase 1~3 전 과정 동일 고정)
+> - **주식수 · 지배주주 귀속률 · 최신 공시 스캔**: 총발행/유통주식수, 귀속률(%), 최신 정기보고서·잠정실적 요약
+
+> 💡 **[핵심 용어 3줄 직관 해설]**
+
+## 1. 비즈니스 모델(BM) 해부 및 밸류체인 구조
+(글로벌 트렌드 3대 게이트 매칭 + Mermaid v10.9.8 밸류체인 구조도 + Argon 4단계 공정 엔지니어링 인과 사슬)
+
+## 2. 주요 제품별 매출 구성 및 [Step 1.2] S-Curve 10% 변곡점 · 3축 구조적 병목 · 리드타임 진단
+(2.1 신기술 매출 익스포저 산출표 + `### 📌 [코드 자동 생성 1-B]` 원형 삽입 + 4대 질문 및 매도·디레이팅 시그널 해독)
+
+## 3. 재무 건전성 및 [Step 1.5] 장부가(Book Value) 해부 & SOTP 20% 분리 게이트
+(`### 📌 [코드 자동 생성 1]` 원형 삽입 + 재무상태표 핵심 항목·순차입금 + 비영업자산 비중 & Core ROIC 유지력 판정)
+
+## 4. 원가 구조, 영업 레버리지 및 [Step 1.3] BM 연계 영업이익 핵심인자 · 선행 OP 기울기 진단
+(`### 📌 [코드 자동 생성 1-D]` 원형 삽입 + DART 비용의 성격별 분류 고정비/변동비·DOL 해부 + 가동률·변동비 추이 및 3중 안티-피크아웃 가드레일 검증)
+
+## 5. 자본 배분(CapEx, R&D) 및 [Step 1.8] K-마켓 특수성 · 주주환원 입체 스코어카드
+(증설/R&D 투자 현황 + `④-A` 분리과세/TSR · `④-B` 자사주 환원절벽/메자닌 · `④-C` 내부거래/거버넌스 5대 고정 점검)
+
+## 6. 핵심 리스크 요인 및 [Step 3.5] 리스크 3단계 인과 도미노 (Domino Chain)
+(1차 촉발 요인 ➔ 2차 영업·운전자본 전이 ➔ 3차 재무·자본 타격 임계치 표 + Mermaid v10.9.8 도미노 구조도)
+
+## 7. 4대 업종별 표준 실적 산출 공식 트리 (유형 A/B/C/D 분기)
+(업종 유형 판정 및 `Q × P × Mix - C` 표준 산출 트리 — Section 4 가동률·Step 1.3 핵심인자와 100% 일치)
+
+## 8. [Step 2.0] 4대 레짐 변화 고정 체크 & 10년 밸류에이션 백테스트
+(4대 레짐 변화 체크 + `[Step 3.0]` 사이클 고점 함정 가드레일 진단 + 10년 백테스트 1순위 지표 Phase 3 강제 상속)
+```
+
+### 3. Phase 2 (`3_Final_Reports/Phase2_Story.md`) & Phase 3 (`3_Final_Reports/Phase3_DCF.md`) 고정 표준 목차
+- **Phase 2 (`# 📖 Phase 2: 스토리 리더 — [기업명] ([종목코드]) (v5.2)`)**:
+  - `> **분석완료일**: YYYY-MM-DD` (제목 직하단 고정)
+  - `## 1. Global & Weekly Trend 비판적 수용 및 DART 팩트체크` (`No-Blind-Citation` + `[⚖️비판·리스크검증]` 교차 대조)
+  - `## 2. [Step 1.2] S-Curve 10% 변곡점 · 3축 구조적 병목 & [Step 1.3] BM 핵심인자 선행 OP 기울기 심층 검증`
+  - `## 3. 핵심 투자 가설(Popperian Falsification) 및 6열 Kill-Switch 검증` (핵심인자 기울기 둔화 임계치 의무 포함)
+- **Phase 3 (`# 🎯 Phase 3: 가격 판독기 (DCF & 마스터 SOP) — [기업명] ([종목코드]) (v5.2)`)**:
+  - `> **분석완료일**: YYYY-MM-DD | **단일 기준 주가 (Anchor Price)**: ...` (제목 직하단 고정)
+  - `## 1. 역DCF 정밀 판독 (Equity · EV · Core EV)` (`### 📌 [코드 자동 생성 1-C]` 원형 삽입)
+  - `## 2. 가치함정 이원화 판정(유형 A vs B) & [Step 2.0] 4대 레짐 변화 종합 판독`
+  - `## 3. 시나리오 밸류에이션 (🛡️대안 B | 🚀대안 A) & [Step 1.3 선행 OP 기울기 🚀대안 A 단독 반영] & 레드팀 역산 Capa 천장 검증` (`### 📌 [코드 자동 생성 2]` 삽입 시 4~6열 숫자는 원형 고정하되, **3열 `핵심 드라이버 가정`의 `[AI ...]` 플레이스홀더는 반드시 ① 전방 수요·고객사·핵심 제품 믹스/ASP 및 Step 1.3 BM 핵심인자(고정비 DOL·가동률·변동비율), ② 가동률·증설 Capa·내재 영업이익/OPM 수치, ③ 멀티플 리레이팅·주주환원·Kill-Switch 촉발 조건으로 기업별 구체 서술 교체 필수 — 미교체 시 `validate_report.py` 즉시 `[FAIL]`**)
+  - `## 3.5 비관론자 반론(Pre-mortem) & 리스크 도미노 · Kill-Switch 점검`
+  - `## 4. 마스터 SOP 실전 액션 플랜 (주봉 스윙 · 3분할 매수가 · 이중 안전핀) & 인터랙티브 계산기` (`### 📌 [코드 자동 생성 2-C]`, `### 📌 [코드 자동 생성 2-B]`, `### 📌 [코드 자동 생성 3]` HTML 태그 원형 삽입; 참고용 3요소 표는 `build --patch-ssot`가 자동 주입)
 
 <!-- ==================== END OF IMMUTABLE PROMPT CACHE PREFIX ==================== -->

@@ -1,13 +1,14 @@
 """
-Valuation Indicator Backtester & Pipeline SSOT Engine for Korean Stock Analyzer (v4.3)
-- [NEW v4.3 #1] Step 1.2 S-Curve 10% Inflection & 3-Axis Structural Bottleneck Matrix:
+Valuation Indicator Backtester & Pipeline SSOT Engine for Korean Stock Analyzer (v5.0)
+- [v4.3 / v5.0 #1] Step 1.2 S-Curve 10% Inflection & 3-Axis Structural Bottleneck Matrix:
   Evaluates (1) Penetration near ~10% inflection (8~18% Zone A / Double S-Curve),
   (2) Structural Bottleneck sources (Physical Capa Shortage, Tech-Gap Moat, Patent/Vendor Qual Lock-in -> Grade S/A/B/NA),
   (3) Bottleneck Resolution Lead Time (months: >=24M Long / 12~23M Mid / <12M Short),
   and directly integrates them into Phase 3 Target Price (Model A & Dynamic PEG) calculation.
-- [NEW v4.3 #2] Step 1.8 Korean Market Specifics & Shareholder Return Scorecard:
-  Evaluates Dividend Tax-Incentive Eligibility (배당소득 분리과세 요건1/2), Post-Buyback Cliff (자사주 소각 완수 후 환원 절벽),
-  Related-Party Tunneling (오너 개인회사 일감 몰아주기), Succession/Activism Dynamics, and Red-Team Implied Capa Audit.
+- [v4.3 / v5.0 #2] Step 1.8 Korean Market Specifics & Shareholder Return Scorecard:
+  Evaluates Dividend Tax-Incentive Eligibility (배당소득 분리과세 요건1/2), TSR & Post-Buyback Cliff,
+  Mezzanine (CB/BW) Dilution Overhang, Related-Party Tunneling vs Listed-Parent Captive Distribution,
+  Succession/Activism Dynamics, and Red-Team Implied Capa Audit.
 - [PATCH v4.2.1 #1] --rerating-date Post-Rerating Band Isolation
 - [PATCH v4.2.1 #2] Structural Re-rating vs Cyclical Peak Separation (Step 3.0)
 - [PATCH v4.2.1 #3] Track 2 Breakout Dead-Zone Fix (Section 4)
@@ -874,18 +875,20 @@ VERIFIED_BOTTLENECK_AND_KGOV_DB = {
         "inflection_desc": "해당 없음 (기초·영양수액제 국내 과점 캐시카우 BM)",
         "bottleneck_grade": "A",
         "bottleneck_factors": [
-            "생산 Capa/인허가: 당진 수액 전용 자동화 공장 및 KGMP/유럽 GMP 인허가 장벽 (국내 시장점유율 1위)",
+            "생산 Capa/인허가: 당진 수액 전용 자동화 공장 가동률 98.9% 풀가동 및 국내 수액제 시장점유율 1위(42.9~48.5%)",
+            "기술격차 해자: QbD 기반 3-Chamber TPN 다층 필름·지질 에멀전 균질화 공정 및 특수수액/투석액 판가 전가력",
+            "원천특허/Qual Lock-in: 아시아 최초 TPN EU-GMP 인증, 위너프/Finomel 핵심 특허 23건 및 박스터 글로벌 공급 락인",
         ],
-        "bottleneck_lead_time_months": 24,
-        "bottleneck_lead_reason": "수액제 무균 생산라인 구축 및 식약처/유럽 의약품 품목허가에 24개월 이상 소요",
-        "capa_util_pct": 90.0,
-        "payout_ratio_pct": 33.0,
-        "tsr_pct": 33.0,
-        "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (배당성향 33%+ 고배당 지속)",
+        "bottleneck_lead_time_months": 18,
+        "bottleneck_lead_reason": "수액제 무균 생산라인 증설·밸리데이션 및 식약처/유럽 GMP 품목허가에 18~24개월 소요",
+        "capa_util_pct": 98.9,
+        "payout_ratio_pct": 29.8,
+        "tsr_pct": 29.8,
+        "tax_incentive_status": "✅ 배당소득 분리과세 요건2 충족 (26.03.27 밸류업 공시 확정 — 배당성향 29.8%, DPS 550원 [+10.0%])",
         "buyback_cliff_warn": False,
-        "related_party_eok": 0.0,
+        "related_party_eok": 1525.0,
         "is_listed_parent_sales": True,
-        "k_gov_note": "안정적 고배당 박스권 캐시카우 (상장 모회사 JW중외제약 수액 유통 구조 — 오너 개인회사 사익편취 터널링 아님)",
+        "k_gov_note": "상장 모회사(JW중외제약) 정상 유통(터널링 0%) vs 지주사 미수금(154억)·JW메디칼 보증(46억)+담보(20억) 지배구조 할인(-10%) 반영",
         "kgov_mult": 1.00,
     },
     "214180": {  # 헥토이노베이션
@@ -1353,6 +1356,468 @@ def compute_step1_2_scurve_bottleneck_matrix(
     }
 
 
+def compute_step1_3_bm_op_slope(
+    stock_code,
+    corp_name,
+    dart_ts,
+    sec2_res=None,
+    step1_2_res=None,
+    sector_type="A",
+    bm_core_driver=None,
+    fixed_cost_ratio_pct=None,
+    var_cost_ratio_pct=None,
+    util_trend=None,
+    var_cost_trend=None,
+    op_slope=None,
+    slope_evidence=None,
+    capa_expand=False,
+    asp_up=False,
+    curr_pbr=None,
+    pbr_p90=None,
+    ev_implied_g=None,
+    tech_snap=None,
+    is_peak_trap=False,
+    sc_sell_triggered=False,
+):
+    """
+    [NEW v5.2 Step 1.3] 비즈니스 구조 연계 영업이익 핵심인자 · 영업레버리지(DOL) · 선행 OP 기울기 진단
+    + 3중 한국형 안티-피크아웃(Anti-Peak-Out) 가드레일.
+    오직 🚀 대안 A(op_slope_base_mult / op_slope_bull_mult)에만 반영하며 🛡️ 대안 B는 단 1원도 변경하지 않음.
+    """
+    print("\n======================================================================")
+    print("⚙️ [Step 1.3 — BM 핵심인자 · 영업레버리지(DOL) · 선행 OP 기울기 진단 (v5.2)]")
+    print("======================================================================")
+
+    s2 = sec2_res or {}
+    s12 = step1_2_res or {}
+    ts = tech_snap or {}
+    sec_t = str(sector_type or "A").upper()
+    is_mfg_precision = sec_t in ("A", "B")
+
+    def _norm_choice(val, mapping):
+        if val is None:
+            return None
+        key = str(val).strip().lower()
+        return mapping.get(key)
+
+    util_tr = _norm_choice(util_trend, {"up": "up", "rising": "up", "상승": "up", "flat": "flat", "보합": "flat", "down": "down", "falling": "down", "하락": "down"})
+    var_tr = _norm_choice(var_cost_trend, {"down": "down", "falling": "down", "하락": "down", "flat": "flat", "보합": "flat", "up": "up", "rising": "up", "상승": "up"})
+    exp_slope = _norm_choice(
+        op_slope,
+        {
+            "strong_accel": "strong_accel",
+            "super_accel": "strong_accel",
+            "초가속": "strong_accel",
+            "accel": "accel",
+            "가속": "accel",
+            "neutral": "neutral",
+            "flat": "neutral",
+            "유지": "neutral",
+            "중립": "neutral",
+            "decel": "decel",
+            "둔화": "decel",
+            "감속": "decel",
+            "contraction": "contraction",
+            "decline": "contraction",
+            "역성장": "contraction",
+        },
+    )
+    ev_tier = _norm_choice(
+        slope_evidence,
+        {"high": "high", "상": "high", "medium": "medium", "med": "medium", "중": "medium", "low": "low", "하": "low", "auto": "auto"},
+    )
+
+    # 1) DART quarterly 2nd-derivative (OP YoY slope acceleration & OPM 2nd derivative) + empirical DOL
+    op_yoy = s2.get("op_yoy_used")
+    qoq_op = s2.get("qoq_op_pct")
+    curr_roe = s2.get("curr_roe")
+    is_type_b = bool(s2.get("is_type_b", False))
+    util_pct = float(s12.get("capa_util_pct") or 0.0)
+    curr_opm_pct = float(s12.get("curr_opm_pct") or 0.0)
+
+    op_yoy_prev = None
+    op_yoy_curr_s3 = None
+    op_yoy_accel_pctp = None
+    opm_d1_pctp = None
+    opm_accel_pctp = None
+    emp_dol = None
+    dart_2nd_summary = "DART 분기 시계열 부족 (단일 분기 추이 참조)"
+
+    s3_df = (dart_ts or {}).get("s3") if isinstance(dart_ts, dict) else None
+    if s3_df is not None and not s3_df.empty and "영업이익" in s3_df.columns:
+        op_ser = pd.to_numeric(s3_df["영업이익"], errors="coerce")
+        sal_ser = pd.to_numeric(s3_df["매출액"], errors="coerce") if "매출액" in s3_df.columns else pd.Series(dtype=float)
+        valid_op = op_ser.dropna()
+        if len(valid_op) >= 6:
+            yoy_pts = []
+            start_i = max(4, len(valid_op) - 4)
+            for idx_i in range(start_i, len(valid_op)):
+                cv = float(valid_op.iloc[idx_i])
+                pv = float(valid_op.iloc[idx_i - 4])
+                if pv > 0:
+                    yoy_pts.append(((cv / pv) - 1.0) * 100.0)
+            if len(yoy_pts) >= 2:
+                op_yoy_prev = round(yoy_pts[-2], 1)
+                op_yoy_curr_s3 = round(yoy_pts[-1], 1)
+                op_yoy_accel_pctp = round(op_yoy_curr_s3 - op_yoy_prev, 1)
+
+        if not sal_ser.empty:
+            both = pd.DataFrame({"s": sal_ser, "o": op_ser}).dropna()
+            both = both[both["s"] > 0]
+            if len(both) >= 3:
+                opm_s = (both["o"] / both["s"]) * 100.0
+                if curr_opm_pct == 0.0 and len(both) >= 4:
+                    s4_sum = float(both["s"].tail(4).sum())
+                    o4_sum = float(both["o"].tail(4).sum())
+                    if s4_sum > 0:
+                        curr_opm_pct = round((o4_sum / s4_sum) * 100.0, 2)
+                d1_curr = float(opm_s.iloc[-1] - opm_s.iloc[-2])
+                d1_prev = float(opm_s.iloc[-2] - opm_s.iloc[-3])
+                opm_d1_pctp = round(d1_curr, 2)
+                opm_accel_pctp = round(d1_curr - d1_prev, 2)
+
+            if len(both) >= 8:
+                dol_samples = []
+                for idx_i in range(max(4, len(both) - 8), len(both)):
+                    cs, ps = float(both["s"].iloc[idx_i]), float(both["s"].iloc[idx_i - 4])
+                    co, po = float(both["o"].iloc[idx_i]), float(both["o"].iloc[idx_i - 4])
+                    if ps > 0 and po > 0:
+                        sg = ((cs / ps) - 1.0) * 100.0
+                        og = ((co / po) - 1.0) * 100.0
+                        if abs(sg) >= 5.0:
+                            ratio = og / sg
+                            if 0.5 <= ratio <= 8.0:
+                                dol_samples.append(ratio)
+                if dol_samples:
+                    emp_dol = round(max(1.0, min(6.0, float(np.median(dol_samples)))), 2)
+
+        parts_2nd = []
+        if op_yoy_accel_pctp is not None:
+            parts_2nd.append(f"OP YoY 기울기 {op_yoy_prev:+.1f}%→{op_yoy_curr_s3:+.1f}% (Δ{op_yoy_accel_pctp:+.1f}%p)")
+        if opm_accel_pctp is not None:
+            parts_2nd.append(f"OPM 2차 가속도 {opm_accel_pctp:+.2f}%p (ΔOPM {opm_d1_pctp:+.2f}%p)")
+        if parts_2nd:
+            dart_2nd_summary = " / ".join(parts_2nd)
+
+    # 2) Cost Structure (Fixed vs Variable Cost from DART Cost-by-Nature) & Operating Leverage (DOL)
+    eff_fixed = None
+    eff_var = None
+    cm_pct = None
+    dol = None
+    dol_source = "미산출 (비용의 성격별 분류 주석 확인 필요)"
+
+    if fixed_cost_ratio_pct is not None or var_cost_ratio_pct is not None:
+        if fixed_cost_ratio_pct is not None and var_cost_ratio_pct is not None:
+            eff_fixed = round(max(0.0, min(95.0, float(fixed_cost_ratio_pct))), 1)
+            eff_var = round(max(0.0, min(98.0, float(var_cost_ratio_pct))), 1)
+            cm_pct = round(max(1.0, 100.0 - eff_var), 1)
+        elif fixed_cost_ratio_pct is not None:
+            eff_fixed = round(max(0.0, min(95.0, float(fixed_cost_ratio_pct))), 1)
+            cm_pct = round(min(98.0, max(eff_fixed, max(curr_opm_pct, 0.0) + eff_fixed)), 1)
+            eff_var = round(max(0.0, 100.0 - cm_pct), 1)
+        else:
+            eff_var = round(max(0.0, min(98.0, float(var_cost_ratio_pct))), 1)
+            cm_pct = round(max(1.0, 100.0 - eff_var), 1)
+            eff_fixed = round(max(0.0, cm_pct - max(curr_opm_pct, 0.0)), 1)
+
+        if curr_opm_pct <= 0.0 and eff_fixed >= 20.0:
+            dol = 5.0
+        else:
+            dol = round(max(1.0, min(8.0, cm_pct / max(curr_opm_pct, 3.0))), 2)
+        dol_source = "DART 비용의 성격별 분류 정량 산출"
+    elif emp_dol is not None:
+        dol = emp_dol
+        dol_source = "DART 분기 시계열 실측 회귀 추정"
+
+    is_high_fixed_cost = bool((eff_fixed is not None and eff_fixed >= 25.0) or (dol is not None and dol >= 2.5))
+
+    default_drivers = {
+        "A": "연속공정/장치 고정비 레버리지 · 공장 가동률 · 원재료/변동비율 스프레드",
+        "B": "수주잔고(B/B)·리드타임 · 고마진 제품 믹스 · 외주/원가율 추이",
+        "C": "고정 인건비/트래픽 레버리지 · ARPU/테이크레이트 · 변동 마케팅비율",
+        "D": "수출/채널 ASP 믹스 · 원재료/OEM 변동원가 · 마케팅 고정비 레버리지",
+    }
+    core_driver_desc = (bm_core_driver or "").strip() or default_drivers.get(sec_t, default_drivers["A"])
+
+    # 3) Raw Forward OP Slope Grade Synthesis
+    has_explicit_inputs = any(
+        x is not None for x in (exp_slope, util_tr, var_tr)
+    )
+    if exp_slope is not None:
+        raw_grade = exp_slope
+        input_mode = "explicit_op_slope"
+        if ev_tier is None:
+            ev_tier = "high"
+    elif util_tr is not None or var_tr is not None:
+        input_mode = "quant_driver_synthesis"
+        if ev_tier is None:
+            ev_tier = "high"
+        sig_score = 0
+        if util_tr == "up":
+            sig_score += 3 if (is_high_fixed_cost and (util_pct == 0.0 or util_pct < 88.0)) else 2
+        elif util_tr == "down":
+            sig_score -= 3 if is_high_fixed_cost else 2
+        if var_tr == "down":
+            sig_score += 2
+        elif var_tr == "up":
+            sig_score -= 2
+        if (capa_expand or asp_up) and sig_score >= 0:
+            sig_score += 1
+
+        if sig_score >= 4:
+            raw_grade = "strong_accel"
+        elif sig_score >= 2:
+            raw_grade = "accel"
+        elif sig_score <= -4:
+            raw_grade = "contraction"
+        elif sig_score <= -2:
+            raw_grade = "decel"
+        else:
+            raw_grade = "neutral"
+    else:
+        input_mode = "auto_dart_2nd_deriv"
+        if ev_tier is None:
+            ev_tier = "auto"
+        if is_type_b:
+            if op_yoy is not None and op_yoy <= -25.0 and (qoq_op is not None and qoq_op <= -15.0):
+                raw_grade = "contraction"
+            elif op_yoy is not None and op_yoy <= -25.0:
+                raw_grade = "decel"
+            else:
+                raw_grade = "neutral"
+        elif op_yoy is not None and op_yoy <= -25.0 and (qoq_op is not None and qoq_op <= -15.0):
+            raw_grade = "contraction"
+        elif op_yoy is not None and op_yoy <= -25.0:
+            raw_grade = "decel"
+        elif (
+            op_yoy_accel_pctp is not None
+            and op_yoy_accel_pctp <= -30.0
+            and qoq_op is not None
+            and qoq_op <= -10.0
+        ):
+            raw_grade = "decel"
+        elif op_yoy is not None and op_yoy >= 20.0 and (qoq_op is None or qoq_op >= 0.0):
+            high_lev_ramp = bool(qoq_op is not None and qoq_op >= 30.0 and (util_pct == 0.0 or util_pct < 85.0))
+            if (curr_roe is None or curr_roe >= 12.0) or high_lev_ramp:
+                if op_yoy_accel_pctp is not None and op_yoy_accel_pctp <= -35.0:
+                    raw_grade = "neutral"
+                else:
+                    raw_grade = "accel"
+            else:
+                raw_grade = "neutral"
+        else:
+            raw_grade = "neutral"
+
+    grade_mult_map = {
+        "strong_accel": (1.12, 1.15),
+        "accel": (1.06, 1.08),
+        "neutral": (1.00, 1.00),
+        "decel": (0.94, 0.92),
+        "contraction": (0.88, 0.85),
+    }
+    raw_base, raw_bull = grade_mult_map[raw_grade]
+    eff_base, eff_bull = raw_base, raw_bull
+
+    guardrail_notes = []
+    ceiling_guard_triggered = False
+    priced_in_guard_triggered = False
+    evidence_guard_triggered = False
+    dart_divergence_warn = False
+
+    # 4) 3-Layer Korean Anti-Peak-Out Guardrails (Asymmetric: strictly caps upside, preserves downside warnings!)
+    # Guardrail 1: Physical Capacity Ceiling Gate (Type A/B Mfg with util >= 92% & no confirmed Capa expansion / ASP hike)
+    if is_mfg_precision and util_pct >= 92.0 and (not capa_expand) and (not asp_up):
+        if eff_base > 1.0:
+            ceiling_guard_triggered = True
+            if qoq_op is not None and qoq_op <= 0.0:
+                eff_base, eff_bull = 0.94, 0.92
+                guardrail_notes.append(
+                    f"🚨[천장 가드 발동] 가동률 {util_pct:.1f}%≥92%(무증설·무ASP인상) + QoQ({qoq_op:+.1f}%) 둔화 ➔ 감속(×0.94/×0.92) 강등"
+                )
+            else:
+                eff_base, eff_bull = 1.00, 1.00
+                guardrail_notes.append(
+                    f"⚠️[천장 가드 발동] 가동률 {util_pct:.1f}%≥92%(무증설·무ASP인상) ➔ 추가 고정비 레버리지 여력 소멸로 상방 할증 차단(×1.00)"
+                )
+        elif (
+            input_mode == "auto_dart_2nd_deriv"
+            and eff_base == 1.0
+            and qoq_op is not None
+            and qoq_op <= -5.0
+            and op_yoy is not None
+            and op_yoy >= 15.0
+        ):
+            ceiling_guard_triggered = True
+            eff_base, eff_bull = 0.94, 0.92
+            guardrail_notes.append(
+                f"🚨[풀가동 피크아웃 자동감지] 가동률 {util_pct:.1f}%≥92%(무증설) + 후행 YoY({op_yoy:+.1f}%) 대비 QoQ({qoq_op:+.1f}%) 꺾임 ➔ 감속(×0.94/×0.92)"
+            )
+
+    # Guardrail 2: Priced-In Overheating Gate (prevents Market Priced-In + Model Boost double counting)
+    w_mfi14 = float(ts.get("w_mfi14", 50.0))
+    w_mfi12max = float(ts.get("w_mfi14_12w_max", 50.0))
+    ev_hot = (ev_implied_g is not None) and (float(ev_implied_g) > 15.0)
+    pbr_hot = (
+        curr_pbr is not None
+        and curr_pbr > 0
+        and pbr_p90 is not None
+        and pbr_p90 > 0
+        and float(curr_pbr) >= float(pbr_p90) * 0.95
+    )
+    mfi_hot = (w_mfi14 >= 80.0) or (w_mfi12max >= 80.0 and w_mfi14 < 80.0)
+    hot_reasons = []
+    if ev_hot:
+        hot_reasons.append(f"역DCF EV {float(ev_implied_g):+.1f}%>+15%")
+    if pbr_hot:
+        hot_reasons.append(f"PBR {float(curr_pbr):.2f}x≥3Yp90×0.95")
+    if mfi_hot:
+        hot_reasons.append(f"주봉MFI 과열/피크아웃({w_mfi14:.1f}/최고{w_mfi12max:.1f})")
+
+    if eff_base > 1.0 and hot_reasons:
+        priced_in_guard_triggered = True
+        if len(hot_reasons) >= 2:
+            eff_base, eff_bull = 1.00, 1.00
+            guardrail_notes.append(
+                f"🚨[선반영 과열 2중 차단] {', '.join(hot_reasons)} ➔ 주가 선반영 완료로 상방 기울기 할증 전액 차단(×1.00)"
+            )
+        else:
+            eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
+            eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+            guardrail_notes.append(
+                f"⚠️[선반영 과열 경계] {hot_reasons[0]} ➔ 이중 가산 방지를 위해 상방 기울기 할증 50% 축소(×{eff_base:.4f})"
+            )
+
+    # Guardrail 3: Evidence Reliability Tier & Live DART Divergence Guard
+    if ev_tier == "low":
+        evidence_guard_triggered = True
+        if eff_base > 1.0:
+            eff_base, eff_bull = 1.00, 1.00
+            guardrail_notes.append("🛡️[신뢰도 Low 차단] DART 실측·복수 리포트 근거 미흡 ➔ 상방 할증 강제 중립(×1.00)")
+        elif eff_base < 1.0:
+            eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
+            eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+            guardrail_notes.append(f"🛡️[신뢰도 Low 완화] 근거 미흡으로 하방 할인 50% 완화(×{eff_base:.4f})")
+    elif ev_tier == "medium" and eff_base > 1.0:
+        evidence_guard_triggered = True
+        eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
+        eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+        guardrail_notes.append(f"🛡️[신뢰도 Medium 캡] 단일 리포트/일부 미확인 ➔ 상방 할증 50% 캡(×{eff_base:.4f})")
+
+    if (
+        eff_base > 1.0
+        and qoq_op is not None
+        and qoq_op <= -15.0
+        and op_yoy_accel_pctp is not None
+        and op_yoy_accel_pctp <= -20.0
+    ):
+        dart_divergence_warn = True
+        eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
+        eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+        guardrail_notes.append(
+            f"⚠️[DART 실측 괴리 경보] 선행 가속 전망 vs 직전분기 QoQ({qoq_op:+.1f}%)·YoY가속도({op_yoy_accel_pctp:+.1f}%p) 급감 ➔ 상방 할증 50% 축소"
+        )
+
+    # Guardrail 4: Existing Gate Harmonization (Type B / Peak Trap / S-Curve Sell / Double-Penalty Prevention)
+    if is_type_b and eff_base > 1.0:
+        eff_base, eff_bull = 1.00, 1.00
+        guardrail_notes.append("🚫[유형 B 가치함정 차단] 상방 기울기 할증 원천 차단(×1.00)")
+    elif is_peak_trap and eff_base > 1.0:
+        eff_base, eff_bull = 1.00, 1.00
+        guardrail_notes.append("🚨[Step 3.0 사이클 피크 함정 연동] 상방 기울기 할증 강제 차단(×1.00)")
+    elif sc_sell_triggered and eff_base > 1.0:
+        eff_base, eff_bull = 1.00, 1.00
+        guardrail_notes.append("🚨[Step 1.2 S-Curve 매도 시그널 연동] 상방 기울기 할증 자동 중립화(×1.00)")
+
+    if sc_sell_triggered and s12.get("slope_decel") and eff_base < 1.0:
+        eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
+        eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+        guardrail_notes.append(
+            f"⚖️[이중 할인 완화] Step 1.2 slope_decel과 중복 할인 방지를 위해 Step 1.3 추가 할인 50% 완화(×{eff_base:.4f})"
+        )
+
+    eff_base = round(max(0.88, min(1.12, eff_base)), 4)
+    eff_bull = round(max(0.85, min(1.15, eff_bull)), 4)
+
+    if eff_base >= 1.09:
+        final_grade, final_label = "strong_accel", "🚀 초가속 (고정비 레버리지 폭발)"
+    elif eff_base > 1.005:
+        final_grade, final_label = "accel", "📈 가속 (OP 기울기 확대)"
+    elif eff_base >= 0.995:
+        final_grade, final_label = "neutral", "⚖️ 유지·중립 (선형/가드레일 캡)"
+    elif eff_base >= 0.91:
+        final_grade, final_label = "decel", "📉 둔화·감속 (기울기 완만화 · Track 2 차단)"
+    else:
+        final_grade, final_label = "contraction", "🚨 역성장·역레버리지 (고정비 부담 전이 · Track 2 차단)"
+
+    op_slope_decel_warn = bool(eff_base < 0.995)
+    guardrail_summary = " / ".join(guardrail_notes) if guardrail_notes else "🟢 3중 안티-피크아웃 가드레일 정상 통과"
+    summary_reason = (
+        f"[{final_label} | 모드:{input_mode} | 신뢰도:{ev_tier}] "
+        f"Base ×{eff_base:.4f} / Bull ×{eff_bull:.4f} — {guardrail_summary}"
+    )
+
+    cost_str = (
+        f"고정비율 {eff_fixed:.1f}% / 변동비율 {eff_var:.1f}% / 공헌이익률 {cm_pct:.1f}% ➔ 이론 DOL {dol:.2f}배"
+        if (eff_fixed is not None and eff_var is not None and dol is not None)
+        else (f"DART 시계열 실측 DOL {dol:.2f}배 (비용의 성격별 분류 주석 미입력)" if dol is not None else "비용구조 미입력 (DART 비용의 성격별 분류 주석 확인 권장)")
+    )
+    trend_str = (
+        f"가동률/볼륨 추세: {util_tr or '미입력'} | 변동비율 추세: {var_tr or '미입력'} | "
+        f"신규증설: {'✅확정' if capa_expand else '없음'} | ASP인상: {'✅확정' if asp_up else '없음'}"
+    )
+
+    print(f"    - [업종 모드]: Type {sec_t} ({'제조·고정비 정밀 모드' if is_mfg_precision else '비제조/소비재 공통 프레임'}) | 현 OPM {curr_opm_pct:.1f}% | 가동률 {util_pct:.1f}%")
+    print(f"    - [BM 영업이익 핵심인자]: {core_driver_desc}")
+    print(f"    - [비용구조 & 영업레버리지(DOL)]: {cost_str} [{dol_source}]")
+    print(f"    - [핵심인자 추세 & DART 2차 도함수]: {trend_str}")
+    print(f"      • DART 실측 가속도: {dart_2nd_summary}")
+    print(f"    - [3중 안티-피크아웃 가드레일]: {guardrail_summary}")
+    print(
+        f"    - 🎯 [🚀 대안 A 단독 반영 계수 (🛡️ 대안 B 미변경)]: "
+        f"{final_label} ➔ Base ×{eff_base:.4f} ({(eff_base-1)*100:+.1f}%) / Bull ×{eff_bull:.4f} ({(eff_bull-1)*100:+.1f}%)"
+    )
+
+    return {
+        "sector_type": sec_t,
+        "is_mfg_precision_mode": is_mfg_precision,
+        "input_mode": input_mode,
+        "has_explicit_inputs": has_explicit_inputs,
+        "bm_core_driver": core_driver_desc,
+        "fixed_cost_ratio_pct": eff_fixed,
+        "var_cost_ratio_pct": eff_var,
+        "contribution_margin_pct": cm_pct,
+        "dol": dol,
+        "dol_source": dol_source,
+        "is_high_fixed_cost": is_high_fixed_cost,
+        "curr_opm_pct": curr_opm_pct,
+        "capa_util_pct": util_pct,
+        "util_trend": util_tr,
+        "var_cost_trend": var_tr,
+        "capa_expand": bool(capa_expand),
+        "asp_up": bool(asp_up),
+        "op_yoy_prev_pct": op_yoy_prev,
+        "op_yoy_curr_pct": op_yoy_curr_s3,
+        "op_yoy_accel_pctp": op_yoy_accel_pctp,
+        "opm_d1_pctp": opm_d1_pctp,
+        "opm_accel_pctp": opm_accel_pctp,
+        "dart_2nd_summary": dart_2nd_summary,
+        "raw_grade": raw_grade,
+        "final_grade": final_grade,
+        "final_label": final_label,
+        "slope_evidence": ev_tier,
+        "ceiling_guard_triggered": ceiling_guard_triggered,
+        "priced_in_guard_triggered": priced_in_guard_triggered,
+        "evidence_guard_triggered": evidence_guard_triggered,
+        "dart_divergence_warn": dart_divergence_warn,
+        "guardrail_notes": guardrail_notes,
+        "guardrail_summary": guardrail_summary,
+        "op_slope_base_mult": eff_base,
+        "op_slope_bull_mult": eff_bull,
+        "op_slope_decel_warn": op_slope_decel_warn,
+        "summary_reason": summary_reason,
+    }
+
+
 def compute_step1_8_k_market_shareholder_return(
     stock_code,
     bench,
@@ -1363,16 +1828,21 @@ def compute_step1_8_k_market_shareholder_return(
     buyback_cliff=None,
     related_party_eok=None,
     governance_discount=0.0,
+    tsr_pct=None,
+    mezzanine_eok=0.0,
+    mezzanine_pct=0.0,
+    listed_parent_sales=None,
+    gov_note=None,
 ):
     """
-    [NEW v4.3 #2] Step 1.8: 한국 시장 특수성(K-Market Specifics) & 주주환원 입체 스코어카드
-    - ① 배당성향·총주주환원율(TSR) 및 한국 세법 '배당소득 분리과세(요건1 ≥40% / 요건2 ≥25%+성장)' 적격성 자동 판정
+    [v4.3 / v5.0 #2] Step 1.8: 한국 시장 특수성(K-Market Specifics) & 주주환원 입체 스코어카드
+    - ① 배당성향·총주주환원율(TSR) 및 한국 세법 '배당소득 분리과세(요건1 ≥40% / 요건2 ≥25%+배당증가)' 적격성 자동 판정
     - ② 자사주 보유 비율 vs 자사주 소각 완수 후 '주주환원 절벽(Buyback Cliff)' 리스크 감지
-    - ③ 오너 일가 비상장 개인회사 내부거래(터널링) 비중 및 승계/행동주의 거버넌스 역학 진단
-    - ④ 메자닌(CB/BW) 리픽싱 오버행 및 중복상장 디스카운트 반영
+    - ③ 메자닌(CB/BW/RCPS) 미상환 잔액 및 잠재 희석 오버행 점검
+    - ④ 오너 일가 비상장 개인회사 내부거래(터널링) vs 상장 모회사 정상 캡티브 유통 구분 및 승계/행동주의/계열사 보증 거버넌스 할인 정량화
     """
     print("\n======================================================================")
-    print("🇰🇷 [Step 1.8 — 한국 시장 특수성 & 주주환원 입체 스코어카드] 분리과세 · 환원절벽 · 터널링 점검")
+    print("🇰🇷 [Step 1.8 — 한국 시장 특수성 & 주주환원 입체 스코어카드 (v5.0)] 분리과세 · 환원절벽 · 메자닌 · 터널링 점검")
     print("======================================================================")
 
     code_str = str(stock_code).zfill(6) if stock_code else ""
@@ -1382,8 +1852,22 @@ def compute_step1_8_k_market_shareholder_return(
     eps = float(bench.get("eps") or 0.0)
     div_yield = float(bench.get("div_yield") or 0.0)
     calc_payout = round((dps / eps) * 100.0, 1) if (eps > 0 and dps > 0) else 0.0
-    used_payout = float(payout_ratio if payout_ratio is not None else (v_meta.get("payout_ratio_pct") or calc_payout))
-    tsr_pct = float(v_meta.get("tsr_pct") or used_payout)
+    v_meta_payout = v_meta.get("payout_ratio_pct")
+    payout_overridden = (
+        payout_ratio is not None
+        and (v_meta_payout is None or abs(float(payout_ratio) - float(v_meta_payout)) >= 0.5)
+    )
+    used_payout = float(payout_ratio if payout_ratio is not None else (v_meta_payout if v_meta_payout is not None else calc_payout))
+
+    if tsr_pct is not None:
+        used_tsr_pct = round(float(tsr_pct), 1)
+    elif payout_overridden:
+        # Preserve any verified buyback TSR delta if present, rather than freezing stale dividend-only TSR
+        v_tsr = v_meta.get("tsr_pct")
+        buyback_delta = max(0.0, float(v_tsr) - float(v_meta_payout)) if (v_tsr is not None and v_meta_payout is not None) else 0.0
+        used_tsr_pct = round(used_payout + buyback_delta, 1)
+    else:
+        used_tsr_pct = float(v_meta.get("tsr_pct") if v_meta.get("tsr_pct") is not None else used_payout)
 
     t_sh = int(total_shares or 0)
     d_sh = int(distb_shares or 0)
@@ -1393,7 +1877,8 @@ def compute_step1_8_k_market_shareholder_return(
     is_cliff = bool(buyback_cliff if buyback_cliff is not None else v_meta.get("buyback_cliff_warn", False))
     rel_party_eok = float(related_party_eok if related_party_eok is not None else v_meta.get("related_party_eok", 0.0))
 
-    if v_meta.get("tax_incentive_status"):
+    # Avoid stale hardcoded percentage text from v_meta when CLI --payout-ratio updated the actual payout ratio
+    if v_meta.get("tax_incentive_status") and not payout_overridden:
         tax_status = v_meta["tax_incentive_status"]
     elif used_payout >= 40.0:
         tax_status = f"👑 배당소득 분리과세 요건1 충족 (배당성향 {used_payout:.1f}% ≥ 40%)"
@@ -1412,7 +1897,16 @@ def compute_step1_8_k_market_shareholder_return(
         )
     )
 
-    is_parent_channel = bool(v_meta.get("is_listed_parent_sales", False))
+    mezz_eok = float(mezzanine_eok or 0.0)
+    mezz_pct = float(mezzanine_pct or 0.0)
+    if mezz_pct >= 10.0:
+        overhang_status = f"🚨 [메자닌 오버행 경보]: 잠재 희석 {mezz_pct:.1f}% ({mezz_eok:,.1f}억 원) — 리픽싱·전환 매물 압박 경계"
+    elif mezz_pct >= 5.0 or mezz_eok > 0.0:
+        overhang_status = f"⚠️ [메자닌 오버행 주의]: 잔액 {mezz_eok:,.1f}억 원 (희석 {mezz_pct:.1f}%)"
+    else:
+        overhang_status = "🟢 청정 (미상환 CB/BW/EB 잠재 희석 0%)"
+
+    is_parent_channel = bool(listed_parent_sales if listed_parent_sales is not None else v_meta.get("is_listed_parent_sales", False))
     if is_parent_channel and rel_party_eok >= 30.0:
         tunneling_status = (
             f"🟢 정상 영업 유통 (상장 모회사·계열사 유통 채널 거래 약 {rel_party_eok:,.1f}억 원 — "
@@ -1425,14 +1919,28 @@ def compute_step1_8_k_market_shareholder_return(
     else:
         tunneling_status = f"🟢 양호 (유의미한 오너 개인회사 사익편취 내부거래 미감지 [{rel_party_eok:,.1f}억 원])"
 
-    k_gov_note = v_meta.get("k_gov_note", "DART 특수관계자 주석 및 메자닌(CB/BW) 리픽싱 잔액 0건 여부 확인 필수")
-    base_kgov_mult = float(v_meta.get("kgov_mult", 1.00))
-    if governance_discount and abs(float(governance_discount)) > 0:
-        disc_r = abs(float(governance_discount))
-        if disc_r > 1.0:
-            disc_r = disc_r / 100.0
-        base_kgov_mult = round(base_kgov_mult * (1.0 - disc_r), 4)
+    explicit_gov_discount_pct = None
+    if governance_discount is not None and abs(float(governance_discount)) > 0:
+        raw_gd = abs(float(governance_discount))
+        explicit_gov_discount_pct = round(raw_gd * 100.0 if raw_gd <= 1.0 else raw_gd, 2)
+
+    k_gov_note = (
+        gov_note
+        or v_meta.get("k_gov_note")
+        or (
+            f"계열사 거버넌스·지배구조 할인 -{explicit_gov_discount_pct:.1f}% 반영 (DART 주석 기준)"
+            if explicit_gov_discount_pct
+            else "DART 특수관계자 주석 및 메자닌(CB/BW) 리픽싱 잔액 0건 여부 확인 필수"
+        )
+    )
+    v_meta_kgov = float(v_meta.get("kgov_mult", 1.00))
+    if explicit_gov_discount_pct is not None:
+        disc_r = explicit_gov_discount_pct / 100.0
+        # Apply explicit discount relative to neutral (1.0) or bonus (>=1.0) so v_meta < 1.0 is never double-discounted
+        anchor_mult = max(1.00, v_meta_kgov)
+        base_kgov_mult = round(anchor_mult * (1.0 - disc_r), 4)
     else:
+        base_kgov_mult = v_meta_kgov
         # [PATCH v5.1 Option A-2 #6] Only discount genuine owner-private tunneling (exclude listed parent/subsidiary distribution)
         auto_gov_pen = 0.0
         if not is_parent_channel:
@@ -1442,28 +1950,38 @@ def compute_step1_8_k_market_shareholder_return(
                 auto_gov_pen += 0.02
         if is_cliff:
             auto_gov_pen += 0.02
+        if mezz_pct >= 10.0:
+            auto_gov_pen += 0.03
+        elif mezz_pct >= 5.0:
+            auto_gov_pen += 0.015
         if auto_gov_pen > 0:
             base_kgov_mult = round(base_kgov_mult * (1.0 - auto_gov_pen), 4)
 
-    print(f"    - [1] 배당성향 & 총주주환원율(TSR): 배당성향 {used_payout:.1f}% (배당수익률 {div_yield:.2f}%, DPS {dps:,.0f}원) | 총주주환원율(TSR) {tsr_pct:.1f}%")
+    print(f"    - [1] 배당성향 & 총주주환원율(TSR): 배당성향 {used_payout:.1f}% (배당수익률 {div_yield:.2f}%, DPS {dps:,.0f}원) | 총주주환원율(TSR) {used_tsr_pct:.1f}%")
     print(f"    - [2] 한국 배당소득 분리과세 판정: {tax_status}")
-    print(f"    - [3] 자사주 소각 절벽(Cliff) & 오버행: {cliff_status}")
+    print(f"    - [3] 자사주 소각 절벽(Cliff) & 메자닌 오버행: {cliff_status} | {overhang_status}")
     print(f"    - [4] 오너 개인회사 터널링(내부거래): {tunneling_status}")
     print(f"    - [5] 한국형 지배구조·승계·행동주의 종합: {k_gov_note} (K-거버넌스 가중치: ×{base_kgov_mult:.2f})")
 
     return {
         "payout_ratio_pct": used_payout,
-        "tsr_pct": tsr_pct,
+        "tsr_pct": used_tsr_pct,
         "div_yield_pct": div_yield,
         "dps": dps,
         "treasury_shares": treasury_sh,
         "treasury_ratio_pct": treasury_ratio_pct,
         "tax_incentive_status": tax_status,
         "buyback_cliff_warn": is_cliff,
+        "buyback_cliff_risk": is_cliff,
         "cliff_status": cliff_status,
+        "mezzanine_eok": mezz_eok,
+        "mezzanine_pct": mezz_pct,
+        "overhang_status": overhang_status,
         "related_party_eok": rel_party_eok,
+        "is_listed_parent_sales": is_parent_channel,
         "tunneling_status": tunneling_status,
         "k_gov_note": k_gov_note,
+        "gov_discount_pct": explicit_gov_discount_pct,
         "kgov_mult": base_kgov_mult,
     }
 
@@ -2188,13 +2706,16 @@ def compute_section3_stock_nature_and_tp1(
     sec8_res=None,
     tech_snap=None,
     ev_implied_g=None,
+    dart_ts=None,
+    bm_slope_params=None,
+    step1_3_res=None,
 ):
     """
     (B) Section 3 종목 체질 판별, 사이클주 '피크 이익 × 높은 멀티플' 함정 차단(Peak-Cycle Trap Guard),
-    Forward BPS 계산, [대안 B vs 대안 A (v4.3 S-Curve 10% 변곡점 + 3축 구조적 병목 + K-주주환원 반영)] 목표가 병기 자동 산출
+    Forward BPS 계산, [대안 B(순수 DART 기준 닻) vs 대안 A (v5.2 Step 1.3 BM 핵심인자 선행 OP 기울기 + S-Curve 10% 변곡점·구조적 병목 + K-주주환원 반영)] 목표가 병기 자동 산출
     """
     print("\n======================================================================")
-    print("🎯 [Phase 3 - Section 3] 종목 체질 · 사이클 피크 함정 차단 · [대안 B vs 대안 A (v4.3)] 목표가 산출")
+    print("🎯 [Phase 3 - Section 3] 종목 체질 · 사이클 피크 함정 차단 · [대안 B vs 대안 A (v5.2)] 목표가 산출")
     print("======================================================================")
 
     w52 = df_week.tail(52)
@@ -2449,21 +2970,6 @@ def compute_section3_stock_nature_and_tp1(
 
     op_yoy = sec2_res.get("op_yoy_used")
     is_type_b = sec2_res.get("is_type_b", False)
-    op_mult = 1.0
-    op_reason = "중립 (영업이익 YoY -25% ~ +20% 또는 ROE < 12% → 가감산 0%)"
-    if is_type_b:
-        op_mult = 1.0
-        op_reason = "구조적 가치함정(유형 B) 해당 → 할증 원천 차단 (0%)"
-    elif is_peak_earnings:
-        op_mult = 1.0
-        op_reason = f"🚨 사이클 피크 이익 구간({peak_trap_reason}) → 고점 멀티플 중복 할증(+8%) 강제 차단 (0.0%)"
-    elif op_yoy is not None:
-        if op_yoy >= 20.0 and (curr_roe is not None and curr_roe >= 12.0):
-            op_mult = 1.08
-            op_reason = f"고성장 모멘텀 (영업이익 YoY {op_yoy:+.1f}% ≥ +20% & ROE {curr_roe:.1f}% ≥ 12%) → +8.0% 할증"
-        elif op_yoy <= -25.0:
-            op_mult = 0.94
-            op_reason = f"실적 둔화 페널티 (영업이익 YoY {op_yoy:+.1f}% ≤ -25%) → -6.0% 할인"
 
     sc_info = _detect_scurve_phase2_status(
         stock_code,
@@ -2473,11 +2979,32 @@ def compute_section3_stock_nature_and_tp1(
         early_ignition=early_ignition,
     )
 
-    # [NEW v4.3 / v5.1] Use Step 1.2 3-Axis S-Curve (10% Inflection + Structural Bottleneck + Lead Time + 3 Sell Signals) & Step 1.8 K-Return Multipliers
+    # [NEW v4.3 / v5.1 / v5.2] Use Step 1.3 BM Core Driver & Forward OP Slope (with 3-Layer Anti-Peak-Out Guardrails),
+    # Step 1.2 3-Axis S-Curve (10% Inflection + Structural Bottleneck + Lead Time + 3 Sell Signals), & Step 1.8 K-Return Multipliers.
+    # Strictly applied ONLY to Model A (`🚀 대안 A`); Model B (`🛡️ 대안 B`) remains the pure untouched DART historical anchor!
     sc_sell_triggered = bool((step1_2_res or {}).get("scurve_sell_triggered", False))
-    if sc_sell_triggered and op_mult > 1.0:
-        op_mult = 1.0
-        op_reason = "🚨 S-Curve 매도/디레이팅 시그널 발동 → 후행 영업이익 모멘텀 할증(+8%) 자동 중립화(0.0%)"
+    if step1_3_res is None:
+        _bm_kw = dict(bm_slope_params or {})
+        step1_3_res = compute_step1_3_bm_op_slope(
+            stock_code,
+            corp_name or bench.get("stock_name") or stock_code,
+            dart_ts or {},
+            sec2_res=sec2_res,
+            step1_2_res=step1_2_res,
+            sector_type=sector_type,
+            curr_pbr=curr_pbr,
+            pbr_p90=pbr_p90,
+            ev_implied_g=ev_implied_g,
+            tech_snap=tech_snap,
+            is_peak_trap=is_peak_earnings,
+            sc_sell_triggered=sc_sell_triggered,
+            **_bm_kw,
+        )
+    op_mult = float(step1_3_res.get("op_slope_base_mult", 1.0))
+    op_bull_mult = float(step1_3_res.get("op_slope_bull_mult", op_mult))
+    op_slope_grade = step1_3_res.get("final_grade", "neutral")
+    op_slope_decel_warn = bool(step1_3_res.get("op_slope_decel_warn", False))
+    op_reason = step1_3_res.get("summary_reason", "중립 (×1.00)")
 
     if step1_2_res and not is_type_b:
         if sc_sell_triggered:
@@ -2521,9 +3048,9 @@ def compute_section3_stock_nature_and_tp1(
     kgov_mult = float((step1_8_res or {}).get("kgov_mult", 1.0)) if not is_type_b else 1.0
     kgov_reason = (step1_8_res or {}).get("k_gov_note", "K-주주환원·지배구조 중립 (×1.00)")
 
-    # Total Model A multiplier with v5.1 Two-Way Bound (Floor >= 0.80x, Cap Base <= 1.38x / Bull <= 1.45x)
+    # Total Model A multiplier with v5.2 Two-Way Bound (Floor >= 0.80x, Cap Base <= 1.38x / Bull <= 1.45x)
     raw_base_mult_a = op_mult * sc_base_mult * kgov_mult
-    raw_bull_mult_a = op_mult * sc_bull_mult * kgov_mult
+    raw_bull_mult_a = op_bull_mult * sc_bull_mult * kgov_mult
     base_mult_a = round(max(0.80, min(raw_base_mult_a, 1.38)), 4)
     bull_mult_a = round(max(0.80, min(raw_bull_mult_a, 1.45)), 4)
     bear_auto_a = bear_auto_b
@@ -2540,6 +3067,7 @@ def compute_section3_stock_nature_and_tp1(
         and sc_info["is_phase2"]
         and not is_type_b
         and not sc_sell_triggered
+        and not op_slope_decel_warn
         and not forward_eps_suspended
     ):
         capped_g = min(float(forward_eps_g), 35.0)
@@ -2669,8 +3197,8 @@ def compute_section3_stock_nature_and_tp1(
     print(f"\n    ▶ Section 3 종목 체질 판정: {nature_badge}")
     print(f"      {nature_desc}")
 
-    print("\n    ▶ [대안 A (v4.3 실적 모멘텀 · S-Curve 10% 변곡점 · 구조적 병목 · K-주주환원) 가중 계수 산출 내역]:")
-    print(f"      ① DART 실적 모멘텀 가감산 (op_mult = ×{op_mult:.2f}): {op_reason}")
+    print("\n    ▶ [대안 A (v5.2 BM 핵심인자 선행 OP 기울기 · S-Curve 10% 변곡점 · 구조적 병목 · K-주주환원) 가중 계수 산출 내역]:")
+    print(f"      ① BM 핵심인자 · 선행 OP 기울기 가감산 (Base ×{op_mult:.4f} / Bull ×{op_bull_mult:.4f}): {op_reason}")
     print(
         f"      ② S-Curve 10% 변곡점 & 3축 구조적 병목 매트릭스 (Base ×{sc_base_mult:.4f} / Bull ×{sc_bull_mult:.4f}): {sc_reason}"
     )
@@ -2706,7 +3234,7 @@ def compute_section3_stock_nature_and_tp1(
                     f"🟢 [레드팀 Capa 검증 통과] 가동률({capa_util_pct:.1f}%) 및 믹스 개선 기준 물리적 영업이익 상한({max_organic_op_eok:,.1f}억) 내 달성 가능 (Base 내재 OP {implied_op_base_a_eok:,.1f}억)"
                 )
 
-    print("\n    ▶ [시나리오 목표가 가이드라인 — 🛡️ 대안 B (중심 닻) vs 🚀 대안 A (v4.3 할증 상단)]:")
+    print("\n    ▶ [시나리오 목표가 가이드라인 — 🛡️ 대안 B (중심 닻) vs 🚀 대안 A (v5.0 할증 상단)]:")
     print(
         f"      • Bull (호황 상단): 🛡️ 대안 B {final_bull_b:,.0f}원 ({(final_bull_b/curr_price-1)*100:+.1f}%)  |  🚀 대안 A {final_bull_a:,.0f}원 ({(final_bull_a/curr_price-1)*100:+.1f}%)"
     )
@@ -2734,6 +3262,12 @@ def compute_section3_stock_nature_and_tp1(
         "is_peak_trap": is_peak_earnings,
         "peak_trap_reason": peak_trap_reason,
         "op_mult": op_mult,
+        "op_slope_base_mult": op_mult,
+        "op_slope_bull_mult": op_bull_mult,
+        "op_slope_grade": op_slope_grade,
+        "op_slope_decel_warn": op_slope_decel_warn,
+        "op_slope_reason": op_reason,
+        "step1_3_bm_slope": step1_3_res,
         "sc_base_mult": sc_base_mult,
         "sc_bull_mult": sc_bull_mult,
         "kgov_mult": kgov_mult,
@@ -3086,6 +3620,7 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
     weekly_trend_ok = (curr_p >= w_ma20_val * 0.95) and (w_ma20_val >= w_ma60_val * 0.97)
 
     sc_sell_active = bool(sec3_res.get("scurve_sell_triggered", False))
+    op_slope_decel_active = bool(sec3_res.get("op_slope_decel_warn", False))
     is_type_b_trap = bool(sec2_res.get("is_type_b", False))
 
     # Pre-compute Gate 1 (Fundamental R:R) with realistic minimum downside floor (5.0% box / 8.0% trend)
@@ -3098,6 +3633,7 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
         sc_info.get("is_phase2", False)
         and not sec3_res.get("is_peak_trap", False)
         and not sc_sell_active
+        and not op_slope_decel_active
         and not is_type_b_trap
         and (curr_p >= primary_t * 0.96)
         and (curr_p <= track2_ceiling)
@@ -3632,6 +4168,7 @@ def export_pipeline_ssot(
     risk_res,
     sec4_res,
     step1_2_res=None,
+    step1_3_res=None,
     step1_8_res=None,
     norm_fcf_eok=None,
     price_eq_eval=None,
@@ -3692,8 +4229,9 @@ def export_pipeline_ssot(
         f'data-poc-low="{sec4_res.get("poc_low", 0)}"></div>'
     )
 
+    s13_resolved = step1_3_res or (sec3_res.get("step1_3_bm_slope") if isinstance(sec3_res, dict) else None) or {}
     payload = {
-        "version": "4.3",
+        "version": "5.2",
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "stock_code": str(stock_code).zfill(6),
         "corp_name": corp_name,
@@ -3702,6 +4240,7 @@ def export_pipeline_ssot(
         "bench": bench,
         "sotp": sotp_res,
         "step1_2_bottleneck": step1_2_res or {},
+        "step1_3_bm_slope": s13_resolved,
         "step1_8_k_return": step1_8_res or {},
         "regime": regime_res,
         "section8": sec8_res,
@@ -3746,6 +4285,7 @@ def export_pipeline_ssot(
         )
 
     s12 = step1_2_res or {}
+    s13 = s13_resolved or {}
     s18 = step1_8_res or {}
     bn_f_raw = s12.get("bottleneck_factors", [])
     if isinstance(bn_f_raw, dict):
@@ -3768,7 +4308,65 @@ def export_pipeline_ssot(
 
     pe_block = format_price_eq_markdown_block(price_eq_eval)
 
-    auto_md = f"""<!-- [AUTO-GENERATED BY backtest_valuation.py v4.3 — DO NOT EDIT NUMBERS MANUALLY] -->
+    s18_tsr = float(s18.get("tsr_pct", s18.get("payout_ratio_pct", 0.0)))
+    s18_dps = float(s18.get("dps", 0.0))
+    s18_tr_sh = int(s18.get("treasury_shares", 0))
+    s18_tr_pct = float(s18.get("treasury_ratio_pct", 0.0))
+    s18_mezz_eok = float(s18.get("mezzanine_eok", 0.0))
+    s18_mezz_pct = float(s18.get("mezzanine_pct", 0.0))
+    s18_rel_eok = float(s18.get("related_party_eok", 0.0))
+    s18_rel_label = (
+        f"상장모회사·계열사 정상유통 **`{s18_rel_eok:,.1f}억`**"
+        if s18.get("is_listed_parent_sales")
+        else f"특수관계인 거래 **`{s18_rel_eok:,.1f}억`**"
+    )
+    s18_gd_pct = s18.get("gov_discount_pct")
+    s18_gd_str = f" / 거버넌스 할인 **`-{float(s18_gd_pct):.1f}%`**" if s18_gd_pct else ""
+    s18_gov_note = s18.get("k_gov_note") or s18.get("tunneling_status") or "N/A"
+
+    _drv_util = float(s12.get("capa_util_pct", 0.0) or 0.0)
+    _drv_opm = float(s12.get("curr_opm_pct", 0.0) or 0.0)
+    _drv_op_bull = float(sec3_res.get("implied_op_bull_a_eok", 0.0) or 0.0)
+    _drv_op_base = float(sec3_res.get("implied_op_base_a_eok", 0.0) or 0.0)
+    _drv_kgov = float(s18.get("kgov_mult", 1.0) or 1.0)
+    _drv_ks = str(sec2_res.get("kill_switch_guide") or "분기 영업익 QoQ -15% 하회").replace("|", "/").strip()
+    _drv_util_txt = f"현 가동률 {_drv_util:.1f}%" if _drv_util > 0 else "주력 사업/수주 가동률"
+    _drv_s13_lbl = str(s13.get("final_label") or "⚖️ 유지·중립").replace("|", "/")
+    _drv_s13_core = str(s13.get("bm_core_driver") or "BM 핵심인자").replace("|", "/")[:48]
+    _bull_prompt = (
+        f"[AI 작성 필수: 전방 고객사·핵심 제품 믹스/ASP 상승 + Step 1.3 핵심인자({_drv_s13_core}) 가속·{_drv_util_txt} 상단 돌파 + "
+        f"내재 OP {_drv_op_bull:,.1f}억 달성 및 멀티플 리레이팅·주주환원 촉매 구체 서술]"
+    )
+    _base_prompt = (
+        f"[AI 작성 필수: 주력 사업 {_drv_util_txt}·현 OPM {_drv_opm:.1f}% 안착 + 내재 OP {_drv_op_base:,.1f}억 "
+        f"본업 유지 + Step 1.3 OP기울기({_drv_s13_lbl}, 대안A 단독반영)·병목·거버넌스(kgov ×{_drv_kgov:.2f}) 구체 서술]"
+    )
+    _bear_prompt = (
+        f"[AI 작성 필수: 전방 수요 둔화·가동률 하락/변동비율 상승 역레버리지 + Kill-Switch({_drv_ks}) 발동 및 "
+        f"OPM 축소·하방 디레이팅 촉발 조건 구체 서술]"
+    )
+
+    s13_fix = s13.get("fixed_cost_ratio_pct")
+    s13_var = s13.get("var_cost_ratio_pct")
+    s13_cm = s13.get("contribution_margin_pct")
+    s13_dol = s13.get("dol")
+    if s13_fix is not None and s13_var is not None and s13_dol is not None:
+        s13_cost_cell = f"고정비율 **`{s13_fix:.1f}%`** / 변동비율 **`{s13_var:.1f}%`** / 공헌이익률 `{s13_cm:.1f}%` ➔ 이론 DOL **`{s13_dol:.2f}배`**"
+    elif s13_dol is not None:
+        s13_cost_cell = f"DART 분기 시계열 실측 DOL **`{s13_dol:.2f}배`** (`비용의 성격별 분류` 주석 정밀 입력 권장)"
+    else:
+        s13_cost_cell = "미입력 (`1단계` DART `비용의 성격별 분류` 주석 고정비·변동비 확인 권장)"
+    s13_tr_map = {"up": "📈상승", "flat": "➡️보합", "down": "📉하락", None: "미입력"}
+    s13_var_map = {"down": "🟢하락(마진우호)", "flat": "➡️보합", "up": "🔴상승(원가압박)", None: "미입력"}
+    s13_trend_cell = (
+        f"가동률/볼륨 **{s13_tr_map.get(s13.get('util_trend'), '미입력')}** (`{float(s13.get('capa_util_pct', 0.0)):.1f}%`) · "
+        f"변동비율 **{s13_var_map.get(s13.get('var_cost_trend'), '미입력')}** · "
+        f"신규증설 `{'✅확정' if s13.get('capa_expand') else '없음'}` · ASP인상 `{'✅확정' if s13.get('asp_up') else '없음'}`"
+    )
+    s13_base_m = float(s13.get("op_slope_base_mult", 1.0))
+    s13_bull_m = float(s13.get("op_slope_bull_mult", 1.0))
+
+    auto_md = f"""<!-- [AUTO-GENERATED BY backtest_valuation.py v5.2 — DO NOT EDIT NUMBERS MANUALLY] -->
 
 ### 📌 [코드 자동 생성 1] SOTP 장부 분해 & 4대 레짐 체크 요약표
 | 검증 항목 | 코드 실측 수치 | 판정 결과 (Code Verdict) |
@@ -3782,7 +4380,7 @@ def export_pipeline_ssot(
 | **직전 분기 대비 (QoQ) 실적 추이** | {sec2_res['qoq_summary_str']} | {sec2_res['qoq_eps_detail']} |
 | **가설 반증 임계치 (Kill-Switch)** | **{sec2_res['kill_switch_guide']}** | 미달 시 가설 즉시 [약화] 강등 |
 
-### 📌 [코드 자동 생성 1-B] Step 1.2 S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 리드타임 & Step 1.8 K-주주환원 진단표 (v4.3)
+### 📌 [코드 자동 생성 1-B] Step 1.2 S-Curve 10% 변곡점 · 3축 구조적 병목(Capa·기술·특허) · 리드타임 & Step 1.8 K-주주환원 진단표 (v5.2)
 | 진단 축 (3-Axis + K-Return) | 실측 지표 및 근거 | 코드 판정 및 Phase 3 목표주가 가중치 |
 | :--- | :--- | :--- |
 | **① 전방 시장 침투율 (10% 변곡점 여부)** | 1차 침투율 **`{s12.get('penetration_pct', 0.0):.1f}%`**{sec_pen_str} (`{s12.get('penetration_zone', 'N/A')}`) | {'🔥 **10% 골든 변곡점 발화 구간**' if s12.get('is_near_10pct_inflection') else '📌 **확산/성숙 구간 진행**'} (3축 통합 Base `×{s12.get('total_sc_bn_base_mult', 1.0):.2f}` / Bull `×{s12.get('total_sc_bn_bull_mult', 1.0):.2f}`) |
@@ -3791,15 +4389,26 @@ def export_pipeline_ssot(
 | **②-C 원천특허 · 글로벌 벤더 퀄(Qual) 락인** | {bn_f_pat} | 후발주자 진입장벽(Switching Cost) 점검 |
 | **③ 병목 해소 예상 소요기간 (Lead Time)** | **`{s12.get('bottleneck_grade', 'C')}등급`** (해소 리드타임 **`{s12.get('bottleneck_lead_time_months', 0)}개월`**) | {s12.get('bottleneck_lead_reason', 'N/A')} (PEG 계수 `{s12.get('peg_factor', 0.80):.2f}`) |
 | **③-B S-Curve 3대 매도·디레이팅 시그널** | {s12.get('sell_signal_summary', '🟢 해당 없음')} | {'🚨 **S-Curve 할증 박탈 & 목표주가 디레이팅 반영**' if s12.get('scurve_sell_triggered') else '🟢 **매도 시그널 미감지 (정상 평가)**'} |
-| **④ K-마켓 주주환원 · 지배구조 (Step 1.8)** | 배당수익률 **`{s18.get('div_yield_pct', 0.0):.2f}%`** (성향 `{s18.get('payout_ratio_pct', 0.0):.1f}%`) / 특수관계인 `{s18.get('related_party_eok', 0.0):.1f}억` | {s18.get('tax_incentive_status', 'N/A')} / {s18.get('cliff_status', 'N/A')} (`kgov_mult = ×{s18.get('kgov_mult', 1.0):.4f}`) |
+| **④-A K-주주환원 (배당 · TSR · 분리과세)** | DPS **`{s18_dps:,.0f}원`** (배당수익률 **`{s18.get('div_yield_pct', 0.0):.2f}%`** / 성향 `{s18.get('payout_ratio_pct', 0.0):.1f}%` / TSR `{s18_tsr:.1f}%`) | {s18.get('tax_incentive_status', 'N/A')} |
+| **④-B 자사주 · 환원절벽 · 메자닌(CB/BW)** | 자사주 **`{s18_tr_sh:,}주`** (`{s18_tr_pct:.2f}%`) / 미상환 메자닌 **`{s18_mezz_eok:,.1f}억`** (희석 `{s18_mezz_pct:.1f}%`) | {s18.get('cliff_status', 'N/A')} / {s18.get('overhang_status', 'N/A')} |
+| **④-C 지배구조 · 내부거래 · 거버넌스 (Step 1.8)** | {s18_rel_label}{s18_gd_str} | {s18.get('tunneling_status', 'N/A')} — {s18_gov_note} (`kgov_mult = ×{s18.get('kgov_mult', 1.0):.4f}`) |
 | **⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)** | 대안 A 내재 영업이익: Base **`{sec3_res.get('implied_op_base_a_eok', 0.0):,.1f}억`** / Bull **`{sec3_res.get('implied_op_bull_a_eok', 0.0):,.1f}억`** | {sec3_res.get('red_team_capa_verdict', 'N/A')} |
+
+### 📌 [코드 자동 생성 1-D] Step 1.3 비즈니스 구조 연계 영업이익 핵심인자 · 영업레버리지(DOL) · 선행 OP 기울기 진단표 (v5.2 · 🚀대안 A 단독 반영)
+| Step 1.3 진단 축 | DART 공시 · 신뢰 자료 실측 근거 | 코드 판정 및 🚀 대안 A 단독 반영 (`🛡️ 대안 B 미변경`) |
+| :--- | :--- | :--- |
+| **① BM 연계 영업이익 핵심인자 (Type {s13.get('sector_type', 'A')})** | {str(s13.get('bm_core_driver', 'N/A')).replace('|', '/')} | `{'제조·고정비 정밀 모드' if s13.get('is_mfg_precision_mode') else '비제조/소비재 공통 프레임'}` (모드: `{s13.get('input_mode', 'auto')}`) |
+| **② 비용구조 & 영업레버리지 (DOL)** | {s13_cost_cell} | {'🔥 **고정비 레버리지 고감도 구조 (DOL≥2.5x / 고정비≥25%)**' if s13.get('is_high_fixed_cost') else '🟢 **표준 비용구조**'} (`{s13.get('dol_source', 'N/A')}`) |
+| **③ 핵심인자 추세 & DART 2차 도함수** | {s13_trend_cell}<br>• DART 실측 가속도: {s13.get('dart_2nd_summary', 'N/A')} | 원시 기울기 **`{s13.get('raw_grade', 'neutral')}`** / 신뢰도 등급 **`{s13.get('slope_evidence', 'auto')}`** |
+| **④ 3중 한국형 안티-피크아웃 가드레일** | {str(s13.get('guardrail_summary', '🟢 정상 통과')).replace('|', '/')} | {'🚨 **Track 2 돌파매수 자동 차단 (감속/역성장 경보)**' if s13.get('op_slope_decel_warn') else '🛡️ **대안 B 순수 DART 닻 100% 보존 + 대안 A 가드레일 검증 완료**'} |
+| **⑤ 최종 선행 OP 기울기 계수 (`op_slope_mult`)** | **{s13.get('final_label', '⚖️ 유지·중립')}** | **🚀 대안 A 단독 반영: Base `×{s13_base_m:.4f}` (`{(s13_base_m-1)*100:+.1f}%`) / Bull `×{s13_bull_m:.4f}` (`{(s13_bull_m-1)*100:+.1f}%`)** |
 
 ### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: {sec8_res['primary_metric']})
 | 시나리오 | 확률 (고정) | 핵심 드라이버 가정 (AI 해석 영역) | 적용 멀티플 (코드 산출) | 적정주가 (🛡️대안 B / 🚀대안 A) | 현재가 대비 등락률 (🛡️대안 B / 🚀대안 A) |
 | :--- | :---: | :--- | :--- | :--- | :--- |
-| **Bull (호황 상단)** | **25%** | [AI가 전방 호황/가동률 상단 서술] | {sec8_res['primary_metric']} 상위 90% (대안A ×{sec3_res['bull_mult_a']:.4f}) | 🛡️ **{sec3_res['bull_auto']:,}원** / 🚀 **{sec3_res['bull_auto_a']:,}원** | 🛡️ **{u_up_b:+.1f}%** / 🚀 **{u_up_a:+.1f}%** |
-| **Base (기본 적정)** | **50%** | [AI가 컨센서스/본업 유지 서술] | {sec8_res['primary_metric']} 상위 65% (대안A ×{sec3_res['base_mult_a']:.4f}) | 🛡️ **{sec3_res['base_auto']:,}원** / 🚀 **{sec3_res['base_auto_a']:,}원** | 🛡️ **{b_up_b:+.1f}%** / 🚀 **{b_up_a:+.1f}%** |
-{tp1_row}| **Bear (하방 지지)** | **25%** | [AI가 전방 둔화/가동률 하락 서술] | 하방 지지선 (할증 0% 고정) | 🛡️ **{sec3_res['bear_auto']:,}원** / 🚀 **{sec3_res['bear_auto']:,}원** | 🛡️ **{d_dn:+.1f}%** / 🚀 **{d_dn:+.1f}%** |
+| **Bull (호황 상단)** | **25%** | {_bull_prompt} | {sec8_res['primary_metric']} 상위 90% (대안A ×{sec3_res['bull_mult_a']:.4f}) | 🛡️ **{sec3_res['bull_auto']:,}원** / 🚀 **{sec3_res['bull_auto_a']:,}원** | 🛡️ **{u_up_b:+.1f}%** / 🚀 **{u_up_a:+.1f}%** |
+| **Base (기본 적정)** | **50%** | {_base_prompt} | {sec8_res['primary_metric']} 상위 65% (대안A ×{sec3_res['base_mult_a']:.4f}) | 🛡️ **{sec3_res['base_auto']:,}원** / 🚀 **{sec3_res['base_auto_a']:,}원** | 🛡️ **{b_up_b:+.1f}%** / 🚀 **{b_up_a:+.1f}%** |
+{tp1_row}| **Bear (하방 지지)** | **25%** | {_bear_prompt} | 하방 지지선 (할증 0% 고정) | 🛡️ **{sec3_res['bear_auto']:,}원** / 🚀 **{sec3_res['bear_auto']:,}원** | 🛡️ **{d_dn:+.1f}%** / 🚀 **{d_dn:+.1f}%** |
 {pre_resist_note}
 {pe_block}
 
@@ -3809,7 +4418,7 @@ def export_pipeline_ssot(
     with open(auto_md_path, "w", encoding="utf-8") as mf:
         mf.write(auto_md)
 
-    print(f"\n  [✅ 파이프라인 SSOT (v4.3) 저장 완료]:")
+    print(f"\n  [✅ 파이프라인 SSOT (v5.0) 저장 완료]:")
     print(f"    - 숫자 원본 JSON: {export_json_path}")
     print(f"    - 마크다운 자동 표: {auto_md_path}")
     return canonical_html_tag
@@ -3849,10 +4458,24 @@ def run_valuation_backtest(
     shortage_easing=False,
     slope_decel=False,
     policy_headwind=False,
+    tsr_pct=None,
+    mezzanine_eok=None,
+    mezzanine_pct=None,
+    listed_parent_sales=None,
+    gov_note=None,
+    bm_core_driver=None,
+    fixed_cost_ratio=None,
+    var_cost_ratio=None,
+    util_trend=None,
+    var_cost_trend=None,
+    op_slope=None,
+    slope_evidence=None,
+    capa_expand=False,
+    asp_up=False,
 ):
     reset_warnings()
     print("\n======================================================================")
-    print(f"📊 [Korean Stock Analyzer v4.3] 4대 밸류에이션 지표 {years}년 풀사이클 백테스트 & SSOT 엔진")
+    print(f"📊 [Korean Stock Analyzer v5.2] 4대 밸류에이션 지표 {years}년 풀사이클 백테스트 & SSOT 엔진")
     print(f"   종목코드: {stock_code} | 분석 기간: 최근 {years}년 | 업종유형: Type {sector_type}")
     print("======================================================================")
 
@@ -3969,7 +4592,7 @@ def run_valuation_backtest(
         policy_headwind=policy_headwind,
     )
 
-    # [v4.3 Step 1.8] K-Market Specifics & Shareholder Return Scorecard
+    # [v5.0 Step 1.8] K-Market Specifics & Shareholder Return Scorecard
     step1_8_res = compute_step1_8_k_market_shareholder_return(
         stock_code,
         bench,
@@ -3980,6 +4603,11 @@ def run_valuation_backtest(
         buyback_cliff=buyback_cliff,
         related_party_eok=related_party_eok,
         governance_discount=governance_discount or 0.0,
+        tsr_pct=tsr_pct,
+        mezzanine_eok=mezzanine_eok,
+        mezzanine_pct=mezzanine_pct,
+        listed_parent_sales=listed_parent_sales,
+        gov_note=gov_note,
     )
 
     # [v4.2 Step 2.0] 4-Regime Change Check before applying valuation bands
@@ -4045,7 +4673,18 @@ def run_valuation_backtest(
         else (inline_rdcf or {}).get("implied_g_ev_pct")
     )
 
-    # [Phase 3 Section 3] Stock Nature + Cyclical Peak-Multiple Trap Guard + Model B/A (v4.3 / v5.1)
+    # [Phase 3 Section 3] Stock Nature + Cyclical Peak-Multiple Trap Guard + Step 1.3 BM OP Slope + Model B/A (v5.2)
+    bm_slope_params = {
+        "bm_core_driver": bm_core_driver,
+        "fixed_cost_ratio_pct": fixed_cost_ratio,
+        "var_cost_ratio_pct": var_cost_ratio,
+        "util_trend": util_trend,
+        "var_cost_trend": var_cost_trend,
+        "op_slope": op_slope,
+        "slope_evidence": slope_evidence,
+        "capa_expand": bool(capa_expand),
+        "asp_up": bool(asp_up),
+    }
     sec3_res = compute_section3_stock_nature_and_tp1(
         stock_code,
         resolved_corp_name,
@@ -4072,7 +4711,10 @@ def run_valuation_backtest(
         sec8_res=sec8_res,
         tech_snap=tech_snap,
         ev_implied_g=ev_implied_g,
+        dart_ts=dart_ts,
+        bm_slope_params=bm_slope_params,
     )
+    step1_3_res = sec3_res.get("step1_3_bm_slope")
 
     # [v4.2 Step 3.5] Multi-Stage Risk Causal Chain Diagnosis
     risk_res = compute_risk_causal_chain_diagnosis(
@@ -4123,6 +4765,7 @@ def run_valuation_backtest(
             risk_res,
             sec4_res,
             step1_2_res=step1_2_res,
+            step1_3_res=step1_3_res,
             step1_8_res=step1_8_res,
             norm_fcf_eok=norm_fcf,
             price_eq_eval=price_eq_eval,
@@ -4146,7 +4789,7 @@ def run_valuation_backtest(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Valuation Indicator Backtester & Pipeline SSOT Engine for Korean Stock Analyzer v4.3"
+        description="Valuation Indicator Backtester & Pipeline SSOT Engine for Korean Stock Analyzer v5.0"
     )
     parser.add_argument("--code", type=str, required=True, help="Stock code (e.g. 093520)")
     parser.add_argument("--years", type=int, default=10, help="Backtest years (default: 10)")
@@ -4175,17 +4818,32 @@ if __name__ == "__main__":
     parser.add_argument("--bottleneck-months", type=int, default=None, help="Override structural bottleneck resolution lead time in months")
     parser.add_argument("--capa-util-pct", type=float, default=None, help="Override plant capacity utilization %%")
     parser.add_argument("--payout-ratio", type=float, default=None, help="Override dividend payout ratio %%")
+    parser.add_argument("--tsr-pct", type=float, default=None, help="Override Total Shareholder Return (TSR, dividends + buybacks) %%")
     parser.add_argument("--buyback-cliff", action="store_true", help="Flag post-buyback/cancellation shareholder return cliff risk")
+    parser.add_argument("--mezzanine-eok", type=float, default=None, help="Outstanding CB/BW/EB mezzanine balance in 억 원")
+    parser.add_argument("--mezzanine-pct", type=float, default=None, help="Potential dilution %% from outstanding CB/BW/EB mezzanine")
     parser.add_argument("--related-party-eok", type=float, default=None, help="Override related-party revenue in 억 원")
-    parser.add_argument("--governance-discount", type=float, default=None, help="Override K-governance discount %% (e.g. -5.0)")
+    parser.add_argument("--listed-parent-sales", action="store_true", help="Mark related-party sales as normal listed parent/affiliate channel distribution (no tunneling discount)")
+    parser.add_argument("--governance-discount", type=float, default=None, help="Override K-governance discount %% (e.g. 10.0 or -10.0)")
+    parser.add_argument("--gov-note", type=str, default=None, help="Explicit governance / tunneling / guarantee note for Step 1.8 scorecard")
     parser.add_argument("--anchor-price", type=float, default=None, help="Optional single price anchor override (KRW) to sync with an existing report date")
     parser.add_argument("--shortage-easing", action="store_true", help="Trigger S-Curve Sell Signal #1: Shortage Easing / Lead-time compression / Dual-vendor entry")
     parser.add_argument("--slope-decel", action="store_true", help="Trigger S-Curve Sell Signal #2: Penetration or YoY/QoQ growth slope deceleration")
     parser.add_argument("--policy-headwind", action="store_true", help="Trigger S-Curve Sell Signal #3: Policy/subsidy rollback or regulatory headwind")
+    parser.add_argument("--bm-core-driver", type=str, default=None, help="Step 1.3: Business-model-linked #1~2 OP core profit driver description")
+    parser.add_argument("--fixed-cost-ratio", type=float, default=None, help="Step 1.3: Fixed cost %% of sales from DART Cost-by-Nature note (depreciation + fixed labor)")
+    parser.add_argument("--var-cost-ratio", type=float, default=None, help="Step 1.3: Variable cost %% of sales from DART Cost-by-Nature note (materials/outsourcing)")
+    parser.add_argument("--util-trend", type=str, default=None, help="Step 1.3: Core volume/utilization trend: up | flat | down")
+    parser.add_argument("--var-cost-trend", type=str, default=None, help="Step 1.3: Variable cost ratio trend: down (favorable) | flat | up (margin pressure)")
+    parser.add_argument("--op-slope", type=str, default=None, help="Step 1.3: Forward OP slope grade: strong_accel | accel | neutral | decel | contraction")
+    parser.add_argument("--slope-evidence", type=str, default=None, help="Step 1.3: Evidence reliability tier: high | medium | low")
+    parser.add_argument("--capa-expand", action="store_true", help="Step 1.3: Confirmed new Capa expansion (exempts 92%% utilization physical ceiling guard)")
+    parser.add_argument("--asp-up", action="store_true", help="Step 1.3: Confirmed ASP hike or high-margin mix shift (exempts 92%% utilization physical ceiling guard)")
 
     args = parser.parse_args()
     sc_override = True if args.s_curve_phase2 else (False if args.no_s_curve else None)
     bb_cliff = True if args.buyback_cliff else None
+    parent_sales = True if args.listed_parent_sales else None
 
     run_valuation_backtest(
         args.code,
@@ -4221,4 +4879,18 @@ if __name__ == "__main__":
         shortage_easing=args.shortage_easing,
         slope_decel=args.slope_decel,
         policy_headwind=args.policy_headwind,
+        tsr_pct=args.tsr_pct,
+        mezzanine_eok=args.mezzanine_eok,
+        mezzanine_pct=args.mezzanine_pct,
+        listed_parent_sales=parent_sales,
+        gov_note=args.gov_note,
+        bm_core_driver=args.bm_core_driver,
+        fixed_cost_ratio=args.fixed_cost_ratio,
+        var_cost_ratio=args.var_cost_ratio,
+        util_trend=args.util_trend,
+        var_cost_trend=args.var_cost_trend,
+        op_slope=args.op_slope,
+        slope_evidence=args.slope_evidence,
+        capa_expand=args.capa_expand,
+        asp_up=args.asp_up,
     )

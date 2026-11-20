@@ -1,5 +1,5 @@
 """
-Mobile 1-Page Integrated Summary Generator for Korean Stock Analyzer (v4.2)
+Mobile 1-Page Integrated Summary Generator for Korean Stock Analyzer (v5.0)
 - Prioritizes 2_Translated_DB/valuation_metrics.json (Single Source of Truth) to eliminate AI transcription errors.
 - Supports SOTP 20% Decomposition badge, 4-Regime Check status, and Cyclical Peak-Trap warning chip.
 - Parses 6-column Popperian Falsification thesis_log.md (including QoQ delta & Kill-Switch numeric thresholds).
@@ -709,7 +709,7 @@ def build_mobile_html(items: list) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>📱 내 보유·관심종목 모바일 1페이지 통합 요약본 (v4.2.3)</title>
+    <title>📱 내 보유·관심종목 모바일 1페이지 통합 요약본 (v5.0)</title>
     <style>
         :root {{
             --bg: #0b1120;
@@ -1160,7 +1160,7 @@ def build_mobile_html(items: list) -> str:
 <body>
     <div class="top-bar">
         <h1>📱 내 투자 종목 모바일 1페이지 통합 요약본</h1>
-        <div class="sub">총 {len(items)}개 분석 종목 | 최종 갱신: {now_str} | v4.2.3 포트폴리오(보유/관심) 연동</div>
+        <div class="sub">총 {len(items)}개 분석 종목 | 최종 갱신: {now_str} | v5.0 포트폴리오(보유/관심) 연동</div>
         <div class="portfolio-stats-bar">
             <div class="stat-pills">
                 <span class="stat-pill holding">💼 보유 <strong id="holdingCount">{len(holding_items)}</strong>개</span>
