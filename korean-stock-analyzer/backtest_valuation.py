@@ -1552,10 +1552,11 @@ def compute_step1_3_bm_op_slope(
         if ev_tier is None:
             ev_tier = "high"
         sig_score = 0
+        # [v5.2.3 KR-DOL] 고정비 고감도 가산점(+3/-3)은 폐지하고 ±2로 통일 — DOL 크기는 아래 연속 배율(dol_scale)로 1회만 반영
         if util_tr == "up":
-            sig_score += 3 if (is_high_fixed_cost and (util_pct == 0.0 or util_pct < 88.0)) else 2
+            sig_score += 2
         elif util_tr == "down":
-            sig_score -= 3 if is_high_fixed_cost else 2
+            sig_score -= 2
         if var_tr == "down":
             sig_score += 2
         elif var_tr == "up":
@@ -1618,6 +1619,42 @@ def compute_step1_3_bm_op_slope(
     eff_base, eff_bull = raw_base, raw_bull
 
     guardrail_notes = []
+
+    # [NEW v5.2.3 KR-DOL] DOL 크기 연속 배율 (한국 주식시장 실측 보정)
+    #  - 적용 범위: quant_driver_synthesis(가동률·변동비 추이 입력) 모드 한정.
+    #    auto(DART 실측 OP 기울기)는 이미 레버리지가 실현 이익에 내재, explicit(--op-slope)은 사람이 레버리지 감안 판단 → 이중 반영 차단.
+    #  - 기준 DOL 2.5(국내 상장사 고고정비 경계 `is_high_fixed_cost` DOL≥2.5x와 100% 일치 — 표 내 모순 차단):
+    #      • DOL < 2.5 (유통·고마진 소모품·표준 제조): 1.0 - 0.4 * min(1, (2.5 - DOL)/1.5)  → DOL 1.0=0.60x ~ 2.5=1.00x
+    #      • DOL ≥ 2.5 (장치·OSAT·소부장 고고정비):     1.0 + 0.4 * min(1, (DOL - 2.5)/3.5)  → DOL 2.5=1.00x ~ 6.0+=1.40x
+    #  - DART TTM 실측 회귀 DOL: 원/달러 환율·ASP 변동이 매출에 섞여 DOL이 부풀려지는 한국 수출 제조업 특성 → 편차 50% 반영 + 상방 1.2 캡.
+    #  - 현 OPM < 5%(손익분기 근처): DOL 수식이 수학적으로 발산하는 구간 → 상방 증폭 금지(하방 역레버리지 증폭은 유지, 비대칭 보수).
+    dol_scale = 1.0
+    dol_scale_note = "미적용 (가동률·변동비 추이 입력 모드 아님 또는 DOL 미산출 → ×1.00)"
+    if input_mode == "quant_driver_synthesis" and dol is not None and raw_base != 1.0:
+        dol_ref = 2.5
+        d_val = float(dol)
+        if d_val >= dol_ref:
+            s_raw = 1.0 + 0.4 * min(1.0, (d_val - dol_ref) / 3.5)
+        else:
+            s_raw = 1.0 - 0.4 * min(1.0, (dol_ref - d_val) / 1.5)
+        s_eff = max(0.6, min(1.4, s_raw))
+        caps = []
+        if str(dol_source).startswith("DART 분기 시계열"):
+            s_eff = 1.0 + (s_eff - 1.0) * 0.5
+            if raw_base > 1.0:
+                s_eff = min(s_eff, 1.2)
+            caps.append("TTM 실측 DOL(환율·ASP 혼입) 50% 반영")
+        if raw_base > 1.0 and curr_opm_pct < 5.0 and s_eff > 1.0:
+            s_eff = 1.0
+            caps.append(f"OPM {curr_opm_pct:.1f}%<5% 손익분기 구간 상방 증폭 금지")
+        dol_scale = round(s_eff, 4)
+        eff_base = round(1.0 + (raw_base - 1.0) * dol_scale, 4)
+        eff_bull = round(1.0 + (raw_bull - 1.0) * dol_scale, 4)
+        dol_scale_note = (
+            f"DOL {d_val:.2f}배 (기준 {dol_ref:.1f}배) ➔ 배율 ×{dol_scale:.2f}"
+            + (f" ({' · '.join(caps)})" if caps else "")
+            + f" ➔ 원계수 ×{raw_base:.2f}/×{raw_bull:.2f} → ×{eff_base:.4f}/×{eff_bull:.4f}"
+        )
     ceiling_guard_triggered = False
     priced_in_guard_triggered = False
     evidence_guard_triggered = False
@@ -1798,6 +1835,8 @@ def compute_step1_3_bm_op_slope(
         "dol": dol,
         "dol_source": dol_source,
         "is_high_fixed_cost": is_high_fixed_cost,
+        "dol_scale": dol_scale,
+        "dol_scale_note": dol_scale_note,
         "curr_opm_pct": curr_opm_pct,
         "capa_util_pct": util_pct,
         "util_trend": util_tr,
@@ -3174,17 +3213,22 @@ def compute_section3_stock_nature_and_tp1(
             bull_v = max(base_v + 100, round(((per_uv + uv) / 2.0) / 10) * 10)
             b_lbl = f"5년 PBR {base_p:.2f}x+FwdPER"
             u_lbl = f"5년 PBR {bull_p:.2f}x+FwdPER"
+            w_fwd_5y = 0.5
         else:
             base_v = max(bear_v + 100, round(bv / 10) * 10) if bv > 0 else round(curr_price * 1.10)
             bull_v = max(base_v + 100, round(uv / 10) * 10) if uv > 0 else round(curr_price * 1.40)
             b_lbl = f"5년 PBR중립 {base_p:.2f}x"
             u_lbl = f"5년 PBR상단 {bull_p:.2f}x"
-        return bear_p, base_p, bull_p, bear_v, base_v, bull_v, b_lbl, u_lbl
+            w_fwd_5y = 0.0
+        return bear_p, base_p, bull_p, bear_v, base_v, bull_v, b_lbl, u_lbl, w_fwd_5y
 
     dual_base_anchor_a = None
     dual_bull_anchor_a = None
     dual_base_lbl_a = ""
     dual_bull_lbl_a = ""
+    # [v5.2.3 KR-Consensus] 대안 A 앵커 중 Forward EPS(PER) 기반 비중 (컨센서스 이중 가산 흡수용)
+    fwd_eps_used = bool(eff_forward_eps is not None and eff_forward_eps > 0)
+    fwd_eps_weight = 0.0
 
     if is_type_b:
         # [PATCH v5.1 / v5.2.2] Value Trap Anchor for Model B (both confirmed Type B and Dual-Split Review):
@@ -3198,9 +3242,10 @@ def compute_section3_stock_nature_and_tp1(
         base_auto_b = max(bear_auto_b + 100, round(trap_base_pbr / 10) * 10)
         bull_auto_b = max(base_auto_b + 100, round(trap_bull_pbr / 10) * 10)
         if is_dual_split:
-            a2_bear_p, a2_base_p, a2_bull_p, a2_bear_v, a2_base_v, a2_bull_v, a2_blbl, a2_ulbl = _compute_5y_cycle_anchor()
+            a2_bear_p, a2_base_p, a2_bull_p, a2_bear_v, a2_base_v, a2_bull_v, a2_blbl, a2_ulbl, a2_wfwd = _compute_5y_cycle_anchor()
             dual_base_anchor_a = a2_base_v
             dual_bull_anchor_a = a2_bull_v
+            fwd_eps_weight = a2_wfwd
             dual_base_lbl_a = a2_blbl
             dual_bull_lbl_a = a2_ulbl
             valuation_regime_mode = "dual_split_review"
@@ -3214,7 +3259,8 @@ def compute_section3_stock_nature_and_tp1(
             bear_mult_label = f"청산가치 PBR {bear_mult_b:.2f}x [유형 B 확정] (할증 0%)"
     elif is_type_a2:
         # [PATCH v5.2.1 / v5.2.2] Confirmed Non-Trap (--no-value-trap) on cyclical trough -> 5Y Cycle PBR for BOTH B & A!
-        eff_a2_bear_pbr, eff_a2_base_pbr, eff_a2_bull_pbr, bear_auto_b, base_auto_b, bull_auto_b, a2_blbl, a2_ulbl = _compute_5y_cycle_anchor()
+        eff_a2_bear_pbr, eff_a2_base_pbr, eff_a2_bull_pbr, bear_auto_b, base_auto_b, bull_auto_b, a2_blbl, a2_ulbl, a2_wfwd = _compute_5y_cycle_anchor()
+        fwd_eps_weight = a2_wfwd
         valuation_regime_mode = "type_a2_capex_trough"
         base_mult_base_str = f"{a2_blbl} [유형 A-2 비함정 확정]"
         bull_mult_base_str = f"{a2_ulbl} [유형 A-2 비함정 확정]"
@@ -3256,9 +3302,11 @@ def compute_section3_stock_nature_and_tp1(
                 w_per, w_pbr = 0.50, 0.50
             base_auto_b = round((per_base_val * w_per + pbr_base_val * w_pbr) / 10) * 10
             bull_auto_b = round((per_bull_val * w_per + pbr_bull_val * w_pbr) / 10) * 10
+            fwd_eps_weight = w_per if fwd_eps_used else 0.0
         elif per_base_val > 0:
             base_auto_b = round(per_base_val / 10) * 10
             bull_auto_b = round(per_bull_val / 10) * 10
+            fwd_eps_weight = 1.0 if fwd_eps_used else 0.0
         elif pbr_base_val > 0:
             base_auto_b = round(pbr_base_val / 10) * 10
             bull_auto_b = round(pbr_bull_val / 10) * 10
@@ -3313,8 +3361,49 @@ def compute_section3_stock_nature_and_tp1(
             sc_sell_triggered=sc_sell_triggered,
             **_bm_kw,
         )
-    op_mult = float(step1_3_res.get("op_slope_base_mult", 1.0))
-    op_bull_mult = float(step1_3_res.get("op_slope_bull_mult", op_mult))
+    # [NEW v5.2.3 KR-Consensus] 컨센서스 Forward EPS ↔ Step 1.3 상방 기울기 할증 이중 가산 흡수 (한국 시장 보정)
+    #  - 한국 셀사이드 컨센서스는 낙관 편향(매도의견 희소, 12M Fwd EPS가 연중 하향 수정되는 경향, 중소형주 커버리지 1~2명)이 구조적이므로
+    #    글로벌 통상 구간(10%/25%)보다 보수적인 5%/15% 구간에서 흡수: 내재성장 <5% 0% · 5~15% 50% · ≥15% 또는 적자→흑자전환 100%.
+    #  - 흡수량 = 상방 할증 × (대안 A 앵커 중 Forward EPS 기반 비중 w) × 흡수율. 하방(감속/역성장) 할인은 100% 유지(비대칭 보수).
+    #  - 재계산 시 이중 흡수 방지를 위해 항상 흡수 전 원계수(op_slope_*_mult_pre_absorb)에서 출발.
+    op_mult = float(step1_3_res.get("op_slope_base_mult_pre_absorb", step1_3_res.get("op_slope_base_mult", 1.0)))
+    op_bull_mult = float(step1_3_res.get("op_slope_bull_mult_pre_absorb", step1_3_res.get("op_slope_bull_mult", op_mult)))
+    op_mult_pre, op_bull_mult_pre = op_mult, op_bull_mult
+    cons_uplift_pct = None
+    cons_absorb_ratio = 0.0
+    cons_absorb_note = "미적용 (Forward EPS 미입력·주봉 C등급 정지·PBR 단독 앵커 또는 상방 할증 없음)"
+    if fwd_eps_used and fwd_eps_weight > 0 and op_mult > 1.0:
+        if trailing_eps and trailing_eps > 0:
+            cons_uplift_pct = round((float(eps) / float(trailing_eps) - 1.0) * 100.0, 1)
+            cons_absorb_ratio = 1.0 if cons_uplift_pct >= 15.0 else (0.5 if cons_uplift_pct >= 5.0 else 0.0)
+            uplift_txt = f"Fwd EPS 내재성장 {cons_uplift_pct:+.1f}%"
+        else:
+            cons_absorb_ratio = 1.0
+            uplift_txt = "적자→흑자전환 Fwd EPS (성장 전액 내재 간주)"
+        if cons_absorb_ratio > 0:
+            keep = 1.0 - float(fwd_eps_weight) * cons_absorb_ratio
+            op_mult = round(1.0 + (op_mult - 1.0) * keep, 4)
+            op_bull_mult = round(1.0 + (op_bull_mult - 1.0) * keep, 4)
+            cons_absorb_note = (
+                f"🇰🇷[컨센서스 흡수] {uplift_txt} · 앵커 Fwd EPS 비중 {fwd_eps_weight*100:.0f}% · 흡수율 {cons_absorb_ratio*100:.0f}% "
+                f"➔ ×{op_mult_pre:.4f}/×{op_bull_mult_pre:.4f} → ×{op_mult:.4f}/×{op_bull_mult:.4f}"
+            )
+        else:
+            cons_absorb_note = f"흡수 없음 ({uplift_txt} < +5% · 컨센서스에 기울기 미내재)"
+    step1_3_res["op_slope_base_mult_pre_absorb"] = op_mult_pre
+    step1_3_res["op_slope_bull_mult_pre_absorb"] = op_bull_mult_pre
+    step1_3_res["op_slope_base_mult"] = op_mult
+    step1_3_res["op_slope_bull_mult"] = op_bull_mult
+    step1_3_res["consensus_uplift_pct"] = cons_uplift_pct
+    step1_3_res["consensus_fwd_eps_weight"] = round(float(fwd_eps_weight), 2)
+    step1_3_res["consensus_absorb_ratio"] = cons_absorb_ratio
+    step1_3_res["consensus_absorb_note"] = cons_absorb_note
+    if cons_absorb_ratio > 0 and op_mult_pre > 1.0:
+        if "[컨센서스 흡수]" not in str(step1_3_res.get("summary_reason", "")):
+            step1_3_res["summary_reason"] = f"{step1_3_res.get('summary_reason', '')} / {cons_absorb_note}"
+        if "컨센서스 흡수" not in str(step1_3_res.get("final_label", "")):
+            step1_3_res["final_label"] = f"{step1_3_res.get('final_label', '')} · 컨센서스 흡수"
+    print(f"    - [v5.2.3 KR-Consensus 이중가산 흡수]: {cons_absorb_note}")
     op_slope_grade = step1_3_res.get("final_grade", "neutral")
     op_slope_decel_warn = bool(step1_3_res.get("op_slope_decel_warn", False))
     op_reason = step1_3_res.get("summary_reason", "중립 (×1.00)")
@@ -4805,6 +4894,8 @@ def export_pipeline_ssot(
 | **② 비용구조 & 영업레버리지 (DOL)** | {s13_cost_cell} | {'🔥 **고정비 레버리지 고감도 구조 (DOL≥2.5x / 고정비≥25%)**' if s13.get('is_high_fixed_cost') else '🟢 **표준 비용구조**'} (`{s13.get('dol_source', 'N/A')}`) |
 | **③ 핵심인자 추세 & DART 2차 도함수** | {s13_trend_cell}<br>• DART 실측 가속도: {s13.get('dart_2nd_summary', 'N/A')} | 원시 기울기 **`{s13.get('raw_grade', 'neutral')}`** / 신뢰도 등급 **`{s13.get('slope_evidence', 'auto')}`** |
 | **④ 3중 한국형 안티-피크아웃 가드레일** | {str(s13.get('guardrail_summary', '🟢 정상 통과')).replace('|', '/')} | {'🚨 **Track 2 돌파매수 자동 차단 (감속/역성장 경보)**' if s13.get('op_slope_decel_warn') else '🛡️ **대안 B 순수 DART 닻 100% 보존 + 대안 A 가드레일 검증 완료**'} |
+| **④-B KR-DOL 연속 배율 (v5.2.3)** | {str(s13.get('dol_scale_note', '미적용')).replace('|', '/')} | DOL 크기 비례 기울기 증폭/감쇠 `×{float(s13.get('dol_scale', 1.0)):.2f}` (기준 DOL 2.5 · 범위 0.6~1.4) |
+| **④-C KR-컨센서스 이중가산 흡수 (v5.2.3)** | {str(s13.get('consensus_absorb_note', '미적용')).replace('|', '/')} | 흡수 전 Base `×{float(s13.get('op_slope_base_mult_pre_absorb', s13_base_m)):.4f}` ➔ 흡수 후 `×{s13_base_m:.4f}` (상방 한정 · 하방 100% 유지) |
 | **⑤ 최종 선행 OP 기울기 계수 (`op_slope_mult`)** | **{s13.get('final_label', '⚖️ 유지·중립')}** | **🚀 대안 A 단독 반영: Base `×{s13_base_m:.4f}` (`{(s13_base_m-1)*100:+.1f}%`) / Bull `×{s13_bull_m:.4f}` (`{(s13_bull_m-1)*100:+.1f}%`)** |
 
 ### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: {sec8_res['primary_metric']})

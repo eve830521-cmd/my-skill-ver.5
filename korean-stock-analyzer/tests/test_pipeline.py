@@ -1508,6 +1508,121 @@ class PatchV521CyclicalCapexAndIntegrityTests(unittest.TestCase):
             self.assertIn("일회성 ROE 착시 보정 활성", digest_txt)
             self.assertIn("가치함정 A/B 분리 판독 모드", digest_txt)
 
+    def test_v523_kr_dol_continuous_scale_and_consensus_absorption(self):
+        import pandas as pd
+        import validate_report as vr
+
+        s3 = pd.DataFrame({
+            "매출액": [1000, 1020, 1040, 1060, 1100, 1150, 1200, 1250, 1300, 1350],
+            "영업이익": [100, 103, 106, 110, 118, 128, 138, 148, 158, 168],
+        })
+        dart_ts = {"sheet3": s3}
+        s2_ok = {"op_yoy_used": 15.0, "qoq_op_pct": 5.0, "curr_roe": 13.0, "is_type_b": False}
+
+        def _run_s13(**kw):
+            s12 = {"capa_util_pct": kw.pop("util", 80.0), "curr_opm_pct": kw.pop("opm", 12.0)}
+            return self.bv.compute_step1_3_bm_op_slope(
+                "000000", "KR테스트", dart_ts, sec2_res=s2_ok, step1_2_res=s12, sector_type="A", **kw
+            )
+
+        # 1) KR-DOL continuous scaling (dol_ref=2.5, range 0.6~1.4, quant_driver_synthesis only)
+        r_d10 = _run_s13(fixed_cost_ratio_pct=0.0, var_cost_ratio_pct=88.0, util_trend="up")
+        r_d25 = _run_s13(fixed_cost_ratio_pct=18.0, var_cost_ratio_pct=70.0, util_trend="up")
+        r_d60 = _run_s13(fixed_cost_ratio_pct=60.0, var_cost_ratio_pct=28.0, util_trend="up")
+        r_d60_dn = _run_s13(fixed_cost_ratio_pct=60.0, var_cost_ratio_pct=28.0, util_trend="down")
+        r_bke_up = _run_s13(fixed_cost_ratio_pct=40.0, var_cost_ratio_pct=57.0, util_trend="up", opm=3.0)
+        r_bke_dn = _run_s13(fixed_cost_ratio_pct=40.0, var_cost_ratio_pct=57.0, util_trend="down", opm=3.0)
+        r_exp = _run_s13(fixed_cost_ratio_pct=60.0, var_cost_ratio_pct=28.0, op_slope="accel")
+        self.assertAlmostEqual(r_d10["dol_scale"], 0.60, places=3)
+        self.assertAlmostEqual(r_d10["op_slope_base_mult"], 1.0360, places=4)
+        self.assertAlmostEqual(r_d25["dol_scale"], 1.00, places=3)
+        self.assertAlmostEqual(r_d25["op_slope_base_mult"], 1.0600, places=4)
+        self.assertAlmostEqual(r_d60["dol_scale"], 1.40, places=3)
+        self.assertAlmostEqual(r_d60["op_slope_base_mult"], 1.0840, places=4)
+        self.assertAlmostEqual(r_d60_dn["op_slope_base_mult"], 0.9160, places=4)
+        # Asymmetric breakeven guard (OPM < 5%): upside unamplified, downside amplified
+        self.assertAlmostEqual(r_bke_up["dol_scale"], 1.00, places=3)
+        self.assertAlmostEqual(r_bke_dn["dol_scale"], 1.40, places=3)
+        self.assertAlmostEqual(r_exp["dol_scale"], 1.00, places=3)
+
+        # 2) KR-Consensus upside-only absorption (5% / 15%) & Model B invariance
+        df_w, df_d, _ = self._make_sample_dfs()
+        bench = {"stock_name": "KR테스트", "eps": 1000.0, "bps": 10000.0, "per": 12.0, "pbr": 1.2}
+        sec2 = {
+            "is_type_b": False, "is_dual_split": False, "is_type_a2_capex_trough": False,
+            "curr_roe": 12.0, "op_yoy_used": 18.0, "qoq_op_pct": 5.0,
+            "per_3y_p20": 8.0, "per_3y_p65": 12.0, "per_3y_p90": 16.0, "per_3y_mean": 11.5,
+            "pbr_3y_p20": 0.9, "pbr_3y_p65": 1.3, "pbr_3y_p90": 1.8, "pbr_3y_mean": 1.25,
+            "pbr_5y_p20": 0.9, "pbr_5y_median": 1.2, "pbr_5y_p65": 1.3, "pbr_5y_p90": 1.8,
+            "per_10y_min": 7.5, "pbr_10y_min": 0.85,
+        }
+        tech_a = {"w_swing_grade": "A", "w_swing_score": 80, "w_mfi14": 55.0, "w_mfi14_12w_max": 60.0}
+        tech_c = {"w_swing_grade": "C", "w_swing_score": 35, "w_mfi14": 35.0, "w_mfi14_12w_max": 50.0}
+        s12_n = {"capa_util_pct": 75.0, "curr_opm_pct": 12.0, "total_sc_bn_base_mult": 1.0, "total_sc_bn_bull_mult": 1.0, "scurve_sell_triggered": False}
+        bm_up = {"fixed_cost_ratio_pct": 60.0, "var_cost_ratio_pct": 28.0, "util_trend": "up"}
+        bm_dn = {"fixed_cost_ratio_pct": 60.0, "var_cost_ratio_pct": 28.0, "util_trend": "down"}
+
+        # Fwd EPS +20% (>=15% -> 100% absorb) with 50:50 PER/PBR blend -> 1.0840 -> 1.0420
+        s3_a = self.bv.compute_section3_stock_nature_and_tp1(
+            "000000", "KR테스트", bench, df_w, df_d, sec2, 12000.0,
+            forward_eps=1200.0, step1_2_res=s12_n,
+            sec8_res={"primary_metric": "PER", "per_dir": 60.0, "pbr_dir": 60.0},
+            tech_snap=tech_a, dart_ts=dart_ts, bm_slope_params=bm_up,
+        )
+        self.assertAlmostEqual(s3_a["step1_3_bm_slope"]["op_slope_base_mult_pre_absorb"], 1.0840, places=4)
+        self.assertAlmostEqual(s3_a["step1_3_bm_slope"]["op_slope_base_mult"], 1.0420, places=4)
+        self.assertEqual(s3_a["step1_3_bm_slope"]["consensus_absorb_ratio"], 1.0)
+
+        # Downside decel never absorbed, and Model B strictly invariant
+        s3_dn = self.bv.compute_section3_stock_nature_and_tp1(
+            "000000", "KR테스트", bench, df_w, df_d, sec2, 12000.0,
+            forward_eps=1300.0, step1_2_res=s12_n,
+            sec8_res={"primary_metric": "PER", "per_dir": 60.0, "pbr_dir": 40.0},
+            tech_snap=tech_a, dart_ts=dart_ts, bm_slope_params=bm_dn,
+        )
+        self.assertAlmostEqual(s3_dn["step1_3_bm_slope"]["op_slope_base_mult"], 0.9160, places=4)
+        self.assertEqual(s3_dn["step1_3_bm_slope"]["consensus_absorb_ratio"], 0.0)
+
+        s3_up_same = self.bv.compute_section3_stock_nature_and_tp1(
+            "000000", "KR테스트", bench, df_w, df_d, sec2, 12000.0,
+            forward_eps=1300.0, step1_2_res=s12_n,
+            sec8_res={"primary_metric": "PER", "per_dir": 60.0, "pbr_dir": 40.0},
+            tech_snap=tech_a, dart_ts=dart_ts, bm_slope_params=bm_up,
+        )
+        self.assertEqual(s3_dn["base_auto"], s3_up_same["base_auto"])
+        self.assertEqual(s3_dn["bull_auto"], s3_up_same["bull_auto"])
+
+        # Weekly Grade-C suspends Fwd EPS -> zero absorption
+        s3_c = self.bv.compute_section3_stock_nature_and_tp1(
+            "000000", "KR테스트", bench, df_w, df_d, sec2, 12000.0,
+            forward_eps=1300.0, step1_2_res=s12_n,
+            sec8_res={"primary_metric": "PER", "per_dir": 60.0, "pbr_dir": 40.0},
+            tech_snap=tech_c, dart_ts=dart_ts, bm_slope_params=bm_up,
+        )
+        self.assertTrue(s3_c["forward_eps_suspended"])
+        self.assertAlmostEqual(s3_c["step1_3_bm_slope"]["op_slope_base_mult"], 1.0840, places=4)
+
+        # Validator rejects out-of-bounds dol_scale
+        res_bad = vr.Result("dol_oob")
+        vr.check_ssot({
+            "stock_code": "000000",
+            "anchor_price": 12000,
+            "bench": {"close": 12000},
+            "sotp": {"sotp_triggered": False, "non_op_max_ratio_pct": 5.0},
+            "step1_2_bottleneck": {"bottleneck_grade": "B", "bottleneck_lead_time_months": 15, "is_phase2": False},
+            "step1_3_bm_slope": {"op_slope_base_mult": 1.0, "op_slope_bull_mult": 1.0, "dol_scale": 1.8},
+            "step1_8_k_return": {"kgov_mult": 1.0},
+            "section2": {"value_trap_mode": "normal_type_a"},
+            "section3": {"bear_auto": 9000, "base_auto": 12000, "bull_auto": 15000, "base_auto_a": 12000, "bull_auto_a": 15000, "tp1_price": 12000, "tp1_price_a": 12000},
+            "section4": {"d_close": 12000, "buy1": 10000, "buy2": 10500, "buy3": 11000, "avg_buy_price": 10500, "init_stop_pin": 9000, "poc_low": 10800},
+            "canonical_html_tag": (
+                '<div id="dcf-calculator-root" data-price="12000" data-bear="9000" data-base="12000" data-bull="15000" '
+                'data-base-a="12000" data-bull-a="15000" data-tp1="12000" data-tp1-a="12000" '
+                'data-buy1="10000" data-buy2="10500" data-buy3="11000" data-stop-pin="9000" data-poc-low="10800"></div>'
+            ),
+        }, res_bad)
+        self.assertTrue(any("dol_scale" in e for e in res_bad.errors), res_bad.errors)
+
 
 if __name__ == "__main__":
     unittest.main()

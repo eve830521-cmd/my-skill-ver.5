@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>my-skill 주요 명령어 × 4대 모델 최적 매칭 마스터 정리표 (Neon v5.2.2)</title>
+    <title>my-skill 주요 명령어 × 4대 모델 최적 매칭 마스터 정리표 (Neon v5.2.3)</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <style>
@@ -708,16 +708,16 @@
     <header class="doc-header">
         <div class="badge-row">
             <span class="badge badge-system">📁 E:\antigravity-work\my-skill</span>
-            <span class="badge badge-system">v5.2.2 Step 1.3 BM OP기울기 + 가치함정 A/B분리·스위치(--no-value-trap) + Global_Trend Indexer (26.11.20)</span>
+            <span class="badge badge-system">v5.2.3 Step 1.3 KR-DOL 연속배율·컨센흡수 + 가치함정 A/B분리·스위치(--no-value-trap) + Global_Trend Indexer (26.11.20)</span>
             <span class="badge badge-priority">🥇 1순위: 투자판단 퀄리티 · 🥈 2순위: 토큰 효율</span>
             <span class="badge badge-neon">👑 4 Neon (High)</span>
             <span class="badge badge-hydrogen">⚡ 4 Hydrogen (High)</span>
             <span class="badge badge-orch">🎼 Orchestrator (Neon)</span>
             <span class="badge badge-redteam">⚔️ 4 Argon · Opus 5.5 (독립 풀)</span>
         </div>
-        <h1>🧭 my-skill 주요 명령어 × 4대 모델 최적 매칭 정리표 (Neon 체제 · v5.2.2)</h1>
+        <h1>🧭 my-skill 주요 명령어 × 4대 모델 최적 매칭 정리표 (Neon 체제 · v5.2.3)</h1>
         <p class="subtitle">
-            <code>korean-stock-analyzer</code> v5.2.2(<code>ksa_orchestrator.py</code> + <strong><code>Step 1.3</code> BM 핵심인자·영업레버리지(DOL)·선행 OP 기울기 &amp; 3중 안티-피크아웃</strong> + <strong><code>Section 2</code> 가치함정 <code>⚖️ A/B 분리 판독</code> 기본 유지 &amp; <code>--no-value-trap</code>/<code>--value-trap</code> 확정 스위치 · <code>Core NOPAT ROE</code> 착시 차단</strong> + <code>extract_global_trend.py</code> + <code>model_config.json</code> Neon 동기화 완료) 환경에서
+            <code>korean-stock-analyzer</code> v5.2.3(<code>ksa_orchestrator.py</code> + <strong><code>Step 1.3</code> BM 핵심인자·KR-DOL 연속배율(기준 2.5x)·컨센서스 이중가산 흡수(5%/15%)·선행 OP 기울기 &amp; 3중 안티-피크아웃</strong> + <strong><code>Section 2</code> 가치함정 <code>⚖️ A/B 분리 판독</code> 기본 유지 &amp; <code>--no-value-trap</code>/<code>--value-trap</code> 확정 스위치 · <code>Core NOPAT ROE</code> 착시 차단</strong> + <code>extract_global_trend.py</code> + <code>model_config.json</code> Neon 동기화 완료) 환경에서
             <strong>2주 주기 Global_Trend <code>report.md</code></strong>와 <strong>분기·반기·사업보고서 <code>ai_prep_digest.md</code> ➔ <code>Phase 1~3</code></strong>까지 16대 핵심 명령어를
             <strong>최적 모델 · 새 대화창 여부 · 베스트안 및 3대 대안책</strong>으로 1:1 매칭한 실전 마스터 표입니다.
         </p>
@@ -903,7 +903,7 @@
                         <span class="model-tier">일반 분기·반기: High<br>복잡·사업보고서: Neon Med</span>
                     </td>
                     <td class="col-reason">
-                        <code>ksa_orchestrator.py prep</code>은 미입력 옵션(및 확정된 가치함정 스위치)을 자동 계승하고 <code>parse_pdf.py</code>가 DART <code>비용의 성격별 분류</code>·가동률 페이지를 20% 쿼터로 자동 발췌합니다. 실행 직후 <strong>코드가 <code>[직전 vs 신규 SSOT 비교표]</code>(가치함정 판정 모드·DOL·선행 OP 기울기·대안 B vs A 포함)</strong>를 자동 출력해 <strong>10초 육안 검수</strong>로 GIGO를 0% 차단합니다.
+                        <code>ksa_orchestrator.py prep</code>은 미입력 옵션(및 확정된 가치함정 스위치)을 자동 계승하고 <code>parse_pdf.py</code>가 DART <code>비용의 성격별 분류</code>·가동률 페이지를 20% 쿼터로 자동 발췌합니다. v5.2.3부터 <strong>가동률·변동비 입력 시 KR-DOL 연속 배율(기준 2.5x · 0.6~1.4x)</strong>과 <strong><code>--forward-eps</code> 컨센서스 이중가산 흡수(5%/15%)</strong>가 자동 계산되며, 직후 <strong><code>[직전 vs 신규 SSOT 비교표]</code></strong>에서 <strong>10초 육안 검수</strong>로 GIGO를 0% 차단합니다.
                     </td>
                     <td class="col-tip">
                         <span class="warn-highlight">사전 40초 루틴 필수:</span> <code>my-stock</code> 1회 갱신 + PDF 1개 배치. 비교표에 <code>⚖️ A/B 분리 판독</code>이 뜨면 <strong>4-B</strong>로 스위치 확정 후 5번 진행!
@@ -1417,9 +1417,9 @@
         </div>
         <div class="rule-card">
             <div class="rule-num">Rule 02 ⭐</div>
-            <div class="rule-title">정기공시 10초 SSOT 체크포인트 (v5.2.2)</div>
+            <div class="rule-title">정기공시 10초 SSOT 체크포인트 (v5.2.3)</div>
             <div class="rule-desc">
-                <code>1단계(prep --include-raw-pdfs)</code> 완료 직후 자동 출력되는 <strong>[직전 vs 신규 SSOT 비교표]</strong>에서 ① <strong>가치함정 판정 모드(Sec 2)</strong>가 <code>⚖️ A/B 분리 판독</code>이면 <code>--no-value-trap</code>(비함정 5년 사이클 통일) 또는 <code>--value-trap</code>(함정 잠금) 1초 확정, ② FCF·순차입금·가동률과 <strong>Step 1.3 고정비(DOL)·선행 OP 기울기(<code>🚀대안 A</code> 단독 반영 · <code>🛡️대안 B</code> 불변)</strong>만 10초 확인하세요.
+                <code>1단계(prep --include-raw-pdfs)</code> 완료 직후 자동 출력되는 <strong>[직전 vs 신규 SSOT 비교표]</strong>에서 ① <strong>가치함정 판정 모드(Sec 2)</strong>가 <code>⚖️ A/B 분리 판독</code>이면 <code>--no-value-trap</code>(비함정 5년 사이클 통일) 또는 <code>--value-trap</code>(함정 잠금) 1초 확정, ② FCF·순차입금·가동률과 <strong>Step 1.3 KR-DOL 연속 배율·컨센서스 흡수·선행 OP 기울기(<code>🚀대안 A</code> 단독 반영 · <code>🛡️대안 B</code> 불변)</strong>만 10초 확인하세요.
             </div>
         </div>
         <div class="rule-card">
@@ -1440,7 +1440,7 @@
 
     <!-- 푸터 -->
     <footer class="footer">
-        <p>Antigravity 한국 주식 분석 시스템 v5.2.2 마스터 가이드 (Gemini 4 Neon + Hydrogen 체제 · 2026-11-20)</p>
+        <p>Antigravity 한국 주식 분석 시스템 v5.2.3 마스터 가이드 (Gemini 4 Neon + Hydrogen 체제 · 2026-11-20)</p>
         <p style="margin-top: 4px;">
             관련 문서:
             <a href="file:///E:/antigravity-work/my-skill/이용방법.html">이용방법.html</a> |

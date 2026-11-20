@@ -291,7 +291,15 @@ def format_ssot_comparison_table(old_ssot, new_ssot, corp_name):
     def _s13_slope(b):
         if not b:
             return "N/A (후행 op_mult)"
-        return f"{b.get('final_grade', 'neutral')} (`×{float(b.get('op_slope_base_mult', 1.0)):.4f}` / `×{float(b.get('op_slope_bull_mult', 1.0)):.4f}`)"
+        tags = []
+        ds = b.get("dol_scale")
+        if ds is not None and abs(float(ds) - 1.0) >= 0.005:
+            tags.append(f"DOL×{float(ds):.2f}")
+        ca = b.get("consensus_absorb_ratio")
+        if ca is not None and float(ca) > 0:
+            tags.append(f"컨센흡수{int(round(float(ca)*100))}%")
+        tag_str = f" [{'·'.join(tags)}]" if tags else ""
+        return f"{b.get('final_grade', 'neutral')} (`×{float(b.get('op_slope_base_mult', 1.0)):.4f}` / `×{float(b.get('op_slope_bull_mult', 1.0)):.4f}`){tag_str}"
 
     def _vt_mode(s2):
         if not s2:

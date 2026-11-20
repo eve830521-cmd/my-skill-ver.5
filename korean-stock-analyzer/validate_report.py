@@ -207,6 +207,12 @@ def check_ssot(d, res):
             res.err(f"step1_3_bm_slope.op_slope_bull_mult={su_m} out of bounds [0.85, 1.15]")
         if bool(s3.get("op_slope_decel_warn") or s13.get("op_slope_decel_warn")) and bool(s4.get("is_track2")):
             res.err("section4.is_track2 must be False when Step 1.3 op_slope_decel_warn is True")
+        ds_v = _num(s13.get("dol_scale"))
+        if ds_v is not None and not (0.6 - EPS <= ds_v <= 1.4 + EPS):
+            res.err(f"step1_3_bm_slope.dol_scale={ds_v} out of bounds [0.60, 1.40]")
+        ca_v = _num(s13.get("consensus_absorb_ratio"))
+        if ca_v is not None and not (0.0 - EPS <= ca_v <= 1.0 + EPS):
+            res.err(f"step1_3_bm_slope.consensus_absorb_ratio={ca_v} out of bounds [0.0, 1.0]")
 
     # --- Section 2 Value Trap Mode Consistency (v5.2.2 Dual-Split / User Switches) ---
     s2 = d.get("section2") or {}
