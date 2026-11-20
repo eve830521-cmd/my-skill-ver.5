@@ -1165,5 +1165,349 @@ class Step13BmOpSlopeTests(unittest.TestCase):
             self.assertIn("Step1.3 비용·가동률", content)
 
 
+class PatchV521CyclicalCapexAndIntegrityTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import backtest_valuation as bv
+        cls.bv = bv
+
+    def _make_sample_dfs(self, n_weeks=270, start_p=35000, end_p=66800):
+        import pandas as pd
+        import numpy as np
+
+        dates_w = pd.date_range("2021-09-03", periods=n_weeks, freq="W-FRI")
+        # Construct realistic 5Y PBR cycle: 2021-2023 normal upcycle, 2024-2025 trough, 2026-05 spike (177,800), then 66,800
+        prices = np.linspace(start_p, end_p, n_weeks)
+        prices[:100] = np.linspace(60000, 75000, 100)       # 5Y normal upcycle (~2.8-3.8x)
+        prices[100:210] = np.linspace(45000, 28000, 110)    # 2024-2025 trough (~1.2-2.0x)
+        prices[210:255] = np.linspace(50000, 177800, 45)    # 2026 short-term spike (up to 7.73x)
+        prices[255:] = np.linspace(110000, end_p, n_weeks - 255)
+        df_w = pd.DataFrame({
+            "date": dates_w, "open": prices * 0.99, "high": prices * 1.03,
+            "low": prices * 0.97, "close": prices, "vol": np.full(n_weeks, 500000.0),
+        })
+        dates_d = pd.date_range("2026-08-20", periods=65, freq="B")
+        prices_d = np.linspace(80000, end_p, 65)
+        df_d = pd.DataFrame({
+            "date": dates_d, "open": prices_d * 1.01, "high": prices_d * 1.02,
+            "low": prices_d * 0.98, "close": prices_d, "vol": np.full(65, 250000.0),
+        })
+        s5 = pd.DataFrame({
+            "date": dates_w.strftime("%Y-%m-%d"),
+            "price": prices,
+            "BPS": np.full(n_weeks, 23439.0),
+            "PBR": prices / 23439.0,
+            "PER": np.where(prices > 0, prices / 1500.0, np.nan),
+        })
+        return df_w, df_d, s5
+
+    def _make_dart_ts_tax_distorted(self, s5):
+        import pandas as pd
+
+        # 20 quarters (5 full years) of TTM data: 2022-2024 upcycle (ROE 14~18%, mid-cycle ROE ~14.5%),
+        # 2025-2026 trough (OP=314eok, Core NOPAT ROE 5.17%), BUT latest 3Q26 has +212eok one-off tax credit
+        # so headline NI=534eok (headline ROE=11.28%)!
+        sh = 19245628.0
+        eq = 4731.9e8
+        rows_s3 = []
+        for i in range(20):
+            yr = 2022 + (i // 4)
+            q = f"{(i % 4) + 1}Q"
+            if i < 12:
+                op = 600e8
+                ni = 520e8
+                roe = 15.5
+            elif i < 19:
+                op = 356e8
+                ni = 342e8
+                roe = 7.6
+            else:
+                op = 313.8e8
+                ni = 533.7e8  # inflated by +211.8eok one-off deferred tax credit
+                roe = 11.28
+            rows_s3.append({
+                "Year": yr, "Quarter": q, "매출액": 3200e8, "영업이익": op,
+                "당기순이익": ni, "지배순이익": ni, "자본총계": eq, "지배자본": eq,
+                "현재주식수": sh, "BPS": eq / sh, "EPS": ni / sh, "ROE": roe,
+            })
+        s3 = pd.DataFrame(rows_s3)
+        s2 = pd.DataFrame([
+            {"Year": 2025, "Quarter": "3Q", "매출액": 832e8, "영업이익": 52.9e8, "당기순이익": 28.8e8, "지배순이익": 28.8e8, "현재주식수": sh, "EPS": 28.8e8 / sh},
+            {"Year": 2025, "Quarter": "4Q", "매출액": 855e8, "영업이익": 150.3e8, "당기순이익": 158.6e8, "지배순이익": 158.6e8, "현재주식수": sh, "EPS": 158.6e8 / sh},
+            {"Year": 2026, "Quarter": "1Q", "매출액": 768e8, "영업이익": 54.8e8, "당기순이익": 84.5e8, "지배순이익": 84.5e8, "현재주식수": sh, "EPS": 84.5e8 / sh},
+            {"Year": 2026, "Quarter": "2Q", "매출액": 809e8, "영업이익": 98.5e8, "당기순이익": 70.4e8, "지배순이익": 70.4e8, "현재주식수": sh, "EPS": 70.4e8 / sh},
+            {"Year": 2026, "Quarter": "3Q", "매출액": 734e8, "영업이익": 10.2e8, "당기순이익": 220.2e8, "지배순이익": 220.2e8, "현재주식수": sh, "EPS": 220.2e8 / sh},
+        ])
+        return {"source": "mock_tax_distorted", "sheet2": s2, "sheet3": s3, "sheet5": s5}
+
+    def test_patch2_and_3_dual_split_and_user_value_trap_switches(self):
+        df_w, df_d, s5 = self._make_sample_dfs()
+        dart_ts = self._make_dart_ts_tax_distorted(s5)
+        bench = {"bps": 24587.0, "eps": 2773.0, "pbr": 2.72, "stock_name": "두산테스나테스트"}
+        sec8 = {"primary_metric": "PBR", "pbr_min": 1.01, "per_min": 8.2, "pbr_dir": 58.0, "per_dir": 58.0}
+        s12 = self.bv.compute_step1_2_scurve_bottleneck_matrix(
+            "131970", "두산테스나", dart_ts, scurve_override=True,
+            penetration_pct=18.0, second_penetration_pct=11.0,
+            bottleneck_grade="B", bottleneck_months=15, capa_util_pct=57.9,
+        )
+        bm_kw = {
+            "fixed_cost_ratio_pct": 70.0, "var_cost_ratio_pct": 22.9,
+            "util_trend": "up", "var_cost_trend": "flat", "op_slope": "accel",
+            "slope_evidence": "medium", "capa_expand": True, "asp_up": True,
+        }
+
+        # MODE 1 (Default: value_trap_override=None) -> Tax distortion caught & A/B FULLY SPLIT!
+        # Model B stays conservative Value Trap; Model A shows 5Y Cycle Normalized + Step 1.3/1.2!
+        s2_dual = self.bv.compute_section2_value_trap(
+            "131970", bench, df_w, dart_ts, 66800,
+            sector_type="A", fixed_cost_ratio=70.0, capa_expand=True, util_trend="up", capa_util_pct=57.9,
+            value_trap_override=None,
+        )
+        self.assertTrue(s2_dual["roe_non_op_distortion"])
+        self.assertLess(s2_dual["core_nopat_roe"], 8.5)
+        self.assertTrue(s2_dual["is_type_b_raw"])
+        self.assertTrue(s2_dual["is_dual_split"])
+        self.assertEqual(s2_dual["value_trap_mode"], "dual_split_review")
+        self.assertTrue(s2_dual["is_type_a2_candidate"])
+        self.assertLess(s2_dual["pbr_5y_p90"], s2_dual["pbr_3y_p90"])  # 5Y window filters 2026 short-term bubble spike
+
+        s3_dual = self.bv.compute_section3_stock_nature_and_tp1(
+            "131970", "두산테스나", bench, df_w, df_d, s2_dual, 66800,
+            sector_type="A", scurve_override=True, step1_2_res=s12, sec8_res=sec8,
+            distb_shares=19245628, ev_implied_g=19.0, dart_ts=dart_ts, bm_slope_params=bm_kw,
+        )
+        self.assertEqual(s3_dual["valuation_regime_mode"], "dual_split_review")
+        self.assertIn("가치함정", s3_dual["bull_mult_label"])
+        self.assertIn("비함정 정상화", s3_dual["bull_mult_label"])
+        # Model A is cleanly separated above Model B (Value Trap anchor)
+        self.assertGreater(s3_dual["base_auto_a"], s3_dual["base_auto"] * 1.3)
+        self.assertGreater(s3_dual["bull_auto_a"], s3_dual["bull_auto"] * 1.3)
+        # Step 1.3 DART divergence guard (-89.6% QoQ) & sheet3 OPM 2nd derivative both active on Model A!
+        self.assertTrue(s3_dual["step1_3_bm_slope"]["dart_divergence_warn"])
+        self.assertIsNotNone(s3_dual["step1_3_bm_slope"]["opm_accel_pctp"])
+        self.assertAlmostEqual(s3_dual["sc_base_mult"], round(1.0 + (s12["total_sc_bn_base_mult"] - 1.0) * 0.5, 4), places=4)
+        # SOP stays defensively guarded pending user decision
+        s4_dual = self.bv.compute_section4_master_sop_indicators(df_d, df_w, s2_dual, s3_dual, anchor_price=66800)
+        self.assertTrue(s4_dual["is_value_trap_hold"])
+        self.assertIn("--no-value-trap", s4_dual["sop_mode_desc"])
+
+        # MODE 2 (User confirms --value-trap -> value_trap_override=True): BOTH B & A locked to Type B!
+        s2_vt = self.bv.compute_section2_value_trap(
+            "999999", bench, df_w, dart_ts, 66800,
+            sector_type="D", fixed_cost_ratio=15.0, capa_expand=False, util_trend="flat", capa_util_pct=60.0,
+            value_trap_override=True,
+        )
+        self.assertEqual(s2_vt["value_trap_mode"], "confirmed_type_b")
+        self.assertFalse(s2_vt["is_dual_split"])
+        self.assertTrue(s2_vt["is_type_b"])
+        s3_vt = self.bv.compute_section3_stock_nature_and_tp1(
+            "999999", "가치함정확정", bench, df_w, df_d, s2_vt, 66800,
+            sector_type="D", scurve_override=True, step1_2_res=s12, sec8_res=sec8,
+            distb_shares=19245628, dart_ts=dart_ts, bm_slope_params=bm_kw,
+        )
+        self.assertEqual(s3_vt["valuation_regime_mode"], "type_b_value_trap")
+        self.assertIn("유형 B 확정", s3_vt["bull_mult_label"])
+        self.assertNotIn("상위 90%", s3_vt["bull_mult_label"])
+        self.assertEqual(s3_vt["base_auto_a"], s3_vt["base_auto"])
+        self.assertEqual(s3_vt["bull_auto_a"], s3_vt["bull_auto"])
+
+        # MODE 3 (User confirms --no-value-trap -> value_trap_override=False): BOTH B & A + SOP unlock to 5Y Cycle!
+        s2_nt = self.bv.compute_section2_value_trap(
+            "131970", bench, df_w, dart_ts, 66800,
+            sector_type="A", fixed_cost_ratio=70.0, capa_expand=True, util_trend="up", capa_util_pct=57.9,
+            value_trap_override=False,
+        )
+        self.assertEqual(s2_nt["value_trap_mode"], "confirmed_non_trap")
+        self.assertFalse(s2_nt["is_dual_split"])
+        self.assertFalse(s2_nt["is_type_b"])
+        self.assertTrue(s2_nt["is_type_a2_capex_trough"])
+        s3_nt = self.bv.compute_section3_stock_nature_and_tp1(
+            "131970", "두산테스나", bench, df_w, df_d, s2_nt, 66800,
+            sector_type="A", scurve_override=True, step1_2_res=s12, sec8_res=sec8,
+            distb_shares=19245628, ev_implied_g=19.0, dart_ts=dart_ts, bm_slope_params=bm_kw,
+        )
+        self.assertEqual(s3_nt["valuation_regime_mode"], "type_a2_capex_trough")
+        self.assertIn("유형 A-2 비함정 확정", s3_nt["bull_mult_label"])
+        self.assertGreater(s3_nt["base_auto"], s3_vt["base_auto"])
+        self.assertGreater(s3_nt["bull_auto"], s3_vt["bull_auto"])
+        # Model A matches Dual-Split Model A cleanly!
+        self.assertEqual(s3_nt["base_auto_a"], s3_dual["base_auto_a"])
+        self.assertEqual(s3_nt["bull_auto_a"], s3_dual["bull_auto_a"])
+        # SOP unlocked to realistic pullback/Track 1 ladder, while Track 2 stays blocked during -89.6% QoQ trough
+        s4_nt = self.bv.compute_section4_master_sop_indicators(df_d, df_w, s2_nt, s3_nt, anchor_price=66800)
+        self.assertFalse(s4_nt["is_value_trap_hold"])
+        self.assertFalse(s4_nt["is_track2"])
+        self.assertGreater(s4_nt["buy1"], s4_dual["buy1"])
+        self.assertGreater(s4_nt["avg_buy_price"], s4_dual["avg_buy_price"])
+        self.assertGreater(s4_nt["buy3"], s4_dual["buy3"])
+        self.assertLess(s4_nt["init_stop_pin"], s4_nt["buy1"])
+
+    def test_orchestrator_inherits_and_clears_value_trap_override(self):
+        import types
+        from unittest import mock
+        import ksa_orchestrator as ko
+
+        with tempfile.TemporaryDirectory() as td:
+            comp = os.path.join(td, "함정스위치테스트")
+            db = os.path.join(comp, "2_Translated_DB")
+            os.makedirs(db)
+            ssot_path = os.path.join(db, "valuation_metrics.json")
+            with open(ssot_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "stock_code": "131970",
+                        "anchor_price": 66800,
+                        "input_params": {"value_trap_override": False},
+                        "section2": {"value_trap_override": False, "value_trap_mode": "confirmed_non_trap"},
+                    },
+                    f,
+                    ensure_ascii=False,
+                )
+
+            def _base_args(**over):
+                d = dict(
+                    corp_name="함정스위치테스트", code=None, years=10, sector_type=None, rerating_date=None,
+                    base_target=None, bull_target=None, dart_exposure=None, forward_eps=None, forward_eps_g=None,
+                    expected_dps=None, non_op_assets=None, net_debt=None, distb_shares=0, total_shares=0,
+                    fcf=None, norm_fcf=None, s_curve_phase2=False, early_ignition=False, no_s_curve=False,
+                    penetration_pct=None, second_penetration_pct=None, bottleneck_grade=None, bottleneck_months=None,
+                    capa_util_pct=None, payout_ratio=None, tsr_pct=None, buyback_cliff=False,
+                    mezzanine_eok=None, mezzanine_pct=None, related_party_eok=None, listed_parent_sales=False,
+                    governance_discount=None, gov_note=None, anchor_price=None,
+                    shortage_easing=False, slope_decel=False, policy_headwind=False, clear_sell_signals=False,
+                    bm_core_driver=None, fixed_cost_ratio=None, var_cost_ratio=None, util_trend=None,
+                    var_cost_trend=None, op_slope=None, slope_evidence=None, capa_expand=False, asp_up=False,
+                    clear_bm_slope=False, value_trap=False, no_value_trap=False, clear_value_trap=False,
+                    wacc=0.09, terminal=0.02, skip_pdf=True, pdf_dirs=None, include_raw_pdfs=False,
+                    primary_keywords=None, keywords=None, max_pages=18,
+                )
+                d.update(over)
+                return types.SimpleNamespace(**d)
+
+            captured = {}
+            def _fake_bt(*a, **kw):
+                captured.clear()
+                captured.update(kw)
+
+            with mock.patch.object(ko, "ensure_company_structure", return_value=comp), \
+                 mock.patch.object(ko, "run_valuation_backtest", side_effect=_fake_bt), \
+                 mock.patch.object(ko, "append_extended_ssot_tables"), \
+                 mock.patch.object(ko, "refresh_price_eq_in_ssot"), \
+                 mock.patch.object(ko, "build_ai_prep_digest", return_value=""):
+                # 1) Inherit saved value_trap_override=False when omitted
+                ko.cmd_prep(_base_args())
+                self.assertIs(captured["value_trap_override"], False)
+                # 2) Explicit --value-trap overrides to True
+                ko.cmd_prep(_base_args(value_trap=True))
+                self.assertIs(captured["value_trap_override"], True)
+                # 3) --clear-value-trap resets to None (Dual-Split review mode)
+                ko.cmd_prep(_base_args(clear_value_trap=True))
+                self.assertIsNone(captured["value_trap_override"])
+
+    def test_patch4_red_team_implied_op_never_inverts_under_trough_per(self):
+        df_w, df_d, s5 = self._make_sample_dfs()
+        bench = {"bps": 23439.0, "eps": 1771.0, "pbr": 2.85, "stock_name": "레드팀테스트"}
+        sec2 = {
+            "is_type_b": False, "is_type_a2_capex_trough": True,
+            "curr_bps_used": 23439.0, "curr_eps_used": 1771.0,
+            "mid_cycle_eps": 2831.0, "mid_cycle_roe": 12.9, "curr_roe": 7.6,
+            "qoq_op_pct": 10.0, "op_yoy_used": 25.0,
+            "per_3y_p20": 14.0, "per_3y_mean": 40.7, "per_3y_p65": 20.5, "per_3y_p90": 90.4,
+            "pbr_3y_p20": 1.30, "pbr_3y_mean": 2.50, "pbr_3y_p65": 2.53, "pbr_3y_p90": 4.66,
+            "pbr_5y_p20": 1.59, "pbr_5y_median": 2.30, "pbr_5y_p65": 2.77, "pbr_5y_p90": 3.84,
+        }
+        sec8 = {"primary_metric": "PBR", "pbr_min": 1.01, "per_min": 8.2, "pbr_dir": 58.0, "per_dir": 58.0}
+        s3 = self.bv.compute_section3_stock_nature_and_tp1(
+            "131970", "레드팀테스트", bench, df_w, df_d, sec2, 66800,
+            sector_type="A", sec8_res=sec8, distb_shares=19245628,
+        )
+        # Bull annual implied OP must strictly exceed Base annual implied OP and reflect normalized PER (~20.5x, not 40.7x/90.4x)
+        self.assertGreater(s3["implied_op_base_a_eok"], 400.0)
+        self.assertGreater(s3["implied_op_bull_a_eok"], s3["implied_op_base_a_eok"])
+
+    def test_v522_orchestrator_banner_digest_and_validator_value_trap_modes(self):
+        import copy
+        import ksa_orchestrator as ko
+        import validate_report as vr
+
+        base_ssot = {
+            "version": "5.2",
+            "stock_code": "131970",
+            "anchor_price": 66800,
+            "bench": {"close": 66800, "bps": 23439, "eps": 1771},
+            "sotp": {"sotp_triggered": False, "non_op_max_ratio_pct": 8.1, "non_op_assets_eok": 365.2},
+            "step1_2_bottleneck": {"bottleneck_grade": "B", "bottleneck_lead_time_months": 15, "capa_util_pct": 57.9, "is_phase2": True},
+            "step1_3_bm_slope": {"bm_core_driver": "고정비 테스트", "guardrail_summary": "정상", "op_slope_base_mult": 1.0, "op_slope_bull_mult": 1.0},
+            "step1_8_k_return": {"kgov_mult": 1.0, "payout_ratio_pct": 8.4, "tsr_pct": 8.4},
+            "reverse_dcf": {"status": "success", "price": 66800, "distb_shares": 19245628, "total_shares": 19327238, "net_debt_eok": 2320.1, "fcf_eok": -643.2, "norm_fcf_eok": 520.0},
+            "section2": {
+                "value_trap_mode": "dual_split_review",
+                "is_type_b": True,
+                "is_dual_split": True,
+                "value_trap_override": None,
+                "roe_non_op_distortion": True,
+                "curr_roe": 11.28,
+                "core_nopat_roe": 5.17,
+                "qoq_summary_str": "매출 +5%",
+                "kill_switch_guide": "영업이익 < 80억",
+            },
+            "section3": {
+                "bear_auto": 16410, "base_auto": 30490, "bull_auto": 58650,
+                "base_auto_a": 59800, "bull_auto_a": 92000,
+                "tp1_price": 58650, "tp1_price_a": 72000,
+                "base_mult_a": 1.04, "bull_mult_a": 1.06,
+            },
+            "section4": {
+                "d_close": 66800, "buy1": 16410, "buy2": 21620, "buy3": 26830,
+                "avg_buy_price": 21620, "init_stop_pin": 15590, "poc_low": 67620, "poc_high": 77440,
+                "is_value_trap_hold": True, "is_track2": False,
+            },
+            "canonical_html_tag": (
+                '<div id="dcf-calculator-root" data-price="66800" data-shares="19245628" data-total-shares="19327238" '
+                'data-net-debt="2320.1" data-bear="16410" data-base="30490" data-bull="58650" '
+                'data-base-a="59800" data-bull-a="92000" data-tp1="58650" data-tp1-a="72000" '
+                'data-buy1="16410" data-buy2="21620" data-buy3="26830" data-stop-pin="15590" data-poc-low="67620"></div>'
+            ),
+            "data_quality": {"status": "ok", "warnings": []},
+        }
+
+        # 1) Comparison table includes Dual-Split guidance banner
+        cmp_dual = ko.format_ssot_comparison_table({}, base_ssot, "분리테스트")
+        self.assertIn("가치함정 판정 안내", cmp_dual)
+        self.assertIn("--no-value-trap", cmp_dual)
+
+        # 2) Validator passes clean dual_split_review and catches broken confirmed_non_trap mismatch
+        res_ok = vr.Result("dual_ok")
+        vr.check_ssot(base_ssot, res_ok)
+        self.assertEqual(res_ok.errors, [])
+
+        bad_nt = copy.deepcopy(base_ssot)
+        bad_nt["section2"]["value_trap_mode"] = "confirmed_non_trap"
+        bad_nt["section2"]["is_type_b"] = False
+        bad_nt["section2"]["is_dual_split"] = False
+        # Intentionally leave is_value_trap_hold=True to verify validator catches inconsistency
+        res_bad = vr.Result("nt_mismatch")
+        vr.check_ssot(bad_nt, res_bad)
+        self.assertTrue(any("confirmed_non_trap" in e for e in res_bad.errors))
+
+        # 3) append_extended_ssot_tables + build_ai_prep_digest reflect dual_split & confirmed_non_trap cleanly
+        with tempfile.TemporaryDirectory() as td:
+            db = os.path.join(td, "2_Translated_DB")
+            os.makedirs(db)
+            ssot_p = os.path.join(db, "valuation_metrics.json")
+            auto_p = os.path.join(db, "auto_tables.md")
+            with open(ssot_p, "w", encoding="utf-8") as f:
+                json.dump(base_ssot, f, ensure_ascii=False)
+            with open(auto_p, "w", encoding="utf-8") as f:
+                f.write("### 📌 [코드 자동 생성 1]\n| a | b |\n")
+            ko.append_extended_ssot_tables(ssot_p)
+            auto_txt = open(auto_p, encoding="utf-8").read()
+            self.assertIn("A/B 분리 판독 — 확정 전 보류", auto_txt)
+            digest_p = ko.build_ai_prep_digest(td, "분리테스트")
+            digest_txt = open(digest_p, encoding="utf-8").read()
+            self.assertIn("일회성 ROE 착시 보정 활성", digest_txt)
+            self.assertIn("가치함정 A/B 분리 판독 모드", digest_txt)
+
+
 if __name__ == "__main__":
     unittest.main()

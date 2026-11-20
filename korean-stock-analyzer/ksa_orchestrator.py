@@ -151,6 +151,7 @@ def append_extended_ssot_tables(ssot_json_path):
         auto_md = f.read()
 
     dcf = d.get("reverse_dcf", {}) or {}
+    s2 = d.get("section2", {}) or {}
     s3 = d.get("section3", {}) or {}
     s4 = d.get("section4", {}) or {}
     anchor = d.get("anchor_price", 0)
@@ -194,8 +195,12 @@ def append_extended_ssot_tables(ssot_json_path):
         tp1_note = f"매물대 1차 저항 익절 (참고 Base 🛡️ {base_b:,}원 / 🚀 {base_a:,}원)"
 
     if s4.get("is_value_trap_hold"):
-        buy2_cond = f"🚫 [유형 B 가치함정] 분기 영업익·EPS QoQ 반등 공시 전 현재가 매수 보류 (청산가치 하단 대기)"
-        buy3_cond = f"🚫 [유형 B 가치함정] 실적 턴어라운드 및 20일 POC(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 회복 확인"
+        if s2.get("is_dual_split"):
+            buy2_cond = "⚖️ [A/B 분리 판독 — 확정 전 보류] 스터디 후 비함정이면 `--no-value-trap`으로 SOP 정상화, 진짜 함정이면 `--value-trap` 잠금"
+            buy3_cond = f"⚖️ [A/B 분리 판독 — 확정 전 보류] `--no-value-trap` 확정 또는 실적 턴어라운드·20일 POC(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 회복 확인"
+        else:
+            buy2_cond = f"🚫 [유형 B 가치함정] 분기 영업익·EPS QoQ 반등 공시 전 현재가 매수 보류 (청산가치 하단 대기)"
+            buy3_cond = f"🚫 [유형 B 가치함정] 실적 턴어라운드 및 20일 POC(`{s4.get('poc_low', 0):,}~{s4.get('poc_high', 0):,}원`) 회복 확인"
     elif s4.get("is_downtrend_hold"):
         buy2_cond = f"⚠️ [주봉 C등급 역배열 칼날받기 금지] 현재가 추격 보류 · 하단 지지(`{buy2:,}원`) 또는 20주선(`{s4.get('w_ma20', 0):,}원`) 회복 대기"
         buy3_cond = f"⚠️ [주봉 C등급 대기] 하방 지지(`{buy3:,}원`) 안착 또는 주봉 MACD 양(+)전환(B등급↑) 확인 후 진입"
@@ -245,6 +250,7 @@ def format_ssot_comparison_table(old_ssot, new_ssot, corp_name):
     o_s12, n_s12 = o.get("step1_2_bottleneck") or {}, n.get("step1_2_bottleneck") or {}
     o_s13, n_s13 = o.get("step1_3_bm_slope") or {}, n.get("step1_3_bm_slope") or {}
     o_s18, n_s18 = o.get("step1_8_k_return") or {}, n.get("step1_8_k_return") or {}
+    o_s2, n_s2 = o.get("section2") or {}, n.get("section2") or {}
     o_s3, n_s3 = o.get("section3") or {}, n.get("section3") or {}
     o_s4, n_s4 = o.get("section4") or {}, n.get("section4") or {}
 
@@ -287,8 +293,21 @@ def format_ssot_comparison_table(old_ssot, new_ssot, corp_name):
             return "N/A (후행 op_mult)"
         return f"{b.get('final_grade', 'neutral')} (`×{float(b.get('op_slope_base_mult', 1.0)):.4f}` / `×{float(b.get('op_slope_bull_mult', 1.0)):.4f}`)"
 
+    def _vt_mode(s2):
+        if not s2:
+            return "N/A"
+        m = s2.get("value_trap_mode")
+        if m == "dual_split_review":
+            return "⚖️ A/B 분리 판독"
+        if m == "confirmed_type_b":
+            return "🔴 유형 B 확정 (--value-trap)"
+        if m == "confirmed_non_trap":
+            return "🔄 비함정 확정 (--no-value-trap)"
+        return "🔴 유형 B" if s2.get("is_type_b") else "🟢 유형 A"
+
     rows = [
         ("단일 기준 주가 (Anchor)", _fnum(o.get("anchor_price"), "원"), _fnum(n.get("anchor_price"), "원"), _fdelta(o.get("anchor_price"), n.get("anchor_price"), "원")),
+        ("가치함정 판정 모드 (Sec 2)", _vt_mode(o_s2), _vt_mode(n_s2), "B=함정 / A=정상화 분리" if n_s2.get("is_dual_split") else ("사용자 확정" if n_s2.get("value_trap_override") is not None else "자동 판정")),
         ("유통주식수 / 총주식수", f"{_fnum(o_dcf.get('distb_shares'), '주')} / {_fnum(o_dcf.get('total_shares'), '주')}", f"{_fnum(n_dcf.get('distb_shares'), '주')} / {_fnum(n_dcf.get('total_shares'), '주')}", _fdelta(o_dcf.get("distb_shares"), n_dcf.get("distb_shares"), "주")),
         ("보고 FCF / 오너 정규화 FCF", f"{_fnum(o_dcf.get('fcf_eok'), '억', 1)} / {_fnum(o_dcf.get('norm_fcf_eok'), '억', 1)}", f"{_fnum(n_dcf.get('fcf_eok'), '억', 1)} / {_fnum(n_dcf.get('norm_fcf_eok'), '억', 1)}", _fdelta(o_dcf.get("fcf_eok"), n_dcf.get("fcf_eok"), "억", 1)),
         ("순차입금 (`-` 순현금)", _fnum(o_dcf.get("net_debt_eok"), "억", 1, True), _fnum(n_dcf.get("net_debt_eok"), "억", 1, True), _fdelta(o_dcf.get("net_debt_eok"), n_dcf.get("net_debt_eok"), "억", 1)),
@@ -304,14 +323,34 @@ def format_ssot_comparison_table(old_ssot, new_ssot, corp_name):
         ("3분할 매수가 (1차/2차/3차)", f"{_fnum(o_s4.get('buy1'))} / {_fnum(o_s4.get('buy2'))} / {_fnum(o_s4.get('buy3'))}", f"{_fnum(n_s4.get('buy1'))} / {_fnum(n_s4.get('buy2'))} / {_fnum(n_s4.get('buy3'))}", f"Track2: {'허용' if n_s4.get('is_track2') else '차단/대기'}"),
     ]
 
+    vt_mode_n = n_s2.get("value_trap_mode")
+    vt_banner = None
+    if vt_mode_n == "dual_split_review":
+        vt_banner = (
+            "> **⚖️ 가치함정 판정 안내 (Step 1 승인 시 스위치 선택)**: 현재 **A/B 분리 판독** 상태입니다 (`🛡️대안 B` 가치함정 보수 닻 vs `🚀대안 A` 5년 사이클 정상화). "
+            "스터디 후 비함정 선투자·사이클 저점이면 `--no-value-trap`으로 B·A안·SOP를 5년 사이클 기준으로 통일하고, 진짜 구조적 가치함정이면 `--value-trap`으로 잠금 재실행하세요!"
+        )
+    elif vt_mode_n == "confirmed_non_trap":
+        vt_banner = (
+            "> **🔄 가치함정 판정 확정 (`--no-value-trap`)**: 사용자 확정 비함정 모드 — `🛡️대안 B` · `🚀대안 A` · 마스터 SOP 모두 5년(60M) 사이클 PBR 정상화 통일 적용 (초기화: `--clear-value-trap`)"
+        )
+    elif vt_mode_n == "confirmed_type_b":
+        vt_banner = (
+            "> **🔴 가치함정 판정 확정 (`--value-trap`)**: 사용자 확정 유형 B 구조적 가치함정 — `🛡️대안 B` · `🚀대안 A` · 마스터 SOP 모두 보수적 청산가치 하단 잠금 (초기화: `--clear-value-trap`)"
+        )
+
     lines = [
         f"## 📊 [{corp_name}] 직전 vs 신규 SSOT 비교표 (v5.2 — Step 1 승인 검증용)",
         f"> **BM 영업이익 핵심인자 (Step 1.3)**: {n_s13.get('bm_core_driver', 'N/A')}  ",
         f"> **안티-피크아웃 가드레일**: {n_s13.get('guardrail_summary', 'N/A')}",
+    ]
+    if vt_banner:
+        lines.append(vt_banner)
+    lines.extend([
         "",
         "| 핵심 SSOT 항목 | 직전 SSOT (`prev`) | 신규 SSOT (`v5.2`) | 변동폭 / 판정 메모 |",
         "| :--- | :--- | :--- | :--- |",
-    ]
+    ])
     for lbl, ov, nv, dv in rows:
         lines.append(f"| {lbl} | {ov} | {nv} | {dv} |")
     return "\n".join(lines) + "\n"
@@ -340,6 +379,7 @@ def cmd_prep(args):
     old_s12 = old_ssot.get("step1_2_bottleneck", {}) or {}
     old_s13 = old_ssot.get("step1_3_bm_slope", {}) or {}
     old_s18 = old_ssot.get("step1_8_k_return", {}) or {}
+    old_s2 = old_ssot.get("section2", {}) or {}
 
     code = args.code or old_ssot.get("stock_code") or saved_params.get("code")
     if not code:
@@ -390,6 +430,16 @@ def cmd_prep(args):
     )
     sc_override = True if args.s_curve_phase2 else (False if args.no_s_curve else saved_params.get("sc_override"))
     early_ignition = True if args.early_ignition else bool(saved_params.get("early_ignition", False))
+    if getattr(args, "clear_value_trap", False):
+        value_trap_override = None
+    elif getattr(args, "value_trap", False):
+        value_trap_override = True
+    elif getattr(args, "no_value_trap", False):
+        value_trap_override = False
+    else:
+        value_trap_override = saved_params.get("value_trap_override")
+        if value_trap_override is None and old_s2.get("value_trap_override") is not None:
+            value_trap_override = old_s2.get("value_trap_override")
     if getattr(args, "clear_sell_signals", False):
         shortage_easing = False
         slope_decel = False
@@ -489,6 +539,7 @@ def cmd_prep(args):
         slope_evidence=slope_evidence,
         capa_expand=capa_expand,
         asp_up=asp_up,
+        value_trap_override=value_trap_override,
     )
 
     # 3. Run calc_reverse_dcf and merge into valuation_metrics.json
@@ -555,6 +606,7 @@ def cmd_prep(args):
             "slope_evidence": slope_evidence,
             "capa_expand": capa_expand,
             "asp_up": asp_up,
+            "value_trap_override": value_trap_override,
         }
         with open(ssot_path, "w", encoding="utf-8") as f:
             json.dump(final_ssot, f, ensure_ascii=False, indent=2)
@@ -676,6 +728,36 @@ def build_ai_prep_digest(comp_dir, corp_name):
         f"  - 타임라인 : `{timeline_abs}`"
     )
 
+    ssot_json_path = os.path.join(comp_dir, "2_Translated_DB", "valuation_metrics.json")
+    vt_digest_note = ""
+    if os.path.exists(ssot_json_path):
+        try:
+            with open(ssot_json_path, "r", encoding="utf-8") as f:
+                _ssot_d = json.load(f)
+            _s2 = _ssot_d.get("section2", {}) or {}
+            _vtm = _s2.get("value_trap_mode")
+            _notes = []
+            if _s2.get("roe_non_op_distortion"):
+                _notes.append(
+                    f"- ⚠️ **[일회성 ROE 착시 보정 활성]**: 표면 ROE({_s2.get('curr_roe', 0):.2f}%) 대비 본업 NOPAT ROE({_s2.get('core_nopat_roe', 0):.2f}%) 괴리 감지 ➔ Phase 3 Section 2에서 일회성 법인세수익/영업외손익 제거 기준 본업 수익성을 명시하십시오."
+                )
+            if _vtm == "dual_split_review":
+                _notes.append(
+                    "- ⚖️ **[가치함정 A/B 분리 판독 모드 (`value_trap_mode=dual_split_review`)]**: `🛡️대안 B`(유형 B 가치함정 보수 닻 & SOP 보류) vs `🚀대안 A`(5년 60M 사이클 PBR 정상화 + Step 1.3)를 양립 해독하고, 사용자 스터디 확정 시 `--no-value-trap`(비함정 통일) 또는 `--value-trap`(함정 잠금) 스위치 옵션을 안내하십시오."
+                )
+            elif _vtm == "confirmed_non_trap":
+                _notes.append(
+                    "- 🔄 **[유형 A-2 비함정 통일 확정 (`--no-value-trap`)]**: 사용자가 일시적 선투자·사이클 저점으로 확정 ➔ Phase 3 Section 2~4에서 `🛡️대안 B`·`🚀대안 A`·마스터 SOP 모두 5년(60M) 사이클 PBR 정상화 기준으로 통일 서술하십시오 (분기 OP 급반등 전 Track 2 돌파매수는 차단 유지)."
+                )
+            elif _vtm == "confirmed_type_b":
+                _notes.append(
+                    "- 🔴 **[유형 B 구조적 가치함정 확정 (`--value-trap`)]**: `🛡️대안 B`·`🚀대안 A`·마스터 SOP 모두 청산가치 PBR 하단 잠금 및 현재가 매수 보류 기준으로 서술하십시오."
+                )
+            if _notes:
+                vt_digest_note = "\n" + "\n".join(_notes)
+        except Exception:
+            pass
+
     if not missing_gates and p1_exists and p2_exists and p3_exists:
         s13_note = (
             ""
@@ -690,6 +772,7 @@ def build_ai_prep_digest(comp_dir, corp_name):
             "- AI는 `Weekly_Trend/thesis_log.md` 및 `company_timeline.md`(필요 시 `Phase2_Story.md` / `Phase3_DCF.md` 서사 문단)만 `edit_file`로 갱신한 뒤, "
             "`python ksa_orchestrator.py build --corp-name " + corp_name + " --patch-ssot`를 실행하면 `3_Final_Reports/Phase1·Phase3`의 모든 주가·목표가·역DCF·SOP 매수가·HTML 태그가 100% 코드로 자동 패치됩니다!\n"
             + path_block
+            + vt_digest_note
         )
     else:
         track_verdict = (
@@ -698,6 +781,7 @@ def build_ai_prep_digest(comp_dir, corp_name):
             "- 상단 `[STATIC PROMPT CACHE PREFIX — PART D]`의 **Phase 1~3 고정 표준 목차(`## 1.`~`## 8.`)**와 아래 `[2] SSOT 자동 생성 테이블`, `[4] 무손실 원문 발췌본`을 바탕으로 아래 **정확한 절대 경로**에 작성한 뒤 `ksa_orchestrator.py build --corp-name " + corp_name + " --patch-ssot`를 실행하십시오.\n"
             "- **v5.2 필수 규율**: `Phase1~3.md` 최상단 제목에 `(v5.2)` 표기 + 제목 직하단 `> **분석완료일**: YYYY-MM-DD` 명기 + Phase 1 Section 4 `Step 1.3`(`[코드 자동 생성 1-D]`) 수록 + Mermaid v10.9.8 규격(단독 `end` 노드 ID 금지, 특수문자/괄호 포함 라벨 큰따옴표 `id[\"텍스트\"]`) 엄수.\n"
             + path_block
+            + vt_digest_note
         )
 
     auto_md_path = os.path.join(comp_dir, "2_Translated_DB", "auto_tables.md")
@@ -1198,6 +1282,9 @@ def cmd_init(args):
         args.capa_expand = False
         args.asp_up = False
         args.clear_bm_slope = False
+        args.value_trap = False
+        args.no_value_trap = False
+        args.clear_value_trap = False
         args.wacc = 0.09
         args.terminal = 0.02
         args.skip_pdf = True
@@ -1286,6 +1373,9 @@ def main():
     p_prep.add_argument("--capa-expand", action="store_true", help="Step 1.3: 확정 신규 Capa 증설 보유 (가동률 92%% 천장 가드 해제)")
     p_prep.add_argument("--asp-up", action="store_true", help="Step 1.3: 확정 ASP 인상 / 고마진 믹스 전환 보유 (가동률 92%% 천장 가드 해제)")
     p_prep.add_argument("--clear-bm-slope", action="store_true", help="기존 저장된 Step 1.3 BM 핵심인자·기울기 오버라이드 초기화")
+    p_prep.add_argument("--value-trap", action="store_true", help="사용자 확정: 구조적 가치함정(유형 B) — B안·A안·SOP 모두 보수적 잠금")
+    p_prep.add_argument("--no-value-trap", action="store_true", help="사용자 확정: 가치함정 아님(유형 A-2/A) — B안·A안·SOP 모두 5년 사이클 정상화")
+    p_prep.add_argument("--clear-value-trap", action="store_true", help="기존 저장된 가치함정 수동 확정 초기화 (A/B안 자동 분리 판독으로 복귀)")
     p_prep.add_argument("--wacc", type=float, default=0.09)
     p_prep.add_argument("--terminal", type=float, default=0.02)
     p_prep.add_argument("--skip-pdf", action="store_true", help="Skip PDF scanning")

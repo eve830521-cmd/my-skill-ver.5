@@ -208,6 +208,25 @@ def check_ssot(d, res):
         if bool(s3.get("op_slope_decel_warn") or s13.get("op_slope_decel_warn")) and bool(s4.get("is_track2")):
             res.err("section4.is_track2 must be False when Step 1.3 op_slope_decel_warn is True")
 
+    # --- Section 2 Value Trap Mode Consistency (v5.2.2 Dual-Split / User Switches) ---
+    s2 = d.get("section2") or {}
+    vtm = s2.get("value_trap_mode")
+    if vtm == "confirmed_type_b":
+        if not bool(s2.get("is_type_b")):
+            res.err("section2.value_trap_mode='confirmed_type_b' requires section2.is_type_b=True")
+        if not bool(s4.get("is_value_trap_hold")):
+            res.err("section2.value_trap_mode='confirmed_type_b' requires section4.is_value_trap_hold=True")
+    elif vtm == "confirmed_non_trap":
+        if bool(s2.get("is_type_b")):
+            res.err("section2.value_trap_mode='confirmed_non_trap' requires section2.is_type_b=False")
+        if bool(s4.get("is_value_trap_hold")):
+            res.err("section2.value_trap_mode='confirmed_non_trap' requires section4.is_value_trap_hold=False")
+    elif vtm == "dual_split_review":
+        if not bool(s2.get("is_dual_split")):
+            res.err("section2.value_trap_mode='dual_split_review' requires section2.is_dual_split=True")
+        if not bool(s4.get("is_value_trap_hold")):
+            res.err("section2.value_trap_mode='dual_split_review' requires section4.is_value_trap_hold=True")
+
     # --- Falsification fields (principle 12) ---
     for k in ("qoq_summary_str", "kill_switch_guide"):
         if not d["section2"].get(k):

@@ -1443,7 +1443,9 @@ def compute_step1_3_bm_op_slope(
     emp_dol = None
     dart_2nd_summary = "DART 분기 시계열 부족 (단일 분기 추이 참조)"
 
-    s3_df = (dart_ts or {}).get("s3") if isinstance(dart_ts, dict) else None
+    s3_df = (dart_ts or {}).get("sheet3") if isinstance(dart_ts, dict) else None
+    if s3_df is None and isinstance(dart_ts, dict):
+        s3_df = dart_ts.get("s3")
     if s3_df is not None and not s3_df.empty and "영업이익" in s3_df.columns:
         op_ser = pd.to_numeric(s3_df["영업이익"], errors="coerce")
         sal_ser = pd.to_numeric(s3_df["매출액"], errors="coerce") if "매출액" in s3_df.columns else pd.Series(dtype=float)
@@ -1466,11 +1468,8 @@ def compute_step1_3_bm_op_slope(
             both = both[both["s"] > 0]
             if len(both) >= 3:
                 opm_s = (both["o"] / both["s"]) * 100.0
-                if curr_opm_pct == 0.0 and len(both) >= 4:
-                    s4_sum = float(both["s"].tail(4).sum())
-                    o4_sum = float(both["o"].tail(4).sum())
-                    if s4_sum > 0:
-                        curr_opm_pct = round((o4_sum / s4_sum) * 100.0, 2)
+                if curr_opm_pct == 0.0:
+                    curr_opm_pct = round(float(opm_s.iloc[-1]), 2)
                 d1_curr = float(opm_s.iloc[-1] - opm_s.iloc[-2])
                 d1_prev = float(opm_s.iloc[-2] - opm_s.iloc[-3])
                 opm_d1_pctp = round(d1_curr, 2)
@@ -1706,15 +1705,25 @@ def compute_step1_3_bm_op_slope(
     if (
         eff_base > 1.0
         and qoq_op is not None
-        and qoq_op <= -15.0
-        and op_yoy_accel_pctp is not None
-        and op_yoy_accel_pctp <= -20.0
+        and (
+            qoq_op <= -30.0
+            or (
+                qoq_op <= -15.0
+                and op_yoy_accel_pctp is not None
+                and op_yoy_accel_pctp <= -20.0
+            )
+        )
     ):
         dart_divergence_warn = True
         eff_base = round(1.0 + (eff_base - 1.0) * 0.5, 4)
         eff_bull = round(1.0 + (eff_bull - 1.0) * 0.5, 4)
+        accel_note = (
+            f"·YoY가속도({op_yoy_accel_pctp:+.1f}%p)"
+            if (op_yoy_accel_pctp is not None and op_yoy_accel_pctp <= -20.0)
+            else ""
+        )
         guardrail_notes.append(
-            f"⚠️[DART 실측 괴리 경보] 선행 가속 전망 vs 직전분기 QoQ({qoq_op:+.1f}%)·YoY가속도({op_yoy_accel_pctp:+.1f}%p) 급감 ➔ 상방 할증 50% 축소"
+            f"⚠️[DART 실측 괴리 경보] 선행 가속 전망 vs 직전분기 QoQ({qoq_op:+.1f}%){accel_note} 급감 ➔ 상방 할증 50% 축소"
         )
 
     # Guardrail 4: Existing Gate Harmonization (Type B / Peak Trap / S-Curve Sell / Double-Penalty Prevention)
@@ -2299,12 +2308,26 @@ def compute_phase1_section8_metrics_ranking(stock_code, bench, df_week, dart_ts,
     }
 
 
-def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price, rerating_date=None):
+def compute_section2_value_trap(
+    stock_code,
+    bench,
+    df_week,
+    dart_ts,
+    curr_price,
+    rerating_date=None,
+    sector_type="A",
+    fixed_cost_ratio=None,
+    capa_expand=False,
+    util_trend=None,
+    capa_util_pct=None,
+    value_trap_override=None,
+):
     """
-    (A) DART 시계열 연동 및 Section 2 가치함정 이원화 자동 판정 + 직전 분기(QoQ) 실적 및 반증 임계치(Kill-Switch) 산출
+    (A) DART 시계열 연동 및 Section 2 가치함정 이원화/삼원화(유형 A / 유형 A-2 선투자 사이클 저점 / 유형 B 구조적 가치함정)
+    + 일회성 법인세수익·영업외손익 ROE 착시 차단(Core NOPAT ROE 교차 검증) + 5년(60M) 사이클 PBR 밴드 + QoQ Kill-Switch 산출
     """
     print("\n======================================================================")
-    print("🚨 [Phase 3 - Section 2] DART 시계열 연동 · 가치함정(유형 A/B) · QoQ 반증 임계치 자동 판정")
+    print("🚨 [Phase 3 - Section 2] DART 시계열 연동 · 가치함정(유형 A/A-2/B) · Core ROE 착시 검증 · QoQ 반증 임계치")
     print("======================================================================")
 
     s2 = dart_ts.get("sheet2", pd.DataFrame())
@@ -2317,6 +2340,12 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
     eps_2y_chg = None
     bps_2y_chg = None
     curr_roe = None
+    core_nopat_roe = None
+    core_op_2y_chg = None
+    core_eps_ttm = None
+    ttm_op_now_val = None
+    roe_non_op_distortion = False
+    roe_distortion_note = ""
     mid_cycle_roe = None
     mid_cycle_eps = None
     controlling_ratio_pct = 100.0
@@ -2332,6 +2361,7 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
     op_yoy_detail = "N/A"
 
     pbr_cycle_max = pbr_3y_max = pbr_3y_mean = pbr_3y_p20 = pbr_3y_p65 = pbr_3y_p90 = None
+    pbr_5y_min = pbr_5y_max = pbr_5y_median = pbr_5y_mean = pbr_5y_p20 = pbr_5y_p65 = pbr_5y_p90 = None
     per_3y_max = per_3y_mean = per_3y_p20 = per_3y_p65 = per_3y_p90 = None
 
     curr_eps_used = official_eps
@@ -2379,6 +2409,32 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
                 eps_2y_chg = ((float(curr_eps_dart) - float(eps_2y_ago)) / abs(float(eps_2y_ago))) * 100.0
             if pd.notna(curr_bps_dart) and pd.notna(bps_2y_ago) and abs(bps_2y_ago) > 0:
                 bps_2y_chg = ((float(curr_bps_dart) - float(bps_2y_ago)) / abs(float(bps_2y_ago))) * 100.0
+
+            # [PATCH v5.2.1 #2] Core NOPAT ROE & 2Y Core OP Change (anti one-off tax credit / non-op distortion guard)
+            op_ttm_cur = latest_row.get("영업이익")
+            eq_ctrl_cur = latest_row.get("지배자본")
+            if pd.isna(eq_ctrl_cur) or float(eq_ctrl_cur or 0) <= 0:
+                eq_tot_cur = latest_row.get("자본총계")
+                if pd.notna(eq_tot_cur) and float(eq_tot_cur or 0) > 0:
+                    eq_ctrl_cur = float(eq_tot_cur) * (controlling_ratio_pct / 100.0)
+                elif pd.notna(curr_bps_dart) and float(curr_bps_dart) > 0 and latest_sh > 0:
+                    eq_ctrl_cur = float(curr_bps_dart) * latest_sh
+                else:
+                    eq_ctrl_cur = 0.0
+            else:
+                eq_ctrl_cur = float(eq_ctrl_cur)
+
+            if pd.notna(op_ttm_cur):
+                ttm_op_now_val = float(op_ttm_cur)
+                ctrl_nopat_cur = ttm_op_now_val * 0.78 * (controlling_ratio_pct / 100.0)
+                if eq_ctrl_cur > 0:
+                    core_nopat_roe = round((ctrl_nopat_cur / eq_ctrl_cur) * 100.0, 2)
+                if latest_sh > 0:
+                    core_eps_ttm = round(ctrl_nopat_cur / latest_sh, 1)
+
+            op_2y_ago = row_2y.get("영업이익")
+            if ttm_op_now_val is not None and pd.notna(op_2y_ago) and abs(float(op_2y_ago)) > 0:
+                core_op_2y_chg = ((ttm_op_now_val - float(op_2y_ago)) / abs(float(op_2y_ago))) * 100.0
 
             if len(s3_valid) >= 5 and "영업이익" in s3_valid.columns:
                 op_ttm_now = latest_row.get("영업이익")
@@ -2471,18 +2527,23 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
         if s5_copy["dt"].notna().any():
             max_dt = s5_copy["dt"].max()
             cutoff_3y = max_dt - pd.DateOffset(years=3)
+            cutoff_5y = max_dt - pd.DateOffset(years=5)
             eff_cutoff = cutoff_3y
+            eff_cutoff_5y = cutoff_5y
             if rerating_date:
                 try:
                     rr_dt = pd.to_datetime(rerating_date)
                     if len(s5_copy[s5_copy["dt"] >= rr_dt]) >= 16:
                         eff_cutoff = max(cutoff_3y, rr_dt)
+                        eff_cutoff_5y = max(cutoff_5y, rr_dt)
                         rerating_applied = True
                 except Exception as _exc:
                     record_warning('--rerating-date unusable in section2 3Y band (date ignored)', _exc, 'degraded')
             s5_3y = s5_copy[s5_copy["dt"] >= eff_cutoff].copy()
+            s5_5y = s5_copy[s5_copy["dt"] >= eff_cutoff_5y].copy()
         else:
             s5_3y = s5_copy.tail(min(len(s5_copy), 156)).copy()
+            s5_5y = s5_copy.tail(min(len(s5_copy), 260)).copy()
 
         bps_scale = 1.0
         if (
@@ -2516,6 +2577,19 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
             pbr_3y_p65 = float(valid_pbr.quantile(0.65))
             pbr_3y_p90 = float(valid_pbr.quantile(0.90))
 
+        valid_pbr_5y = (
+            s5_5y["PBR"].dropna() / bps_scale if "PBR" in s5_5y.columns else pd.Series(dtype=float)
+        )
+        valid_pbr_5y = valid_pbr_5y[valid_pbr_5y > 0]
+        if not valid_pbr_5y.empty:
+            pbr_5y_min = float(valid_pbr_5y.min())
+            pbr_5y_max = float(valid_pbr_5y.max())
+            pbr_5y_median = float(valid_pbr_5y.median())
+            pbr_5y_mean = float(valid_pbr_5y.mean())
+            pbr_5y_p20 = float(valid_pbr_5y.quantile(0.20))
+            pbr_5y_p65 = float(valid_pbr_5y.quantile(0.65))
+            pbr_5y_p90 = float(valid_pbr_5y.quantile(0.90))
+
         valid_per = s5_3y["PER"].dropna() if "PER" in s5_3y.columns else pd.Series(dtype=float)
         valid_per = valid_per[(valid_per > 0) & (valid_per < 200)]
         if not valid_per.empty:
@@ -2545,6 +2619,25 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
         pbr_3y_p65 = float(pbr_series.quantile(0.65))
         pbr_3y_p90 = float(pbr_series.quantile(0.90))
 
+    if pbr_5y_max is None and not df_week.empty and official_bps and official_bps > 0:
+        w5y = df_week.tail(260)
+        if rerating_date:
+            try:
+                rr_dt = pd.to_datetime(rerating_date)
+                w_post = df_week[df_week["date"] >= rr_dt]
+                if len(w_post) >= 16:
+                    w5y = w_post
+            except Exception:
+                pass
+        pbr_s5 = w5y["close"] / official_bps
+        pbr_5y_min = float(pbr_s5.min())
+        pbr_5y_max = float(pbr_s5.max())
+        pbr_5y_median = float(pbr_s5.median())
+        pbr_5y_mean = float(pbr_s5.mean())
+        pbr_5y_p20 = float(pbr_s5.quantile(0.20))
+        pbr_5y_p65 = float(pbr_s5.quantile(0.65))
+        pbr_5y_p90 = float(pbr_s5.quantile(0.90))
+
     if per_3y_max is None and not df_week.empty and official_eps and official_eps > 0:
         w3y = df_week.tail(156)
         if rerating_date:
@@ -2565,6 +2658,21 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
     if curr_roe is None and official_eps is not None and official_bps and official_bps > 0:
         curr_roe = (official_eps / official_bps) * 100.0
 
+    # [PATCH v5.2.1 #2] Detect one-off tax credit / non-operating gain inflating headline ROE above 8.5%
+    if (
+        curr_roe is not None
+        and core_nopat_roe is not None
+        and (curr_roe - core_nopat_roe >= 3.0)
+        and (curr_roe >= 8.5)
+        and (core_nopat_roe < 8.5)
+    ):
+        roe_non_op_distortion = True
+        roe_distortion_note = (
+            f"⚠️ [일회성 영업외/법인세수익 ROE 착시 차단]: 표면 ROE {curr_roe:.2f}% vs "
+            f"본업 NOPAT ROE {core_nopat_roe:.2f}% (격차 +{curr_roe - core_nopat_roe:.2f}%p) ➔ "
+            f"가치함정·수익성 판정에 본업 NOPAT ROE({core_nopat_roe:.2f}%) 우선 적용"
+        )
+
     w_ma20 = (
         float(df_week["close"].rolling(20).mean().iloc[-1])
         if len(df_week) >= 20
@@ -2584,18 +2692,25 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
 
     print(f"    - 데이터 소스: {src if src else '네이버 공식 벤치마크 + 주봉 시계열 폴백'}")
     print(f"    - 지배주주 순이익 귀속률:   {controlling_ratio_pct:.1f}% (연결 순이익 대비 지배주주 귀속 비율 — 시나리오 EPS 산출 시 필수 곱셈!)")
-    print(f"    - 최근 2년 누적 EPS 증감률: {f'{eps_2y_chg:+.2f}%' if eps_2y_chg is not None else 'N/A (단기 시계열 폴백)'}")
+    print(f"    - 최근 2년 누적 EPS 증감률: {f'{eps_2y_chg:+.2f}%' if eps_2y_chg is not None else 'N/A (단기 시계열 폴백)'}" + (f" (본업 OP 2년 증감률: {core_op_2y_chg:+.2f}%)" if core_op_2y_chg is not None else ""))
     print(f"    - 최근 2년 누적 BPS 증감률: {f'{bps_2y_chg:+.2f}%' if bps_2y_chg is not None else 'N/A (단기 시계열 폴백)'}")
     print(f"    - 최근 영업이익 YoY 추이:   {op_yoy_detail}")
     print(f"    - 최근 분기 EPS QoQ 추이:  {qoq_eps_detail}")
     print(f"    - 📊 [직전 분기 대비(QoQ) 종합]: {qoq_summary_str}")
     print(f"    - 🚨 [가설 약화/반증 기준(Kill-Switch)]: {kill_switch_guide}")
-    print(f"    - 현재 ROE (지배주주 기준): {f'{curr_roe:.2f}%' if curr_roe is not None else 'N/A'}" + (f" (5년 중위 Mid-Cycle ROE: {mid_cycle_roe:.2f}%)" if mid_cycle_roe is not None else ""))
+    core_roe_str = f" | 본업 NOPAT ROE: {core_nopat_roe:.2f}%" if core_nopat_roe is not None else ""
+    print(f"    - 현재 ROE (지배주주 기준): {f'{curr_roe:.2f}%' if curr_roe is not None else 'N/A'}{core_roe_str}" + (f" (5년 중위 Mid-Cycle ROE: {mid_cycle_roe:.2f}%)" if mid_cycle_roe is not None else ""))
+    if roe_non_op_distortion:
+        print(f"    - {roe_distortion_note}")
 
     if pbr_3y_max is not None:
         cyc_str = f" (10년 풀사이클 최고 {pbr_cycle_max:.2f}배)" if pbr_cycle_max is not None else ""
         print(
             f"    - 과거 3년 PBR 밴드: 최고 {pbr_3y_max:.2f}배{cyc_str} | 평균 {pbr_3y_mean:.2f}배 | 하위20% {pbr_3y_p20:.2f}배 | 상위65% {pbr_3y_p65:.2f}배 | 상위90% {pbr_3y_p90:.2f}배"
+        )
+    if pbr_5y_max is not None:
+        print(
+            f"    - 과거 5년(60M) PBR 밴드: 최저 {pbr_5y_min:.2f}배 | 하위20% {pbr_5y_p20:.2f}배 | 중앙값 {pbr_5y_median:.2f}배 | 상위65% {pbr_5y_p65:.2f}배 | 상위90% {pbr_5y_p90:.2f}배 | 최고 {pbr_5y_max:.2f}배"
         )
     if per_3y_max is not None:
         print(
@@ -2608,23 +2723,109 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
         and pbr_cycle_max >= 2.8
         and (bps_2y_chg is None or bps_2y_chg < 15.0)
     )
-    is_type_b = (
+    eff_roe_for_trap = core_nopat_roe if roe_non_op_distortion else curr_roe
+    if roe_non_op_distortion and core_op_2y_chg is not None:
+        eff_eps_2y_for_trap = min(eps_2y_chg, core_op_2y_chg) if eps_2y_chg is not None else core_op_2y_chg
+    else:
+        eff_eps_2y_for_trap = eps_2y_chg
+
+    is_type_b_raw = (
         has_bubble_or_stagnant_bps
-        and (eps_2y_chg is not None and eps_2y_chg <= -30.0)
-        and (curr_roe is not None and curr_roe < 8.5)
+        and (eff_eps_2y_for_trap is not None and eff_eps_2y_for_trap <= -30.0)
+        and (eff_roe_for_trap is not None and eff_roe_for_trap < 8.5)
     )
 
-    if is_type_b:
-        verdict = "🔴 [유형 B: 구조적 버블 붕괴 가치함정 (Structural Value Trap)]"
-        peak_pbr_desc = (
-            f"과거 3년 최고 PBR({pbr_3y_max:.2f}배 ≥ 2.8배)"
-            if (pbr_3y_max is not None and pbr_3y_max >= 2.8)
-            else f"사이클 최고 PBR({pbr_cycle_max:.2f}배 ≥ 2.8배 & 2년 BPS 증감 {bps_2y_chg:+.1f}% < +15%)"
+    # [PATCH v5.2.1 / v5.2.2] 5-Gate High-Fixed-Cost CapEx Candidate Check + User Override / Dual-Split Architecture:
+    # - value_trap_override is True  (--value-trap):    User confirmed Structural Value Trap -> lock BOTH B & A + SOP to Type B
+    # - value_trap_override is False (--no-value-trap): User confirmed Non-Trap -> unlock BOTH B & A + SOP to 5Y Cycle (Type A-2) / Normal A
+    # - value_trap_override is None  (default):         When is_type_b_raw triggers, DO NOT force one side mechanically!
+    #                                                   Split cleanly: Model B = Value Trap anchor / Model A = 5Y Cycle Normalized + Step 1.3
+    #                                                   so the investor studies both side-by-side before confirming --no-value-trap / --value-trap.
+    is_mfg_capex_sector = str(sector_type or "A").upper() in ("A", "B")
+    high_fixed_verified = (fixed_cost_ratio is not None and float(fixed_cost_ratio) >= 35.0)
+    has_spare_capa = (capa_util_pct is None or float(capa_util_pct) == 0.0 or float(capa_util_pct) < 85.0)
+    proven_mid_cycle_roe = (mid_cycle_roe is not None and float(mid_cycle_roe) >= 10.0)
+    op_alive_or_recovering = (
+        (ttm_op_now_val is not None and ttm_op_now_val > 0)
+        or (str(util_trend or "").strip().lower() in ("up", "상승", "개선"))
+        or (op_yoy_used is not None and op_yoy_used >= 0.0)
+    )
+    is_type_a2_candidate = bool(
+        is_type_b_raw
+        and is_mfg_capex_sector
+        and high_fixed_verified
+        and bool(capa_expand)
+        and has_spare_capa
+        and proven_mid_cycle_roe
+        and op_alive_or_recovering
+    )
+
+    if value_trap_override is True:
+        value_trap_mode = "confirmed_type_b"
+        is_dual_split = False
+        is_type_b = True
+        is_type_a2_capex_trough = False
+    elif value_trap_override is False:
+        value_trap_mode = "confirmed_non_trap"
+        is_dual_split = False
+        is_type_b = False
+        is_type_a2_capex_trough = bool(is_type_b_raw)
+    elif is_type_b_raw:
+        value_trap_mode = "dual_split_review"
+        is_dual_split = True
+        is_type_b = True  # B-anchor & SOP stay defensively guarded until user confirms --no-value-trap
+        is_type_a2_capex_trough = False
+    else:
+        value_trap_mode = "normal_type_a"
+        is_dual_split = False
+        is_type_b = False
+        is_type_a2_capex_trough = False
+
+    roe_lbl = (
+        f"본업 NOPAT ROE({eff_roe_for_trap:.2f}%, 표면 {curr_roe:.2f}% 보정)"
+        if (roe_non_op_distortion and eff_roe_for_trap is not None and curr_roe is not None)
+        else (f"현재 ROE({eff_roe_for_trap:.2f}%)" if eff_roe_for_trap is not None else "ROE N/A")
+    )
+    eps2y_str = f"{eff_eps_2y_for_trap:+.1f}%" if eff_eps_2y_for_trap is not None else "N/A"
+    peak_pbr_desc = (
+        f"과거 3년 최고 PBR({pbr_3y_max:.2f}배 ≥ 2.8배)"
+        if (pbr_3y_max is not None and pbr_3y_max >= 2.8)
+        else (
+            f"사이클 최고 PBR({pbr_cycle_max:.2f}배 ≥ 2.8배 & 2년 BPS 증감 {bps_2y_chg:+.1f}% < +15%)"
+            if (pbr_cycle_max is not None and bps_2y_chg is not None)
+            else "고점 PBR 이력"
+        )
+    )
+
+    if value_trap_mode == "confirmed_type_b":
+        verdict = "🔴 [유형 B 확정 (사용자 --value-trap): 구조적 버블 붕괴 가치함정]"
+        action_guide = (
+            f"사용자 수동 확정(--value-trap) | {peak_pbr_desc} + 2년 누적 이익({eps2y_str}) + {roe_lbl}\n"
+            f"      ➔ 🛡️대안 B · 🚀대안 A 모두 과거 호황 멀티플 전면 폐기 | Bear 지지선 = PBR 0.70배 청산가치({(official_bps or curr_bps_used or 0)*0.70:,.0f}원) 고정 | 신규 매수 원천 보류!"
+        )
+    elif value_trap_mode == "dual_split_review":
+        cand_tag = " (선투자·고고정비 후보)" if is_type_a2_candidate else ""
+        verdict = f"⚖️ [가치함정 경보 — A/B안 완전 분리 판독{cand_tag}]"
+        cand_hint = (
+            f"• 선투자 후보 신호: Type {str(sector_type).upper()} 고고정비({float(fixed_cost_ratio):.1f}%) + CapEx 증설 + Mid-Cycle ROE({mid_cycle_roe:.1f}% ≥ 10%)\n      "
+            if is_type_a2_candidate
+            else ""
         )
         action_guide = (
-            f"{peak_pbr_desc} + 2년 누적 EPS({eps_2y_chg:+.1f}% ≤ -30%) + 현재 ROE({curr_roe:.2f}% < 8.5%) 동시 해당!\n"
-            f"      ➔ 과거 호황 멀티플 전면 폐기 | Bear 지지선 = PBR 0.75배 청산가치({(official_bps or curr_bps_used or 0)*0.75:,.0f}원) 강제 고정 | 경상 영업이익 및 분기 수정 EPS QoQ 반등 공시 확인 전까지 신규 매수(1차 정찰병 포함) 원천 보류!"
+            f"{peak_pbr_desc} + 2년 누적 이익({eps2y_str} ≤ -30%) + {roe_lbl} < 8.5% 경보 감지!\n"
+            f"      {cand_hint}➔ 기계적 단정 대신 [🛡️대안 B = 유형 B 가치함정 보수적 닻] vs [🚀대안 A = 5년(60M) 사이클 정상화 + Step 1.3 영업레버리지]를 완전 분리 병기합니다.\n"
+            f"      ➔ 기업 스터디 후 최종 확정 시: 비함정 턴어라운드면 `--no-value-trap`, 진짜 구조적 함정이면 `--value-trap`으로 재실행하십시오!"
         )
+    elif value_trap_mode == "confirmed_non_trap":
+        if is_type_a2_capex_trough:
+            verdict = "🔄 [유형 A-2 확정 (사용자 --no-value-trap): 가치함정 해제 · 5년 사이클 정상화]"
+            action_guide = (
+                f"사용자 수동 확정(--no-value-trap) | 표면 저ROE({roe_lbl})·2년 이익감소({eps2y_str})를 일시적 선투자/사이클 저점으로 판단\n"
+                f"      ➔ 🛡️대안 B · 🚀대안 A 및 마스터 SOP 모두 유형 B 페널티 해제 & 5년(60M) 사이클 PBR 밴드 적용 (단, 분기 OP 급반등 전 Track 2 추격매수는 차단)"
+            )
+        else:
+            verdict = "🟢 [유형 A 확정 (사용자 --no-value-trap): 정상 영업 궤도]"
+            action_guide = "사용자 수동 확정(--no-value-trap) ➔ 정상 유형 A 밸류에이션 및 마스터 SOP 가동"
     else:
         verdict = "🟢 [유형 A: 일시적 사이클 저점 / 정상 영업 궤도 (Cyclical Trough / Normal)]"
         reasons = []
@@ -2632,10 +2833,10 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
             reasons.append(f"2년 누적 BPS 증감률 {bps_2y_chg:+.1f}% (≥ +15%)")
         if pbr_3y_max is not None and pbr_3y_max < 2.8:
             reasons.append(f"과거 3년 최고 PBR {pbr_3y_max:.2f}배 (< 2.8배)")
-        if curr_roe is not None and curr_roe >= 8.5:
-            reasons.append(f"현재 ROE {curr_roe:.2f}% (≥ 8.5% 건전)")
-        if eps_2y_chg is not None and eps_2y_chg > -30.0:
-            reasons.append(f"2년 EPS 증감률 {eps_2y_chg:+.1f}% (> -30% 방어)")
+        if eff_roe_for_trap is not None and eff_roe_for_trap >= 8.5:
+            reasons.append(f"현재 ROE {eff_roe_for_trap:.2f}% (≥ 8.5% 건전)")
+        if eff_eps_2y_for_trap is not None and eff_eps_2y_for_trap > -30.0:
+            reasons.append(f"2년 EPS 증감률 {eff_eps_2y_for_trap:+.1f}% (> -30% 방어)")
         reason_str = " / ".join(reasons) if reasons else "구조적 버블 붕괴 요건 미해당"
         action_guide = (
             f"판정 근거: {reason_str}\n"
@@ -2647,6 +2848,12 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
 
     return {
         "is_type_b": is_type_b,
+        "is_type_b_raw": is_type_b_raw,
+        "is_dual_split": is_dual_split,
+        "is_type_a2_candidate": is_type_a2_candidate,
+        "is_type_a2_capex_trough": is_type_a2_capex_trough,
+        "value_trap_override": value_trap_override,
+        "value_trap_mode": value_trap_mode,
         "verdict": verdict,
         "controlling_ratio_pct": controlling_ratio_pct,
         "qoq_eps_positive": qoq_eps_positive,
@@ -2656,12 +2863,18 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
         "qoq_summary_str": qoq_summary_str,
         "kill_switch_guide": kill_switch_guide,
         "eps_2y_chg": eps_2y_chg,
+        "core_op_2y_chg": core_op_2y_chg,
         "bps_2y_chg": bps_2y_chg,
         "op_yoy_q": op_yoy_q,
         "op_yoy_ttm": op_yoy_ttm,
         "op_yoy_used": op_yoy_used,
         "op_yoy_detail": op_yoy_detail,
         "curr_roe": curr_roe,
+        "core_nopat_roe": core_nopat_roe,
+        "eff_roe_for_trap": eff_roe_for_trap,
+        "core_eps_ttm": core_eps_ttm,
+        "roe_non_op_distortion": roe_non_op_distortion,
+        "roe_distortion_note": roe_distortion_note,
         "mid_cycle_roe": mid_cycle_roe,
         "mid_cycle_eps": mid_cycle_eps,
         "pbr_cycle_max": pbr_cycle_max,
@@ -2670,6 +2883,13 @@ def compute_section2_value_trap(stock_code, bench, df_week, dart_ts, curr_price,
         "pbr_3y_p20": pbr_3y_p20,
         "pbr_3y_p65": pbr_3y_p65,
         "pbr_3y_p90": pbr_3y_p90,
+        "pbr_5y_min": pbr_5y_min,
+        "pbr_5y_max": pbr_5y_max,
+        "pbr_5y_median": pbr_5y_median,
+        "pbr_5y_mean": pbr_5y_mean,
+        "pbr_5y_p20": pbr_5y_p20,
+        "pbr_5y_p65": pbr_5y_p65,
+        "pbr_5y_p90": pbr_5y_p90,
         "per_3y_max": per_3y_max,
         "per_3y_mean": per_3y_mean,
         "per_3y_p20": per_3y_p20,
@@ -2745,7 +2965,12 @@ def compute_section3_stock_nature_and_tp1(
     range_52w_pct = range_52w_close_pct
 
     bps = bench.get("bps") or sec2_res.get("curr_bps_used") or 0
-    trailing_eps = bench.get("eps") or sec2_res.get("curr_eps_used") or 0
+    raw_trailing_eps = bench.get("eps") or sec2_res.get("curr_eps_used") or 0
+    core_eps_ttm_s2 = sec2_res.get("core_eps_ttm")
+    if sec2_res.get("roe_non_op_distortion") and core_eps_ttm_s2 is not None and float(core_eps_ttm_s2) > 0:
+        trailing_eps = float(core_eps_ttm_s2)
+    else:
+        trailing_eps = raw_trailing_eps
 
     # [PATCH v5.1 Consistency Fix #1] Suspend optimistic forward_eps when stock is in weekly Grade-C downtrend
     w_swing_grade_pre = (tech_snap or {}).get("w_swing_grade")
@@ -2809,7 +3034,11 @@ def compute_section3_stock_nature_and_tp1(
     )
     mid_cycle_eps = sec2_res.get("mid_cycle_eps")
     mid_cycle_roe = sec2_res.get("mid_cycle_roe")
-    curr_roe = sec2_res.get("curr_roe")
+    curr_roe = (
+        sec2_res.get("eff_roe_for_trap")
+        if (sec2_res.get("roe_non_op_distortion") and sec2_res.get("eff_roe_for_trap") is not None)
+        else sec2_res.get("curr_roe")
+    )
     qoq_op_pct = sec2_res.get("qoq_op_pct")
     op_yoy_pre = sec2_res.get("op_yoy_used")
     opm_shift = (regime_res or {}).get("opm_shift_pctp")
@@ -2889,12 +3118,107 @@ def compute_section3_stock_nature_and_tp1(
     pbr_10y_min = raw_pbr_10y_min if raw_pbr_10y_min >= pbr_p20 * 0.70 else pbr_p20 * 0.88
     per_10y_min = raw_per_10y_min if raw_per_10y_min >= per_p20 * 0.70 else per_p20 * 0.88
 
-    if sec2_res.get("is_type_b"):
-        # [PATCH v5.1 Option A-2 #1 & #2] Type B (Structural Value Trap):
-        # Anchor Bear purely on Book Value (min of 0.70x BPS and 10Y trough PBR * BPS, floored at 0.65x BPS)
-        # with ZERO dependency on curr_price so intrinsic targets never chase daily price drops!
+    is_dual_split = bool(sec2_res.get("is_dual_split", False))
+    is_type_b = bool(sec2_res.get("is_type_b", False))
+    is_confirmed_type_b = bool(is_type_b and not is_dual_split)
+    is_type_a2 = bool(sec2_res.get("is_type_a2_capex_trough", False)) and not is_type_b
+
+    # [PATCH v5.1 Option A-2 #5] SOTP 20% Rule aligned with Section 8 Primary Metric Inheritance:
+    # When non-operating assets >= 20% of Book/Market Cap (sotp_triggered), decompose PBR into
+    # `(core_forward_bps * pbr_band) + recognized_non_op_per_share`, while respecting primary_metric (PER vs PBR).
+    sotp_active = bool(sotp_res and sotp_res.get("sotp_triggered") and bps > 0)
+    core_fwd_bps = float(forward_bps)
+    non_op_per_sh = 0.0
+    if sotp_active:
+        core_bps_v = float(sotp_res.get("core_bps", bps))
+        non_op_per_sh = max(0.0, (bps - core_bps_v) * (1.0 - float(sotp_res.get("non_op_haircut", 0.30))))
+        retained_per_sh = max(0.0, float(forward_bps) - float(bps))
+        core_fwd_bps = core_bps_v + retained_per_sh
+        pbr_base_val = (core_fwd_bps * pbr_p65) + non_op_per_sh
+        pbr_bull_val = (core_fwd_bps * pbr_p90) + non_op_per_sh
+    else:
+        pbr_base_val = forward_bps * pbr_p65 if forward_bps and forward_bps > 0 else 0
+        pbr_bull_val = forward_bps * pbr_p90 if forward_bps and forward_bps > 0 else 0
+
+    primary_m = (sec8_res or {}).get("primary_metric", "PBR")
+    valuation_regime_mode = "type_a_normal"
+    base_mult_base_str = f"{primary_m} 상위 65%"
+    bull_mult_base_str = f"{primary_m} 상위 90%"
+    bear_mult_label = "하방 지지선 (할증 0% 고정)"
+
+    # Helper: 5Y (60M) Cycle Normalized PBR anchor (used for both Type A-2 confirmed AND Dual-Split Model A)
+    # Filters out BOTH short-term recent spikes (via min(5Y p90, 3Y p90)) AND bygone 4-5Y dead bubbles (via 3Y p65 cap on Base).
+    def _compute_5y_cycle_anchor():
+        pbr_5y_p20 = sec2_res.get("pbr_5y_p20") or pbr_p20
+        pbr_5y_med = sec2_res.get("pbr_5y_median") or sec2_res.get("pbr_5y_mean") or pbr_p65
+        pbr_5y_p65 = sec2_res.get("pbr_5y_p65") or pbr_p65
+        pbr_5y_p90 = sec2_res.get("pbr_5y_p90") or pbr_p90
+        bear_p = max(0.80, min(float(pbr_5y_p20), float(pbr_p20), float(pbr_10y_min)))
+        bull_p = min(float(pbr_5y_p90), float(pbr_p90))
+        raw_5y_base = round((float(pbr_5y_med) + float(pbr_5y_p65)) / 2.0, 4)
+        base_p = min(raw_5y_base, max(float(pbr_p65) * 1.10, float(pbr_p20) * 1.15), bull_p * 0.88)
+        base_p = max(bear_p * 1.15, round(base_p, 4))
+        if bull_p <= base_p * 1.10:
+            bull_p = max(bull_p, round(base_p * 1.18, 4))
+        bear_v = round((bps * bear_p) / 10) * 10 if bps > 0 else round(low_52w_close)
+        if sotp_active:
+            bv = (core_fwd_bps * base_p) + non_op_per_sh
+            uv = (core_fwd_bps * bull_p) + non_op_per_sh
+        else:
+            bv = forward_bps * base_p if forward_bps and forward_bps > 0 else 0
+            uv = forward_bps * bull_p if forward_bps and forward_bps > 0 else 0
+        if primary_m == "PER" and eff_forward_eps is not None and eff_forward_eps > 0 and bv > 0:
+            per_bv = eps_for_valuation * eff_per_p65
+            per_uv = eps_for_valuation * eff_per_p90
+            base_v = max(bear_v + 100, round(((per_bv + bv) / 2.0) / 10) * 10)
+            bull_v = max(base_v + 100, round(((per_uv + uv) / 2.0) / 10) * 10)
+            b_lbl = f"5년 PBR {base_p:.2f}x+FwdPER"
+            u_lbl = f"5년 PBR {bull_p:.2f}x+FwdPER"
+        else:
+            base_v = max(bear_v + 100, round(bv / 10) * 10) if bv > 0 else round(curr_price * 1.10)
+            bull_v = max(base_v + 100, round(uv / 10) * 10) if uv > 0 else round(curr_price * 1.40)
+            b_lbl = f"5년 PBR중립 {base_p:.2f}x"
+            u_lbl = f"5년 PBR상단 {bull_p:.2f}x"
+        return bear_p, base_p, bull_p, bear_v, base_v, bull_v, b_lbl, u_lbl
+
+    dual_base_anchor_a = None
+    dual_bull_anchor_a = None
+    dual_base_lbl_a = ""
+    dual_bull_lbl_a = ""
+
+    if is_type_b:
+        # [PATCH v5.1 / v5.2.2] Value Trap Anchor for Model B (both confirmed Type B and Dual-Split Review):
+        # Anchor Bear purely on Book Value (0.65~0.70x BPS), Base on PBR 3Y p20, Bull on PBR 3Y Mean.
         bear_mult_b = max(0.65, min(0.70, raw_pbr_10y_min if raw_pbr_10y_min >= 0.50 else 0.67))
         bear_auto_b = round((bps * bear_mult_b) / 10) * 10 if bps > 0 else round(low_52w_close)
+        eff_trap_base_pbr = max(pbr_p20, 0.80)
+        eff_trap_bull_pbr = max(sec2_res.get("pbr_3y_mean") or pbr_p65, pbr_p20 * 1.12)
+        trap_base_pbr = bps * eff_trap_base_pbr if bps and bps > 0 else bear_auto_b * 1.12
+        trap_bull_pbr = bps * eff_trap_bull_pbr if bps and bps > 0 else bear_auto_b * 1.28
+        base_auto_b = max(bear_auto_b + 100, round(trap_base_pbr / 10) * 10)
+        bull_auto_b = max(base_auto_b + 100, round(trap_bull_pbr / 10) * 10)
+        if is_dual_split:
+            a2_bear_p, a2_base_p, a2_bull_p, a2_bear_v, a2_base_v, a2_bull_v, a2_blbl, a2_ulbl = _compute_5y_cycle_anchor()
+            dual_base_anchor_a = a2_base_v
+            dual_bull_anchor_a = a2_bull_v
+            dual_base_lbl_a = a2_blbl
+            dual_bull_lbl_a = a2_ulbl
+            valuation_regime_mode = "dual_split_review"
+            base_mult_base_str = f"🛡️B: PBR 하위20% {eff_trap_base_pbr:.2f}x [가치함정]"
+            bull_mult_base_str = f"🛡️B: PBR 3년평균 {eff_trap_bull_pbr:.2f}x [가치함정]"
+            bear_mult_label = f"🛡️B: 청산 PBR {bear_mult_b:.2f}x [가치함정] (비함정 하방 {a2_bear_p:.2f}x={a2_bear_v:,}원)"
+        else:
+            valuation_regime_mode = "type_b_value_trap"
+            base_mult_base_str = f"PBR 하위 20% {eff_trap_base_pbr:.2f}x [유형 B 확정]"
+            bull_mult_base_str = f"PBR 3년 평균 {eff_trap_bull_pbr:.2f}x [유형 B 확정]"
+            bear_mult_label = f"청산가치 PBR {bear_mult_b:.2f}x [유형 B 확정] (할증 0%)"
+    elif is_type_a2:
+        # [PATCH v5.2.1 / v5.2.2] Confirmed Non-Trap (--no-value-trap) on cyclical trough -> 5Y Cycle PBR for BOTH B & A!
+        eff_a2_bear_pbr, eff_a2_base_pbr, eff_a2_bull_pbr, bear_auto_b, base_auto_b, bull_auto_b, a2_blbl, a2_ulbl = _compute_5y_cycle_anchor()
+        valuation_regime_mode = "type_a2_capex_trough"
+        base_mult_base_str = f"{a2_blbl} [유형 A-2 비함정 확정]"
+        bull_mult_base_str = f"{a2_ulbl} [유형 A-2 비함정 확정]"
+        bear_mult_label = f"하방 지지선 PBR {eff_a2_bear_pbr:.2f}x (할증 0% 고정)"
     else:
         # [PATCH v5.1 Option A-2 #1] Pure Fundamental Bear Floor (ZERO dependency on curr_price):
         # Uses bounded cycle trough multiples (or midpoint with 3Y p20 for low-vol box stocks)
@@ -2908,28 +3232,6 @@ def compute_section3_stock_nature_and_tp1(
             round(min(bear_candidates) / 10) * 10 if bear_candidates else round(low_52w_close)
         )
 
-    # [PATCH v5.1 Option A-2 #5] SOTP 20% Rule aligned with Section 8 Primary Metric Inheritance:
-    # When non-operating assets >= 20% of Book/Market Cap (sotp_triggered), decompose PBR into
-    # `(core_forward_bps * pbr_band) + recognized_non_op_per_share`, while respecting primary_metric (PER vs PBR).
-    sotp_active = bool(sotp_res and sotp_res.get("sotp_triggered") and bps > 0)
-    if sotp_active:
-        core_bps_v = float(sotp_res.get("core_bps", bps))
-        non_op_per_sh = max(0.0, (bps - core_bps_v) * (1.0 - float(sotp_res.get("non_op_haircut", 0.30))))
-        retained_per_sh = max(0.0, float(forward_bps) - float(bps))
-        core_fwd_bps = core_bps_v + retained_per_sh
-        pbr_base_val = (core_fwd_bps * pbr_p65) + non_op_per_sh
-        pbr_bull_val = (core_fwd_bps * pbr_p90) + non_op_per_sh
-    else:
-        pbr_base_val = forward_bps * pbr_p65 if forward_bps and forward_bps > 0 else 0
-        pbr_bull_val = forward_bps * pbr_p90 if forward_bps and forward_bps > 0 else 0
-
-    if sec2_res.get("is_type_b"):
-        # Pure book-anchored trough valuation (PBR p20 for Base, 3Y Mean PBR for Bull) — zero dependency on curr_price!
-        trap_base_pbr = bps * max(pbr_p20, 0.80) if bps and bps > 0 else bear_auto_b * 1.12
-        trap_bull_pbr = bps * max(sec2_res.get("pbr_3y_mean") or pbr_p65, pbr_p20 * 1.12) if bps and bps > 0 else bear_auto_b * 1.28
-        base_auto_b = max(bear_auto_b + 100, round(trap_base_pbr / 10) * 10)
-        bull_auto_b = max(base_auto_b + 100, round(trap_bull_pbr / 10) * 10)
-    else:
         per_base_val = eps_for_valuation * eff_per_p65 if eps_for_valuation and eps_for_valuation > 0 else 0
         per_bull_val = eps_for_valuation * eff_per_p90 if eps_for_valuation and eps_for_valuation > 0 else 0
 
@@ -2940,7 +3242,6 @@ def compute_section3_stock_nature_and_tp1(
             if per_base_val > 0:
                 per_base_val = min(per_base_val, mid_cycle_base_val * 1.15)
 
-        primary_m = (sec8_res or {}).get("primary_metric", "PBR")
         pbr_dir_ok = float((sec8_res or {}).get("pbr_dir", 50.0)) >= 50.0
         per_dir_ok = float((sec8_res or {}).get("per_dir", 50.0)) >= 50.0
 
@@ -2968,8 +3269,18 @@ def compute_section3_stock_nature_and_tp1(
         if bear_auto_b >= base_auto_b:
             bear_auto_b = round((base_auto_b * 0.75) / 10) * 10
 
+        valuation_regime_mode = "type_a_peak_cap" if is_peak_earnings else "type_a_normal"
+        if is_peak_earnings:
+            base_mult_base_str = f"{primary_m} 피크캡 (PER {eff_per_p65:.1f}x / PBR {pbr_p65:.2f}x)"
+            bull_mult_base_str = f"{primary_m} 피크캡 (PER {eff_per_p90:.1f}x / PBR {pbr_p90:.2f}x)"
+        elif primary_m == "PBR":
+            base_mult_base_str = f"PBR 상위 65% ({pbr_p65:.2f}x)"
+            bull_mult_base_str = f"PBR 상위 90% ({pbr_p90:.2f}x)"
+        else:
+            base_mult_base_str = f"{primary_m} 상위 65% ({eff_per_p65:.1f}x)"
+            bull_mult_base_str = f"{primary_m} 상위 90% ({eff_per_p90:.1f}x)"
+
     op_yoy = sec2_res.get("op_yoy_used")
-    is_type_b = sec2_res.get("is_type_b", False)
 
     sc_info = _detect_scurve_phase2_status(
         stock_code,
@@ -2979,17 +3290,19 @@ def compute_section3_stock_nature_and_tp1(
         early_ignition=early_ignition,
     )
 
-    # [NEW v4.3 / v5.1 / v5.2] Use Step 1.3 BM Core Driver & Forward OP Slope (with 3-Layer Anti-Peak-Out Guardrails),
-    # Step 1.2 3-Axis S-Curve (10% Inflection + Structural Bottleneck + Lead Time + 3 Sell Signals), & Step 1.8 K-Return Multipliers.
-    # Strictly applied ONLY to Model A (`🚀 대안 A`); Model B (`🛡️ 대안 B`) remains the pure untouched DART historical anchor!
+    # [NEW v4.3 / v5.1 / v5.2 / v5.2.2] Use Step 1.3 BM Core Driver & Forward OP Slope (with 3-Layer Anti-Peak-Out Guardrails),
+    # Step 1.2 3-Axis S-Curve, & Step 1.8 K-Return Multipliers.
+    # Strictly applied ONLY to Model A (`🚀 대안 A`); Model B (`🛡️ 대안 B`) remains the pure untouched DART anchor!
+    # In `dual_split_review`, Model A evaluates the Non-Trap Turnaround world (is_type_b=False), while Model B stays locked to Value Trap!
     sc_sell_triggered = bool((step1_2_res or {}).get("scurve_sell_triggered", False))
+    sec2_for_model_a = dict(sec2_res, is_type_b=False) if is_dual_split else sec2_res
     if step1_3_res is None:
         _bm_kw = dict(bm_slope_params or {})
         step1_3_res = compute_step1_3_bm_op_slope(
             stock_code,
             corp_name or bench.get("stock_name") or stock_code,
             dart_ts or {},
-            sec2_res=sec2_res,
+            sec2_res=sec2_for_model_a,
             step1_2_res=step1_2_res,
             sector_type=sector_type,
             curr_pbr=curr_pbr,
@@ -3006,7 +3319,10 @@ def compute_section3_stock_nature_and_tp1(
     op_slope_decel_warn = bool(step1_3_res.get("op_slope_decel_warn", False))
     op_reason = step1_3_res.get("summary_reason", "중립 (×1.00)")
 
-    if step1_2_res and not is_type_b:
+    allow_model_a_non_trap = not is_confirmed_type_b
+    is_transitional_model_a = bool(is_type_a2 or is_dual_split)
+
+    if step1_2_res and allow_model_a_non_trap:
         if sc_sell_triggered:
             sc_base_mult = float(step1_2_res.get("total_sc_bn_base_mult", 1.0))
             sc_bull_mult = float(step1_2_res.get("total_sc_bn_bull_mult", 1.0))
@@ -3019,33 +3335,42 @@ def compute_section3_stock_nature_and_tp1(
             sc_bull_mult = 1.0
             sc_reason = f"미적용 🚫 [선행 발화 가드레일 미충족: 영업이익 YoY {op_yoy:+.1f}% < -5%] → 할증 0%"
         else:
-            sc_base_mult = float(step1_2_res.get("total_sc_bn_base_mult", 1.0))
-            sc_bull_mult = float(step1_2_res.get("total_sc_bn_bull_mult", 1.0))
+            raw_sc_b = float(step1_2_res.get("total_sc_bn_base_mult", 1.0))
+            raw_sc_u = float(step1_2_res.get("total_sc_bn_bull_mult", 1.0))
+            if is_transitional_model_a and raw_sc_b > 1.0:
+                # Transitional trough / Dual-split Model A: recognize 50% of S-Curve upside until Core ROE >= 8.5% confirms
+                sc_base_mult = round(1.0 + (raw_sc_b - 1.0) * 0.5, 4)
+                sc_bull_mult = round(1.0 + (raw_sc_u - 1.0) * 0.5, 4)
+                a2_sc_note = " [선투자/분리판독 전환기: 상방 50% 보수 반영]"
+            else:
+                sc_base_mult = raw_sc_b
+                sc_bull_mult = raw_sc_u
+                a2_sc_note = ""
             sc_reason = (
                 f"[{sc_info['theme_name']} | 침투율 {step1_2_res.get('penetration_zone', '')} | "
                 f"병목 {step1_2_res.get('bottleneck_grade', 'C')}등급({step1_2_res.get('bottleneck_lead_time_months', 0)}개월)] "
-                f"➔ {step1_2_res.get('bottleneck_lead_reason', '')}"
+                f"➔ {step1_2_res.get('bottleneck_lead_reason', '')}{a2_sc_note}"
             )
-    elif sc_info["is_phase2"] and not is_type_b:
+    elif sc_info["is_phase2"] and allow_model_a_non_trap:
         if sc_info.get("is_early_ignition"):
             if op_yoy is not None and op_yoy < -5.0:
                 sc_base_mult = 1.0
                 sc_bull_mult = 1.0
                 sc_reason = f"미적용 🚫 [선행 발화 가드레일 미충족: 영업이익 YoY {op_yoy:+.1f}% < -5%] → 할증 0%"
             else:
-                sc_base_mult = 1.15
-                sc_bull_mult = 1.20
-                sc_reason = f"적용 🔥 [{sc_info['theme_name']}] → Base +15.0% / Bull +20.0% 선행 발화 할증"
+                sc_base_mult = 1.075 if is_transitional_model_a else 1.15
+                sc_bull_mult = 1.10 if is_transitional_model_a else 1.20
+                sc_reason = f"적용 🔥 [{sc_info['theme_name']}] → Base +{(sc_base_mult-1)*100:.1f}% / Bull +{(sc_bull_mult-1)*100:.1f}% 선행 발화 할증"
         else:
-            sc_base_mult = 1.10
-            sc_bull_mult = 1.12
-            sc_reason = f"적용 ✅ [{sc_info['theme_name']} | DART 검증 익스포저 {sc_info['exposure_pct']:.1f}% ≥ 30%] → Base +10.0% / Bull +12.0% 할증"
+            sc_base_mult = 1.05 if is_transitional_model_a else 1.10
+            sc_bull_mult = 1.06 if is_transitional_model_a else 1.12
+            sc_reason = f"적용 ✅ [{sc_info['theme_name']} | DART 검증 익스포저 {sc_info['exposure_pct']:.1f}% ≥ 30%] → Base +{(sc_base_mult-1)*100:.1f}% / Bull +{(sc_bull_mult-1)*100:.1f}% 할증"
     else:
         sc_base_mult = 1.0
         sc_bull_mult = 1.0
         sc_reason = f"미적용 ⚪ [{sc_info['theme_name']}] → +0.0% (본업 대안 B 기준 평가)"
 
-    kgov_mult = float((step1_8_res or {}).get("kgov_mult", 1.0)) if not is_type_b else 1.0
+    kgov_mult = float((step1_8_res or {}).get("kgov_mult", 1.0)) if allow_model_a_non_trap else 1.0
     kgov_reason = (step1_8_res or {}).get("k_gov_note", "K-주주환원·지배구조 중립 (×1.00)")
 
     # Total Model A multiplier with v5.2 Two-Way Bound (Floor >= 0.80x, Cap Base <= 1.38x / Bull <= 1.45x)
@@ -3055,8 +3380,18 @@ def compute_section3_stock_nature_and_tp1(
     bull_mult_a = round(max(0.80, min(raw_bull_mult_a, 1.45)), 4)
     bear_auto_a = bear_auto_b
 
-    base_auto_a = max(bear_auto_b + 10, round((base_auto_b * base_mult_a) / 10) * 10)
-    bull_auto_a = max(base_auto_a + 10, round((bull_auto_b * bull_mult_a) / 10) * 10)
+    if is_dual_split:
+        base_mult_label = f"{base_mult_base_str} / 🚀A: {dual_base_lbl_a} ×{base_mult_a:.4f} [비함정 정상화]"
+        bull_mult_label = f"{bull_mult_base_str} / 🚀A: {dual_bull_lbl_a} ×{bull_mult_a:.4f} [비함정 정상화]"
+    else:
+        base_mult_label = f"{base_mult_base_str} (대안A ×{base_mult_a:.4f})"
+        bull_mult_label = f"{bull_mult_base_str} (대안A ×{bull_mult_a:.4f})"
+
+    anchor_base_for_a = dual_base_anchor_a if (is_dual_split and dual_base_anchor_a) else base_auto_b
+    anchor_bull_for_a = dual_bull_anchor_a if (is_dual_split and dual_bull_anchor_a) else bull_auto_b
+
+    base_auto_a = max(bear_auto_b + 10, round((anchor_base_for_a * base_mult_a) / 10) * 10)
+    bull_auto_a = max(base_auto_a + 10, round((anchor_bull_for_a * bull_mult_a) / 10) * 10)
 
     # [v4.3] Dynamic PEG(0.80 ~ 0.95) Rerating based on Bottleneck Lead Time + 10% Inflection (disabled if sell signal or C-grade suspended)
     peg_factor_used = float((step1_2_res or {}).get("peg_factor", 0.80))
@@ -3066,6 +3401,7 @@ def compute_section3_stock_nature_and_tp1(
         and eps > 0
         and sc_info["is_phase2"]
         and not is_type_b
+        and not is_type_a2
         and not sc_sell_triggered
         and not op_slope_decel_warn
         and not forward_eps_suspended
@@ -3073,14 +3409,14 @@ def compute_section3_stock_nature_and_tp1(
         capped_g = min(float(forward_eps_g), 35.0)
         peg_target_per = capped_g * peg_factor_used
         peg_price = round((eps * peg_target_per) / 10) * 10
-        base_auto_a = min(max(base_auto_a, peg_price), round((base_auto_b * 1.45) / 10) * 10)
+        base_auto_a = min(max(base_auto_a, peg_price), round((anchor_base_for_a * 1.45) / 10) * 10)
 
     pbr_cap_price = (
         round((forward_bps * (sec2_res.get("pbr_cycle_max") or (pbr_p90 * 1.25))) / 10) * 10
         if forward_bps > 0
         else bull_auto_a
     )
-    if pbr_cap_price > bull_auto_b and bull_auto_a > pbr_cap_price:
+    if pbr_cap_price > anchor_bull_for_a and bull_auto_a > pbr_cap_price:
         bull_auto_a = pbr_cap_price
 
     final_base_b = (
@@ -3088,13 +3424,15 @@ def compute_section3_stock_nature_and_tp1(
         if (base_target is not None and base_target > 0)
         else base_auto_b
     )
-    final_base_a = max(bear_auto_b + 10, round((final_base_b * base_mult_a) / 10) * 10)
+    eff_anchor_base_a = final_base_b if (base_target is not None and base_target > 0) else anchor_base_for_a
+    final_base_a = max(bear_auto_b + 10, round((eff_anchor_base_a * base_mult_a) / 10) * 10)
     final_bull_b = (
         round(bull_target / 10) * 10
         if (bull_target is not None and bull_target > 0)
         else bull_auto_b
     )
-    final_bull_a = max(final_base_a + 10, round((final_bull_b * bull_mult_a) / 10) * 10)
+    eff_anchor_bull_a = final_bull_b if (bull_target is not None and bull_target > 0) else anchor_bull_for_a
+    final_bull_a = max(final_base_a + 10, round((eff_anchor_bull_a * bull_mult_a) / 10) * 10)
 
     # [PATCH v5.1 Consistency Fix #3 + Semiconductor Sobujang Dual-Anchor TP1]
     # 1) Remove curr_price * 1.06 circularity from TP1.
@@ -3131,6 +3469,9 @@ def compute_section3_stock_nature_and_tp1(
         if has_pre_base_resist:
             tp1_price_b = final_base_b
             tp1_price_a = final_base_a
+        elif is_dual_split:
+            tp1_price_b = max(final_base_b, min(final_bull_b, tech_tp1_raw))
+            tp1_price_a = max(final_base_a, min(final_bull_a, tech_tp1_raw))
         else:
             tp1_price_b = max(final_base_b, min(final_bull_b, tech_tp1_raw))
             tp1_cand_a = round((tp1_price_b * op_mult) / 10) * 10 if op_mult != 1.0 else tp1_price_b
@@ -3209,7 +3550,9 @@ def compute_section3_stock_nature_and_tp1(
         f"      ④ 최종 대안 A 멀티플 가중치 (상한 캡 1.38/1.45 적용): Base ×{base_mult_a:.4f} ({(base_mult_a-1)*100:+.1f}%) | Bull ×{bull_mult_a:.4f} ({(bull_mult_a-1)*100:+.1f}%) | Bear ×1.0000 (하방 보호 고정)"
     )
 
-    # [NEW v4.3] Red-Team Reverse Implied Capa & Margin Ceiling Audit
+    # [NEW v4.3 / PATCH v5.2.1 #4] Red-Team Reverse Implied Capa & Margin Ceiling Audit (Annual Implied OP)
+    # Normalizes extreme trough-distorted PERs (capped at min(mean, p65, 28x)) and bounds Bull re-rating
+    # strictly below the Bull/Base price ratio so Bull ALWAYS implies >= Base annual operating profit.
     capa_util_pct = float((step1_2_res or {}).get("capa_util_pct", 80.0))
     ttm_op_eok = float((sotp_res or {}).get("nopat_eok", 0.0)) / 0.78 if sotp_res else 0.0
     mean_per_val = float(sec2_res.get("per_3y_mean") or eff_per_p65 or 12.0)
@@ -3218,41 +3561,55 @@ def compute_section3_stock_nature_and_tp1(
     implied_op_bull_a_eok = 0.0
     red_team_capa_verdict = "🟢 물리적 Capa 한계 내 달성 가능"
     if sh_cnt > 0 and mean_per_val > 0:
-        implied_net_base_a_eok = (final_base_a * sh_cnt / 1e8) / mean_per_val
-        implied_net_bull_a_eok = (final_bull_a * sh_cnt / 1e8) / max(eff_per_p90, mean_per_val)
+        rt_base_per = mean_per_val
+        if eff_per_p65 and eff_per_p65 > 0:
+            rt_base_per = min(rt_base_per, float(eff_per_p65))
+        rt_base_per = max(6.0, min(rt_base_per, 28.0))
+
+        bull_to_base_ratio = (final_bull_a / final_base_a) if final_base_a > 0 else 1.25
+        max_rerate_factor = min(1.15, 1.0 + max(0.0, bull_to_base_ratio - 1.0) * 0.45)
+        raw_bull_per = max(rt_base_per, float(eff_per_p90 or rt_base_per))
+        rt_bull_per = min(raw_bull_per, rt_base_per * max_rerate_factor, 32.0)
+
+        implied_net_base_a_eok = (final_base_a * sh_cnt / 1e8) / rt_base_per
+        implied_net_bull_a_eok = (final_bull_a * sh_cnt / 1e8) / rt_bull_per
         implied_op_base_a_eok = round(implied_net_base_a_eok / 0.78, 1)
         implied_op_bull_a_eok = round(implied_net_bull_a_eok / 0.78, 1)
         if ttm_op_eok > 0 and capa_util_pct >= 90.0:
             max_organic_op_eok = round(ttm_op_eok * (100.0 / max(capa_util_pct, 50.0)) * 1.25, 1)
             if implied_op_bull_a_eok > max_organic_op_eok:
                 red_team_capa_verdict = (
-                    f"⚠️ [레드팀 Capa 천장 경보] 현재 가동률({capa_util_pct:.1f}%)에서 신규 증설/단가인상(ASP) 없이 가능한 물리적 영업이익 상한(약 {max_organic_op_eok:,.1f}억) 대비 "
-                    f"Bull 내재 영업이익({implied_op_bull_a_eok:,.1f}억) 도달을 위해선 신공장 가동 또는 고마진 믹스 개선 확인 필수"
+                    f"⚠️ [레드팀 Capa 천장 경보] 현재 가동률({capa_util_pct:.1f}%)에서 신규 증설/단가인상(ASP) 없이 가능한 연간 물리적 영업이익 상한(약 {max_organic_op_eok:,.1f}억) 대비 "
+                    f"Bull 연간 내재 영업이익({implied_op_bull_a_eok:,.1f}억) 도달을 위해선 신공장 가동 또는 고마진 믹스 개선 확인 필수"
                 )
             else:
                 red_team_capa_verdict = (
-                    f"🟢 [레드팀 Capa 검증 통과] 가동률({capa_util_pct:.1f}%) 및 믹스 개선 기준 물리적 영업이익 상한({max_organic_op_eok:,.1f}억) 내 달성 가능 (Base 내재 OP {implied_op_base_a_eok:,.1f}억)"
+                    f"🟢 [레드팀 Capa 검증 통과] 가동률({capa_util_pct:.1f}%) 및 믹스 개선 기준 연간 물리적 영업이익 상한({max_organic_op_eok:,.1f}억) 내 달성 가능 (Base 연간 내재 OP {implied_op_base_a_eok:,.1f}억)"
                 )
 
-    print("\n    ▶ [시나리오 목표가 가이드라인 — 🛡️ 대안 B (중심 닻) vs 🚀 대안 A (v5.0 할증 상단)]:")
+    print("\n    ▶ [시나리오 목표가 가이드라인 — 🛡️ 대안 B (중심 닻) vs 🚀 대안 A (v5.2.1 할증 상단)]:")
     print(
-        f"      • Bull (호황 상단): 🛡️ 대안 B {final_bull_b:,.0f}원 ({(final_bull_b/curr_price-1)*100:+.1f}%)  |  🚀 대안 A {final_bull_a:,.0f}원 ({(final_bull_a/curr_price-1)*100:+.1f}%)"
+        f"      • Bull (호황 상단): 🛡️ 대안 B {final_bull_b:,.0f}원 ({(final_bull_b/curr_price-1)*100:+.1f}%)  |  🚀 대안 A {final_bull_a:,.0f}원 ({(final_bull_a/curr_price-1)*100:+.1f}%) [{bull_mult_label}]"
     )
     print(
-        f"      • Base (기본 적정): 🛡️ 대안 B {final_base_b:,.0f}원 ({(final_base_b/curr_price-1)*100:+.1f}%)  |  🚀 대안 A {final_base_a:,.0f}원 ({(final_base_a/curr_price-1)*100:+.1f}%)"
+        f"      • Base (기본 적정): 🛡️ 대안 B {final_base_b:,.0f}원 ({(final_base_b/curr_price-1)*100:+.1f}%)  |  🚀 대안 A {final_base_a:,.0f}원 ({(final_base_a/curr_price-1)*100:+.1f}%) [{base_mult_label}]"
     )
     print(
         f"      • TP1  (단기 실전): 🛡️ 대안 B {tp1_price_b:,.0f}원 ({tp1_upside_b:+.1f}%)  |  🚀 대안 A {tp1_price_a:,.0f}원 ({tp1_upside_a:+.1f}%) [52주 70~75%: {tp1_p70:,.0f}~{tp1_p75:,.0f}원 / 60일선: {d60_ma:,.0f}원]"
         + (f"\n      • 🧱 [반도체 소부장 선행 매물저항]: {tech_resist_1:,.0f}원 ({((tech_resist_1/curr_price)-1)*100:+.1f}%) — Base 도달 전 1차 스윙 체크선" if has_pre_base_resist and curr_price > 0 else "")
     )
     print(
-        f"      • Bear (하방 지지): 🛡️ 대안 B·A 공통 {bear_auto_b:,.0f}원 ({(bear_auto_b/curr_price-1)*100:+.1f}%) [하방 안전마진 할증 금지]"
+        f"      • Bear (하방 지지): 🛡️ 대안 B·A 공통 {bear_auto_b:,.0f}원 ({(bear_auto_b/curr_price-1)*100:+.1f}%) [{bear_mult_label}]"
     )
-    print(f"      • 🔬 [레드팀 역산 Capa 천장 검증]: {red_team_capa_verdict}")
+    print(f"      • 🔬 [레드팀 역산 Capa 천장 검증 (연간 내재 OP: Base {implied_op_base_a_eok:,.1f}억 / Bull {implied_op_bull_a_eok:,.1f}억)]: {red_team_capa_verdict}")
 
     return {
         "is_low_vol_box": is_low_vol_box,
         "nature_badge": nature_badge,
+        "valuation_regime_mode": valuation_regime_mode,
+        "base_mult_label": base_mult_label,
+        "bull_mult_label": bull_mult_label,
+        "bear_mult_label": bear_mult_label,
         "range_52w_pct": round(range_52w_pct, 2),
         "median_52w_range_pct": round(median_52w_range_pct, 2),
         "effective_52w_range": round(effective_52w_range, 2),
@@ -3622,6 +3979,15 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
     sc_sell_active = bool(sec3_res.get("scurve_sell_triggered", False))
     op_slope_decel_active = bool(sec3_res.get("op_slope_decel_warn", False))
     is_type_b_trap = bool(sec2_res.get("is_type_b", False))
+    is_type_a2_trough = bool(sec2_res.get("is_type_a2_capex_trough", False))
+    # [PATCH v5.2.1 #3] Block Track 2 breakout chasing during Type A-2 CapEx death-valley unless quarterly OP is surging
+    a2_track2_blocked = bool(
+        is_type_a2_trough
+        and not (
+            (sec2_res.get("qoq_op_pct") is not None and sec2_res.get("qoq_op_pct") >= 15.0)
+            and (sec2_res.get("op_yoy_used") is not None and sec2_res.get("op_yoy_used") >= 20.0)
+        )
+    )
 
     # Pre-compute Gate 1 (Fundamental R:R) with realistic minimum downside floor (5.0% box / 8.0% trend)
     base_up_curr = ((primary_t / curr_p) - 1.0) * 100.0 if curr_p > 0 else 0.0
@@ -3635,6 +4001,7 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
         and not sc_sell_active
         and not op_slope_decel_active
         and not is_type_b_trap
+        and not a2_track2_blocked
         and (curr_p >= primary_t * 0.96)
         and (curr_p <= track2_ceiling)
         and weekly_trend_ok
@@ -3645,7 +4012,8 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
     is_staged_c_scout = bool(is_downtrend_hold and gate1_rr >= 1.50 and not sec3_res.get("is_peak_trap", False))
 
     if is_type_b_trap:
-        # [PATCH v5.1 Option A-2 #2] Structural Value Trap (Type B): Block current-price buying in execution layer!
+        # [PATCH v5.1 / v5.2.2] Structural Value Trap (Confirmed Type B or Dual-Split Review pending user confirmation):
+        # Block current-price buying in execution layer until user studies and confirms `--no-value-trap` or earnings rebound!
         trap_ceil = int(round(min(curr_p * 0.92, primary_t * 0.88) / 10) * 10)
         buy1 = int(round(min(bear_b, trap_ceil * 0.90) / 10) * 10)
         buy2 = int(round((buy1 + (trap_ceil - buy1) * 0.50) / 10) * 10)
@@ -3654,11 +4022,18 @@ def compute_section4_master_sop_indicators(df_day, df_week, sec2_res, sec3_res, 
             buy2 = int(round((buy1 * 1.02) / 10) * 10)
         if buy3 <= buy2:
             buy3 = int(round((buy2 * 1.02) / 10) * 10)
-        sop_mode_desc = (
-            f"🚫 [유형 B 구조적 가치함정 — 턴어라운드 확인 전 현재가({curr_p:,}원) 매수 금지 모드]: "
-            f"2년 누적 EPS 급감 및 저ROE 가치함정 구간이므로 분기 영업이익·수정EPS QoQ 반등 공시 전까지 신규 진입을 보류하며, "
-            f"불가피한 분할 대기선은 청산가치 하단({buy1:,}~{buy3:,}원)으로만 제한합니다!"
-        )
+        if sec2_res.get("is_dual_split"):
+            sop_mode_desc = (
+                f"⚖️ [가치함정 경보 A/B안 분리 판독 — 최종 확정 전 현재가({curr_p:,}원) 매수 보류 모드]: "
+                f"표의 🛡️B안(가치함정 {base_b:,}원)과 🚀A안(비함정 사이클 정상화 {base_a:,}원)을 비교 검토한 뒤, "
+                f"비함정 선투자·사이클 저점 확정 시 `--no-value-trap`으로 SOP 매수가를 정상화하고, 진짜 가치함정이면 `--value-trap`으로 잠금 처리하십시오! (확정 전 대기선: {buy1:,}~{buy3:,}원)"
+            )
+        else:
+            sop_mode_desc = (
+                f"🚫 [유형 B 구조적 가치함정 — 턴어라운드 확인 전 현재가({curr_p:,}원) 매수 금지 모드]: "
+                f"2년 누적 EPS 급감 및 저ROE 가치함정 구간이므로 분기 영업이익·수정EPS QoQ 반등 공시 전까지 신규 진입을 보류하며, "
+                f"불가피한 분할 대기선은 청산가치 하단({buy1:,}~{buy3:,}원)으로만 제한합니다!"
+            )
     elif is_overvalued:
         buy1 = int(round((base_b * 0.80) / 10) * 10)
         buy2 = int(round((base_b * 0.85) / 10) * 10)
@@ -3853,8 +4228,14 @@ def compute_3factor_price_equation_eval(
     qoq_op = s2.get("qoq_op_pct")
     op_yoy = s2.get("op_yoy_used")
     core_roic = sotp.get("core_roic_pct")
-    curr_roe = s2.get("curr_roe")
+    roe_distorted = bool(s2.get("roe_non_op_distortion", False))
+    curr_roe = (
+        s2.get("eff_roe_for_trap")
+        if (roe_distorted and s2.get("eff_roe_for_trap") is not None)
+        else s2.get("curr_roe")
+    )
     is_type_b = bool(s2.get("is_type_b", False))
+    is_type_a2 = bool(s2.get("is_type_a2_capex_trough", False))
 
     if qoq_op is not None:
         e_score += 18 if qoq_op >= 20.0 else (10 if qoq_op >= 0.0 else (0 if qoq_op >= -15.0 else -16))
@@ -3866,15 +4247,22 @@ def compute_3factor_price_equation_eval(
         e_score += 5 if curr_roe >= 12.0 else (-6 if curr_roe < 8.5 else 0)
     if is_type_b:
         e_score -= 12
+    elif is_type_a2:
+        e_score -= 5
     e_score = max(0, min(100, int(round(e_score))))
 
     e_label = (
         "🔥 실적 초가속/우량" if e_score >= 75 else ("🟢 실적 양호/성장" if e_score >= 58 else ("🟡 실적 중립/혼조" if e_score >= 45 else "🔴 실적 둔화/역성장"))
     )
+    roe_lbl_str = (
+        f"본업 NOPAT ROE {curr_roe:.1f}%(표면 {s2.get('curr_roe'):.1f}% 착시보정)"
+        if (roe_distorted and curr_roe is not None and s2.get("curr_roe") is not None)
+        else f"ROE {f'{curr_roe:.1f}%' if curr_roe is not None else 'N/A'}"
+    )
     e_detail = (
         f"QoQ 영익 {f'{qoq_op:+.1f}%' if qoq_op is not None else 'N/A'} · "
         f"YoY {f'{op_yoy:+.1f}%' if op_yoy is not None else 'N/A'} · "
-        f"본업 ROIC {f'{core_roic:.1f}%' if core_roic is not None else 'N/A'} / ROE {f'{curr_roe:.1f}%' if curr_roe is not None else 'N/A'}"
+        f"본업 ROIC {f'{core_roic:.1f}%' if core_roic is not None else 'N/A'} / {roe_lbl_str}"
     )
 
     # 2) 수급 (Supply/Demand, 0~100: 주봉 기술적 수급 + KRX 외인·기관 순매수 실측 결합)
@@ -4335,10 +4723,10 @@ def export_pipeline_ssot(
     _drv_s13_core = str(s13.get("bm_core_driver") or "BM 핵심인자").replace("|", "/")[:48]
     _bull_prompt = (
         f"[AI 작성 필수: 전방 고객사·핵심 제품 믹스/ASP 상승 + Step 1.3 핵심인자({_drv_s13_core}) 가속·{_drv_util_txt} 상단 돌파 + "
-        f"내재 OP {_drv_op_bull:,.1f}억 달성 및 멀티플 리레이팅·주주환원 촉매 구체 서술]"
+        f"연간 내재 OP {_drv_op_bull:,.1f}억 달성 및 멀티플 리레이팅·주주환원 촉매 구체 서술]"
     )
     _base_prompt = (
-        f"[AI 작성 필수: 주력 사업 {_drv_util_txt}·현 OPM {_drv_opm:.1f}% 안착 + 내재 OP {_drv_op_base:,.1f}억 "
+        f"[AI 작성 필수: 주력 사업 {_drv_util_txt}·현 OPM {_drv_opm:.1f}% 안착 + 연간 내재 OP {_drv_op_base:,.1f}억 "
         f"본업 유지 + Step 1.3 OP기울기({_drv_s13_lbl}, 대안A 단독반영)·병목·거버넌스(kgov ×{_drv_kgov:.2f}) 구체 서술]"
     )
     _bear_prompt = (
@@ -4366,6 +4754,21 @@ def export_pipeline_ssot(
     s13_base_m = float(s13.get("op_slope_base_mult", 1.0))
     s13_bull_m = float(s13.get("op_slope_bull_mult", 1.0))
 
+    s2_roe_note = (
+        f" ⚠️ 본업 NOPAT ROE **`{sec2_res['core_nopat_roe']:.1f}%`** (표면 `{sec2_res['curr_roe']:.1f}%` 일회성 착시 보정)"
+        if sec2_res.get("roe_non_op_distortion") and sec2_res.get("core_nopat_roe") is not None
+        else ""
+    )
+    s2_type_summary = sec2_res.get("verdict", "🟢 [유형 A]")
+    s2_band_note = (
+        f"5년(60M) PBR p20 `{sec2_res['pbr_5y_p20']:.2f}x` ~ 중위 `{sec2_res['pbr_5y_median']:.2f}x` ~ p90 `{sec2_res['pbr_5y_p90']:.2f}x`"
+        if sec2_res.get("pbr_5y_p90") is not None
+        else "3년 PBR 밴드 기준"
+    )
+    bull_mult_col = sec3_res.get("bull_mult_label") or f"{sec8_res['primary_metric']} 상위 90% (대안A ×{sec3_res['bull_mult_a']:.4f})"
+    base_mult_col = sec3_res.get("base_mult_label") or f"{sec8_res['primary_metric']} 상위 65% (대안A ×{sec3_res['base_mult_a']:.4f})"
+    bear_mult_col = sec3_res.get("bear_mult_label") or "하방 지지선 (할증 0% 고정)"
+
     auto_md = f"""<!-- [AUTO-GENERATED BY backtest_valuation.py v5.2 — DO NOT EDIT NUMBERS MANUALLY] -->
 
 ### 📌 [코드 자동 생성 1] SOTP 장부 분해 & 4대 레짐 체크 요약표
@@ -4373,6 +4776,7 @@ def export_pipeline_ssot(
 | :--- | :--- | :--- |
 | **단일 기준 주가 (Anchor Price)** | **`{int(curr_price):,}원`** | 전 Phase 1~3 100% 동일 고정 |
 | **지배주주 순이익 귀속률** | **`{sec2_res['controlling_ratio_pct']:.1f}%`** | 비지배지분 차감 완료 |
+| **Section 2 가치함정 · 사이클 유형 판정** | {s2_band_note}{s2_roe_note} | {s2_type_summary} |
 | **Step 1.5 비영업자산 비중 (SOTP 20% 룰)** | 장부 대비 **`{sotp_res['non_op_ratio_book_pct']:.1f}%`** / 시총 대비 **`{sotp_res['non_op_ratio_mcap_pct']:.1f}%`** | {'🚨 **SOTP 분리 평가 발동** (본업BPS ' + f"{sotp_res['core_bps']:,}원)" if sotp_res['sotp_triggered'] else '🟢 **본업 자산 중심 (<20%)**'} |
 | **Step 1.5 본업 이익 유지력 (Core ROIC)** | TTM 영업이익 **`{sotp_res['nopat_eok']/0.78:,.1f}억`** (NOPAT **`{sotp_res['nopat_eok']:,.1f}억`**) | {'✅ **본업 이익 유지 견고**' if sotp_res['core_profit_sustainable'] else '⚠️ **본업 수익성 변동 주의**'} |
 | **Step 2.0 4대 레짐 변화 체크** | {' / '.join(regime_res['flags']) if regime_res['flags'] else '설비·자본·비영업·믹스 급변 없음'} | {'🔄 **레짐 변화 반영 필수**' if regime_res['regime_changed'] else '🟢 **과거 밴드 연속성 유효**'} |
@@ -4392,7 +4796,7 @@ def export_pipeline_ssot(
 | **④-A K-주주환원 (배당 · TSR · 분리과세)** | DPS **`{s18_dps:,.0f}원`** (배당수익률 **`{s18.get('div_yield_pct', 0.0):.2f}%`** / 성향 `{s18.get('payout_ratio_pct', 0.0):.1f}%` / TSR `{s18_tsr:.1f}%`) | {s18.get('tax_incentive_status', 'N/A')} |
 | **④-B 자사주 · 환원절벽 · 메자닌(CB/BW)** | 자사주 **`{s18_tr_sh:,}주`** (`{s18_tr_pct:.2f}%`) / 미상환 메자닌 **`{s18_mezz_eok:,.1f}억`** (희석 `{s18_mezz_pct:.1f}%`) | {s18.get('cliff_status', 'N/A')} / {s18.get('overhang_status', 'N/A')} |
 | **④-C 지배구조 · 내부거래 · 거버넌스 (Step 1.8)** | {s18_rel_label}{s18_gd_str} | {s18.get('tunneling_status', 'N/A')} — {s18_gov_note} (`kgov_mult = ×{s18.get('kgov_mult', 1.0):.4f}`) |
-| **⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)** | 대안 A 내재 영업이익: Base **`{sec3_res.get('implied_op_base_a_eok', 0.0):,.1f}억`** / Bull **`{sec3_res.get('implied_op_bull_a_eok', 0.0):,.1f}억`** | {sec3_res.get('red_team_capa_verdict', 'N/A')} |
+| **⑤ 레드팀 역산 Capa 천장 검증 (Red-Team)** | 대안 A 연간 내재 영업이익: Base **`{sec3_res.get('implied_op_base_a_eok', 0.0):,.1f}억`** / Bull **`{sec3_res.get('implied_op_bull_a_eok', 0.0):,.1f}억`** | {sec3_res.get('red_team_capa_verdict', 'N/A')} |
 
 ### 📌 [코드 자동 생성 1-D] Step 1.3 비즈니스 구조 연계 영업이익 핵심인자 · 영업레버리지(DOL) · 선행 OP 기울기 진단표 (v5.2 · 🚀대안 A 단독 반영)
 | Step 1.3 진단 축 | DART 공시 · 신뢰 자료 실측 근거 | 코드 판정 및 🚀 대안 A 단독 반영 (`🛡️ 대안 B 미변경`) |
@@ -4406,9 +4810,9 @@ def export_pipeline_ssot(
 ### 📌 [코드 자동 생성 2] Phase 3 6열 시나리오 밸류에이션 표 (주 지표: {sec8_res['primary_metric']})
 | 시나리오 | 확률 (고정) | 핵심 드라이버 가정 (AI 해석 영역) | 적용 멀티플 (코드 산출) | 적정주가 (🛡️대안 B / 🚀대안 A) | 현재가 대비 등락률 (🛡️대안 B / 🚀대안 A) |
 | :--- | :---: | :--- | :--- | :--- | :--- |
-| **Bull (호황 상단)** | **25%** | {_bull_prompt} | {sec8_res['primary_metric']} 상위 90% (대안A ×{sec3_res['bull_mult_a']:.4f}) | 🛡️ **{sec3_res['bull_auto']:,}원** / 🚀 **{sec3_res['bull_auto_a']:,}원** | 🛡️ **{u_up_b:+.1f}%** / 🚀 **{u_up_a:+.1f}%** |
-| **Base (기본 적정)** | **50%** | {_base_prompt} | {sec8_res['primary_metric']} 상위 65% (대안A ×{sec3_res['base_mult_a']:.4f}) | 🛡️ **{sec3_res['base_auto']:,}원** / 🚀 **{sec3_res['base_auto_a']:,}원** | 🛡️ **{b_up_b:+.1f}%** / 🚀 **{b_up_a:+.1f}%** |
-{tp1_row}| **Bear (하방 지지)** | **25%** | {_bear_prompt} | 하방 지지선 (할증 0% 고정) | 🛡️ **{sec3_res['bear_auto']:,}원** / 🚀 **{sec3_res['bear_auto']:,}원** | 🛡️ **{d_dn:+.1f}%** / 🚀 **{d_dn:+.1f}%** |
+| **Bull (호황 상단)** | **25%** | {_bull_prompt} | {bull_mult_col} | 🛡️ **{sec3_res['bull_auto']:,}원** / 🚀 **{sec3_res['bull_auto_a']:,}원** | 🛡️ **{u_up_b:+.1f}%** / 🚀 **{u_up_a:+.1f}%** |
+| **Base (기본 적정)** | **50%** | {_base_prompt} | {base_mult_col} | 🛡️ **{sec3_res['base_auto']:,}원** / 🚀 **{sec3_res['base_auto_a']:,}원** | 🛡️ **{b_up_b:+.1f}%** / 🚀 **{b_up_a:+.1f}%** |
+{tp1_row}| **Bear (하방 지지)** | **25%** | {_bear_prompt} | {bear_mult_col} | 🛡️ **{sec3_res['bear_auto']:,}원** / 🚀 **{sec3_res['bear_auto']:,}원** | 🛡️ **{d_dn:+.1f}%** / 🚀 **{d_dn:+.1f}%** |
 {pre_resist_note}
 {pe_block}
 
@@ -4472,6 +4876,7 @@ def run_valuation_backtest(
     slope_evidence=None,
     capa_expand=False,
     asp_up=False,
+    value_trap_override=None,
 ):
     reset_warnings()
     print("\n======================================================================")
@@ -4620,9 +5025,20 @@ def run_valuation_backtest(
         stock_code, bench, df_full_week, dart_ts, curr_price, rerating_date=rerating_date
     )
 
-    # [Phase 3 Section 2] Value Trap + QoQ + Falsification Kill-Switch (with rerating_date isolation)
+    # [Phase 3 Section 2] Value Trap (Dual-Split Review / User Override / Core ROE Guard / 5Y Band) + QoQ Kill-Switch
     sec2_res = compute_section2_value_trap(
-        stock_code, bench, df_full_week, dart_ts, curr_price, rerating_date=rerating_date
+        stock_code,
+        bench,
+        df_full_week,
+        dart_ts,
+        curr_price,
+        rerating_date=rerating_date,
+        sector_type=sector_type,
+        fixed_cost_ratio=fixed_cost_ratio,
+        capa_expand=bool(capa_expand),
+        util_trend=util_trend,
+        capa_util_pct=(step1_2_res or {}).get("capa_util_pct") or capa_util_pct,
+        value_trap_override=value_trap_override,
     )
 
     if not export_json and resolved_corp_name:
@@ -4839,9 +5255,12 @@ if __name__ == "__main__":
     parser.add_argument("--slope-evidence", type=str, default=None, help="Step 1.3: Evidence reliability tier: high | medium | low")
     parser.add_argument("--capa-expand", action="store_true", help="Step 1.3: Confirmed new Capa expansion (exempts 92%% utilization physical ceiling guard)")
     parser.add_argument("--asp-up", action="store_true", help="Step 1.3: Confirmed ASP hike or high-margin mix shift (exempts 92%% utilization physical ceiling guard)")
+    parser.add_argument("--value-trap", action="store_true", help="User-confirmed Structural Value Trap (Type B): lock both Model B & Model A + SOP to conservative liquidation band")
+    parser.add_argument("--no-value-trap", action="store_true", help="User-confirmed Non-Trap (Type A-2 / A): unlock both Model B & Model A + SOP to 5Y cycle normalized band")
 
     args = parser.parse_args()
     sc_override = True if args.s_curve_phase2 else (False if args.no_s_curve else None)
+    vt_override = True if args.value_trap else (False if args.no_value_trap else None)
     bb_cliff = True if args.buyback_cliff else None
     parent_sales = True if args.listed_parent_sales else None
 
@@ -4893,4 +5312,5 @@ if __name__ == "__main__":
         slope_evidence=args.slope_evidence,
         capa_expand=args.capa_expand,
         asp_up=args.asp_up,
+        value_trap_override=vt_override,
     )
